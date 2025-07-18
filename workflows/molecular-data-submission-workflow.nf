@@ -42,6 +42,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
 
     ch_versions = Channel.empty()
     
+    //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/58
     CHECK_SUBMISSION_DEPENDENCIES(
         file_metadata, // Spreadsheet
         analysis_metadata, // Spreadsheet
@@ -53,6 +54,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     )
     ch_versions = ch_versions.mix(CHECK_SUBMISSION_DEPENDENCIES.out.versions)
 
+    //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/59
     CLINICAL_SERVICE_DATA_SUBMISSION(
         CHECK_SUBMISSION_DEPENDENCIES.out.clinical_upload // [ val(meta), [csv] ] 
     )
@@ -65,6 +67,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
 
     ch_versions = ch_versions.mix(CLINICAL_SERVICE_DATA_SUBMISSION.out.versions)
 
+    //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/63
     METADATA_PAYLOAD_GENERATION(
         file_metadata, // Spreadsheet
         analysis_metadata, // Spreadsheet
@@ -73,6 +76,10 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     ch_versions = ch_versions.mix(METADATA_PAYLOAD_GENERATION.out.versions)
 
     METADATA_PAYLOAD_GENERATION.out.files_to_upload.subscribe{println "TEST1 $it"}
+
+    //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/60
+    //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/61
+    //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/62
 
     DATA_VALIDATION(
         METADATA_PAYLOAD_GENERATION.out.files_to_upload // channel: [ val(meta), JSON payload, [genomic files] ] per payload 
@@ -83,6 +90,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
 
     DATA_VALIDATION.out.unsuccessful_validation.subscribe{println "TEST2B $it"}
 
+    //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/64
     if (!skip_upload){ 
         if (skip_duplicate_check){
             // SKIP_DUPLICATE_SONG_SCORE_UPLOAD(
@@ -99,6 +107,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
         }
     }
 
+    //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/67
     SUBMISSION_RECEIPT(
        CHECK_SUBMISSION_DEPENDENCIES.out.unsuccessful_dependency, // [val(meta),[csv]]
        ch_unsuccessful_registeration, // channel: [ val(meta), [csv] ] multiple CSVs per entity

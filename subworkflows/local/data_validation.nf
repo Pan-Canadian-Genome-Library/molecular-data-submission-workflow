@@ -4,6 +4,8 @@
 //               https://nf-co.re/join
 // TODO nf-core: A subworkflow SHOULD import at least two modules
 
+//https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/60
+//https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/61
 
 workflow DATA_VALIDATION {
 
