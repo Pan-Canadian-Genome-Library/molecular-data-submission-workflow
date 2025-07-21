@@ -36,6 +36,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     experiment_metadata // Spreadsheet from --experiment_metadata
     specimen_metadata // Spreadsheet from --specimen_metadata
     sample_metadata // Spreadsheet from --sample_metadata
+    path_to_files_directory // file path to directory containing target files
     skip_duplicate_check // pipeline flag from --skip_duplicate_check
     skip_upload // pipeline flag from --skip_duplicate_check
     main:
@@ -50,7 +51,8 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
         read_group_metadata, // Spreadsheet
         experiment_metadata, // Spreadsheet
         specimen_metadata, // Spreadsheet
-        sample_metadata // Spreadsheet
+        sample_metadata, // Spreadsheet
+        path_to_files_directory // file path
     )
     ch_versions = ch_versions.mix(CHECK_SUBMISSION_DEPENDENCIES.out.versions)
 
@@ -69,9 +71,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
 
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/63
     METADATA_PAYLOAD_GENERATION(
-        file_metadata, // Spreadsheet
-        analysis_metadata, // Spreadsheet
-        workflow_metadata, // Spreadsheet
+        CHECK_SUBMISSION_DEPENDENCIES.out.molecular_files_to_upload // channel [ val(meta) [files] ] per analysis
     )
     ch_versions = ch_versions.mix(METADATA_PAYLOAD_GENERATION.out.versions)
 

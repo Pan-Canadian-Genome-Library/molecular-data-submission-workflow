@@ -6,6 +6,7 @@
 
 //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/60
 //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/61
+//https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/62
 
 workflow DATA_VALIDATION {
 

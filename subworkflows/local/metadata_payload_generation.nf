@@ -8,9 +8,7 @@
 workflow METADATA_PAYLOAD_GENERATION {
 
     take:
-    file_metadata // Spreadsheet
-    analysis_metadata // Spreadsheet
-    workflow_metadata // Spreadsheet
+    molecular_files_to_upload // channel [ val(meta) [files] ] per analysis
     
     main:
     channel.value(1).subscribe{println "METADATA_PAYLOAD_GENERATION helloC"}

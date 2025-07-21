@@ -27,10 +27,12 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
     clinical_upload = [[{},null]]
     entity_mapping = [[],{}]
     unsuccessful_dependency = [[],{}]
+    molecular_files_to_upload = [[],{}]
 
     emit:
     // TODO nf-core: edit emitted channels
     clinical_upload  // channel: [ val(meta), [csv] ] multiple CSVs per entity
+    molecular_files_to_upload // channel [ val(meta) [files] ] per analysis
     entity_mapping         // channel: [ val(meta), [ csv ] ] relational mapping
     unsuccessful_dependency // [val(meta),[csv]]
     versions = ch_versions                     // channel: [ versions.yml ]

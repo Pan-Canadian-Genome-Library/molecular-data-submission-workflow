@@ -37,6 +37,7 @@ workflow PANCANADIANGENOMELIBRARY_MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     experiment_metadata // Spreadsheet from --experiment_metadata
     specimen_metadata // Spreadsheet from --specimen_metadata
     sample_metadata // Spreadsheet from --sample_metadata
+    path_to_files_directory // file path to directory containing target files
     skip_duplicate_check // pipeline flag from --skip_duplicate_check
     skip_upload // pipeline flag from --skip_duplicate_check
 
@@ -55,6 +56,7 @@ workflow PANCANADIANGENOMELIBRARY_MOLECULAR_DATA_SUBMISSION_WORKFLOW {
         experiment_metadata,
         specimen_metadata,
         sample_metadata,
+        path_to_files_directory,
         skip_duplicate_check,
         skip_upload
     )
@@ -93,6 +95,7 @@ workflow {
         params.experiment_metadata,
         params.specimen_metadata,
         params.sample_metadata,
+        params.path_to_files_directory,
         params.skip_duplicate_check,
         params.skip_upload
     )
