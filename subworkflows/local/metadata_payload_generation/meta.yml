@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "metadata_payload_generation"
+description: |
+  Generate and validate JSON metadata payloads from molecular analysis metadata with comprehensive error handling.
+  Supports automatic TSV/CSV format detection, resilient processing with placeholder files for failed generation,
+  and status tracking with unique file naming to prevent overwrites in parallel processing environments.
+keywords:
+  - metadata
+  - payload
+  - json
+  - validation
+  - molecular
+  - analysis
+  - tsv
+  - csv
+  - status_tracking
+  - error_handling
+components:
+  - payload/generate
+  - payload/validate
+input:
+  - molecular_metadata_files:
+      type: channel
+      description: |
+        Channel containing molecular analysis metadata files (all in TSV format)
+        Structure: [ val(meta), path(file_meta.tsv), path(analysis_meta.tsv), path(workflow_meta.tsv), [data_files] ]
+        where meta contains: id (submitter_analysis_id), type (analysisType), study (studyId), status (initial status)
+      pattern: "*.{tsv,csv}"
+output:
+  - all_analyses:
+      type: channel
+      description: |
+        Channel containing all analyses with updated status information after payload generation and validation
+        Structure: [ val(meta_with_status), path(*_payload.json), [data_files] ]
+        where meta_with_status includes status field ('success' or 'failed') based on both generation and validation results
+      pattern: "*_payload.json"
+  - successful:
+      type: channel
+      description: |
+        Channel containing only successful analyses (meta.status == 'success') that passed both generation and validation
+        Structure: [ val(meta), path(*_payload.json), [data_files] ]
+      pattern: "*_payload.json"
+  - failed:
+      type: channel
+      description: |
+        Channel containing only failed analyses (meta.status == 'failed') due to generation or validation failures
+        Structure: [ val(meta), path(*_payload.json), [data_files] ]
+        Note: Failed generation creates placeholder JSON files to maintain workflow continuity
+      pattern: "*_payload.json"
+  - status:
+      type: channel
+      description: |
+        Channel containing individual process status files for aggregation
+        Structure: [ val(meta_without_status), path(*_status.yml) ]
+        where status files are prefixed with analysis ID to prevent overwrites
+      pattern: "*_status.yml"
+  - versions:
+      type: channel
+      description: |
+        Channel containing software versions from all processes
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+authors:
+  - "@lindaxiang"
+maintainers:
+  - "@lindaxiang"

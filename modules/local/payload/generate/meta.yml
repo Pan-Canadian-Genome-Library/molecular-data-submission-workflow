@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "payload_generate"
+description: |
+  Generate JSON metadata payloads from molecular analysis metadata files (TSV/CSV format).
+  Supports automatic file format detection, comprehensive error handling, and resilient processing
+  with placeholder file creation for failed generation to maintain workflow continuity.
+keywords:
+  - metadata
+  - payload
+  - json
+  - molecular
+  - analysis
+  - tsv
+  - csv
+  - generation
+tools:
+  - "python":
+      description: "Python scripting language for payload generation"
+      homepage: "https://www.python.org/"
+      documentation: "https://docs.python.org/"
+      tool_dev_url: "https://github.com/python/cpython"
+      doi: ""
+      licence: ["PSF-2.0"]
+      identifier: ""
+
+input:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing analysis metadata information
+          Required fields: id (submitter_analysis_id), type (analysisType), study (studyId)
+          Optional fields: status (processing status)
+    - file_meta:
+        type: file
+        description: File metadata in TSV or CSV format containing file information
+        pattern: "*.{tsv,csv}"
+    - analysis_meta:
+        type: file
+        description: Analysis metadata in TSV or CSV format containing analysis details
+        pattern: "*.{tsv,csv}"
+    - workflow_meta:
+        type: file
+        description: Workflow metadata in TSV or CSV format containing workflow information
+        pattern: "*.{tsv,csv}"
+    - data_files:
+        type: file
+        description: List of actual data files referenced in the metadata
+        pattern: "*"
+
+output:
+  - payload_files:
+      - - meta:
+            type: map
+            description: |
+              Groovy Map containing analysis metadata information
+              Same as input meta
+        - "*_payload.json":
+            type: file
+            description: Generated JSON payload file (or placeholder on failure)
+            pattern: "*_payload.json"
+        - data_files:
+            type: file
+            description: Original data files passed through
+            pattern: "*"
+  - status:
+      - - meta:
+            type: map
+            description: |
+              Groovy Map containing analysis metadata without status field
+        - "*_status.yml":
+            type: file
+            description: Status file with generation results, prefixed with analysis ID
+            pattern: "*_status.yml"
+  - versions:
+      - "versions.yml":
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@lindaxiang"
+maintainers:
+  - "@lindaxiang"
