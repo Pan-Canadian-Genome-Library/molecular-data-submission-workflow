@@ -1,0 +1,64 @@
+name: "validation_crosscheck"
+description: Advanced metadata cross-check validation ensuring consistency between payload metadata and file contents
+keywords:
+  - validation
+  - metadata
+  - cross-check
+  - consistency
+  - advanced validation
+  - genomics
+tools:
+  - python:
+      description: Python programming language
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      tool_dev_url: https://github.com/python/cpython
+      licence: ["Python Software Foundation License"]
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  - files:
+      type: file
+      description: Input genomic files for advanced metadata cross-checking
+      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+  - integrity_status:
+      type: file
+      description: Status file from upstream file integrity validation
+      pattern: "*_integrity_status.yml"
+  - metadata_status:
+      type: file
+      description: Status file from upstream metadata validation
+      pattern: "*_metadata_status.yml"
+  - analysis_payload:
+      type: file
+      description: JSON analysis payload containing metadata for advanced cross-validation
+      pattern: "*.json"
+
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  - validated_files:
+      type: file
+      description: The same input files, passed through after advanced cross-check validation
+      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+  - status:
+      type: file
+      description: YAML status file containing advanced cross-check validation results
+      pattern: "*_crosscheck_status.yml"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@your_github_username"
+
+maintainers:
+  - "@your_github_username"

@@ -1,0 +1,27 @@
+{
+  "analysisType": {
+    "name": "sequenceExperiment"
+  },
+  "data_category": "Sequencing Reads",
+  "files": [
+    {
+      "dataType": "Aligned Sequencing Reads",
+      "fileAccess": "controlled",
+      "fileMd5sum": "89d0bba15b2bada558bbfe7fb062d549",
+      "fileName": "test_file1.bam",
+      "fileSize": 311,
+      "fileType": "BAM"
+    },
+    {
+      "dataType": "Aligned Sequencing Reads",
+      "fileAccess": "controlled", 
+      "fileMd5sum": "3f103e74da76709d0ac1cc5307e04b9c",
+      "fileName": "test_file2.bam",
+      "fileSize": 312,
+      "fileType": "BAM"
+    }
+  ],
+  "studyId": "TEST-STUDY",
+  "submitter_analysis_id": "TEST001",
+  "submitter_experiment_id": "EXP001"
+}
