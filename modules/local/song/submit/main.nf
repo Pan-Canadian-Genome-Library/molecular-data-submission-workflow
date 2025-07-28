@@ -3,8 +3,6 @@ process SONG_SUBMIT {
     tag "$meta.id"
     label 'process_single'
 
-    pod = [secret: workflow.runName + "-secret", mountPath: "/tmp/rdpc_secret"]
-
     container "${ params.song_container ?: 'ghcr.io/pan-canadian-genome-library/file-manager-client' }:${ params.song_container_version ?: 'edge' }"
     
     if (workflow.containerEngine == "singularity") {
@@ -30,24 +28,39 @@ process SONG_SUBMIT {
     def exit_on_error = params.exit_on_error ?: task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
     def song_url = params.song_url_upload ?: params.song_url
-    def accessToken = task.ext.api_upload_token ?: "`cat /tmp/rdpc_secret/secret`"
+    def accessToken = params.token
     def VERSION = params.song_container_version ?: 'edge'
     def study_id = "${meta.study_id}"
     """
     # Set error handling to continue on failure for resilient processing
     set +e
     
-    export CLIENT_SERVER_URL=${song_url}
-    export CLIENT_STUDY_ID=${study_id}
-    export CLIENT_ACCESS_TOKEN=${accessToken}
-
-    # Execute SONG submit and capture output
-    ANALYSIS_ID=\$(sing submit -f ${payload} $args | jq -er .analysisId | tr -d '\\n' 2>&1)
-    SUBMIT_EXIT_CODE=\${?}
+    # Initialize variables
+    SUBMIT_EXIT_CODE=0
+    ERROR_DETAILS=""
     
-    # Create placeholder analysis ID if submission failed
-    if [ \${SUBMIT_EXIT_CODE} -ne 0 ]; then
-        ANALYSIS_ID="ERROR: SONG submission failed"
+    # Check if upstream process was successful by checking meta.status
+    if [ "${meta.status ?: 'pass'}" != "pass" ]; then
+        echo "Upstream process failed (meta.status: ${meta.status ?: 'pass'}), skipping SONG submit"
+        SUBMIT_EXIT_CODE=1
+        ERROR_DETAILS="Skipped SONG submit due to upstream failure"
+        ANALYSIS_ID="unavailable"
+    else
+        echo "Upstream process successful, proceeding with SONG submit"
+        
+        export CLIENT_SERVER_URL=${song_url}
+        export CLIENT_STUDY_ID=${study_id}
+        export CLIENT_ACCESS_TOKEN=${accessToken}
+
+        # Execute SONG submit and capture output
+        ANALYSIS_ID=\$(sing submit -f ${payload} $args | jq -er .analysisId | tr -d '\\n' 2>&1)
+        SUBMIT_EXIT_CODE=\${?}
+        
+        # Create placeholder analysis ID if submission failed
+        if [ \${SUBMIT_EXIT_CODE} -ne 0 ]; then
+            ANALYSIS_ID="unavailable"
+            ERROR_DETAILS="SONG submit command failed"
+        fi
     fi
     
     # Write ANALYSIS_ID to file for Nextflow to capture
@@ -60,20 +73,22 @@ process SONG_SUBMIT {
         STATUS_RESULT="FAILED"
     fi
     
-    echo "process: \\"${task.process}\\"" > "${meta.id}_status.yml"
-    echo "status: \\"\${STATUS_RESULT}\\"" >> "${meta.id}_status.yml"
-    echo "exit_code: \${SUBMIT_EXIT_CODE}" >> "${meta.id}_status.yml"
-    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${meta.id}_status.yml"
-    echo "details:" >> "${meta.id}_status.yml"
-    echo "    study_id: \\"${study_id}\\"" >> "${meta.id}_status.yml"
-    echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${meta.id}_status.yml"
-    echo "    song_url: \\"${song_url}\\"" >> "${meta.id}_status.yml"
-    echo "    payload_file: \\"${payload}\\"" >> "${meta.id}_status.yml"
-    echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${meta.id}_status.yml"
-    
+    echo "process: \\"${task.process}\\"" > "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "status: \\"\${STATUS_RESULT}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "exit_code: \${SUBMIT_EXIT_CODE}" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "details:" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    study_id: \\"${study_id}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    song_url: \\"${song_url}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    payload_file: \\"${payload}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+
     # Add error message to status file if submission failed
-    if [ \${SUBMIT_EXIT_CODE} -ne 0 ]; then
-        echo "    error_message: \\"\${ANALYSIS_ID}\\"" >> "${meta.id}_status.yml"
+    if [ \${SUBMIT_EXIT_CODE} -ne 0 ] && [ -n "\${ERROR_DETAILS:-}" ]; then
+        echo "    error_message: \\"\${ERROR_DETAILS}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    elif [ \${SUBMIT_EXIT_CODE} -ne 0 ]; then
+        echo "    error_message: \\"Submission failed\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
     fi
 
     # Always create versions.yml before any exit

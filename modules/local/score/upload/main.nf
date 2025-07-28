@@ -3,7 +3,6 @@ process SCORE_UPLOAD {
     tag "$meta.id"
     label 'process_medium'
 
-    pod = [secret: workflow.runName + "-secret", mountPath: "/tmp/rdpc_secret"]
     container "${ params.score_container ?: 'ghcr.io/pan-canadian-genome-library/file-transfer' }:${ params.score_container_version ?: 'edge' }"
 
     if (workflow.containerEngine == "singularity") {
@@ -16,7 +15,7 @@ process SCORE_UPLOAD {
     tuple val(meta), path(analysis_id_file), path(manifest), path(upload)
 
     output:
-    tuple val(meta), path("analysis_id.txt"),    emit: ready_to_publish
+    tuple val(meta), path("out/analysis_id.txt"),    emit: ready_to_publish
     tuple val(meta), path("*_status.yml"), emit: status
     path "versions.yml"           , emit: versions
 
@@ -31,36 +30,42 @@ process SCORE_UPLOAD {
     def score_url = params.score_url_upload ?: params.score_url
     def transport_parallel = params.transport_parallel ?: task.cpus
     def transport_mem = params.transport_mem ?: "2"
-    def accessToken = task.ext.api_upload_token ?: "`cat /tmp/rdpc_secret/secret`"
+    def accessToken = params.token
     def VERSION = params.score_container_version ?: '5.10.1'
     """
     # Set error handling to continue on failure for resilient processing
     set +e
     
-    # Read analysis ID from file
-    ANALYSIS_ID=\$(cat ${analysis_id_file} | tr -d '\\n')
+    # Create output directory first
+    mkdir -p out
+
+    # Copy analysis_id file to output for downstream processes  
+    cp ${analysis_id_file} ./out/analysis_id.txt
     
-    # Copy analysis_id file to output for downstream processes
-    cp ${analysis_id_file} analysis_id.txt
+    # Initialize variables
+    UPLOAD_EXIT_CODE=0
+    ERROR_DETAILS=""
+    ANALYSIS_ID=""
     
-    # Check for upstream failures
-    if [[ "\${ANALYSIS_ID}" == "ERROR:"* ]]; then
-        echo "Detected failed upstream SONG submission, skipping SCORE upload"
+    # Read analysis ID from file first (needed for both success and failure cases)
+    if [ -f "${analysis_id_file}" ]; then
+        ANALYSIS_ID=\$(cat ${analysis_id_file} | tr -d '\\n')
+    fi
+    
+    # Check if upstream process was successful by checking meta.status
+    if [ "${meta.status ?: 'pass'}" != "pass" ]; then
+        echo "Upstream process failed (meta.status: ${meta.status ?: 'pass'}), skipping SCORE upload"
         UPLOAD_EXIT_CODE=1
-        ERROR_DETAILS="Skipped SCORE upload due to upstream SONG submission failure: \${ANALYSIS_ID}"
-    elif grep -q "ERROR:" ${manifest} 2>/dev/null; then
-        echo "Detected failed upstream manifest generation, skipping SCORE upload"
-        UPLOAD_EXIT_CODE=1
-        ERROR_DETAILS="Skipped SCORE upload due to upstream manifest generation failure"
+        ERROR_DETAILS="Skipped SCORE upload due to upstream failure"
     else
-        echo "Valid inputs detected, proceeding with SCORE upload"
+        echo "Upstream process successful, proceeding with SCORE upload"
         
+        export ACCESSTOKEN=${accessToken}
         export METADATA_URL=${song_url}
         export STORAGE_URL=${score_url}
         export TRANSPORT_PARALLEL=${transport_parallel}
-        export TRANSPORT_MEMORY=${transport_mem}
-        export ACCESSTOKEN=${accessToken}
-        
+        export TRANSPORT_MEM=${transport_mem}
+
         # Execute SCORE upload
         score-client upload --manifest ${manifest} $args
         UPLOAD_EXIT_CODE=\${?}
@@ -77,24 +82,24 @@ process SCORE_UPLOAD {
         STATUS_RESULT="FAILED"
     fi
     
-    echo "process: \\"${task.process}\\"" > "${meta.id}_status.yml"
-    echo "status: \\"\${STATUS_RESULT}\\"" >> "${meta.id}_status.yml"
-    echo "exit_code: \${UPLOAD_EXIT_CODE}" >> "${meta.id}_status.yml"
-    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${meta.id}_status.yml"
-    echo "details:" >> "${meta.id}_status.yml"
-    echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${meta.id}_status.yml"
-    echo "    song_url: \\"${song_url}\\"" >> "${meta.id}_status.yml"
-    echo "    score_url: \\"${score_url}\\"" >> "${meta.id}_status.yml"
-    echo "    manifest_file: \\"${manifest}\\"" >> "${meta.id}_status.yml"
-    echo "    transport_parallel: \\"${transport_parallel}\\"" >> "${meta.id}_status.yml"
-    echo "    transport_memory: \\"${transport_mem}\\"" >> "${meta.id}_status.yml"
-    echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${meta.id}_status.yml"
+    echo "process: \\"${task.process}\\"" > "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "status: \\"\${STATUS_RESULT}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "exit_code: \${UPLOAD_EXIT_CODE}" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "details:" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    song_url: \\"${song_url}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    score_url: \\"${score_url}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    manifest_file: \\"${manifest}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    transport_parallel: \\"${transport_parallel}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    transport_memory: \\"${transport_mem}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+    echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
     
     # Add error message to status file if upload failed
     if [ \${UPLOAD_EXIT_CODE} -ne 0 ] && [ -n "\${ERROR_DETAILS:-}" ]; then
-        echo "    error_message: \\"\${ERROR_DETAILS}\\"" >> "${meta.id}_status.yml"
+        echo "    error_message: \\"\${ERROR_DETAILS}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
     elif [ \${UPLOAD_EXIT_CODE} -ne 0 ]; then
-        echo "    error_message: \\"SCORE upload failed\\"" >> "${meta.id}_status.yml"
+        echo "    error_message: \\"SCORE upload failed\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
     fi
 
     # Always create versions.yml before any exit
