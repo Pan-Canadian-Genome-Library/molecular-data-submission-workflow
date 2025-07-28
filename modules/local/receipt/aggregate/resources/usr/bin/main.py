@@ -32,7 +32,7 @@ def generate_batch_tsv(receipts, batch_id, output_file):
         
         # Header
         writer.writerow([
-            'submitter_analysis_id', 'song_analysis_id', 'process', 'status', 'exit_code', 
+            'submitter_analysis_id', 'song_analysis_id', 'overall_status', 'process', 'status', 'exit_code', 
             'timestamp', 'error_message', 'details',
             'analysis_type', 'study_id', 'analysis_state', 'published_at'
         ])
@@ -41,6 +41,7 @@ def generate_batch_tsv(receipts, batch_id, output_file):
         for receipt in receipts:
             submitter_analysis_id = receipt.get('submitter_analysis_id', 'unknown')
             song_analysis_id = receipt.get('song_analysis_id', 'unknown')
+            overall_status = receipt.get('overall_status', 'UNKNOWN')
             analysis_type = receipt.get('analysis_type', 'unknown')
             study_id = receipt.get('study_id', 'unknown')
             analysis_state = receipt.get('analysis_state', 'unknown')
@@ -50,6 +51,7 @@ def generate_batch_tsv(receipts, batch_id, output_file):
                 writer.writerow([
                     submitter_analysis_id,
                     song_analysis_id,
+                    overall_status,
                     process.get('process', 'UNKNOWN'),
                     process.get('status', 'UNKNOWN'),
                     process.get('exit_code', -1),

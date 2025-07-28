@@ -22,13 +22,13 @@ process RECEIPT_GENERATE {
     conda "conda-forge::pyyaml=6.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/pyyaml:6.0--py39h89e85a6_2' :
-        'python:3.9-slim' }"
+        'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(status_files), path(analysis_file)
 
     output:
-    path("${meta.id}_receipt.json"), emit: json_receipt
+    tuple val(meta), path("${meta.id}_receipt.json"), emit: json_receipt
     path "versions.yml", emit: versions
 
     when:

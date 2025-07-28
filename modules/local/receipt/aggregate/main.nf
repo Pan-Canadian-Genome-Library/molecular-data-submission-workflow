@@ -5,10 +5,10 @@ process RECEIPT_AGGREGATE {
     conda "conda-forge::pyyaml=6.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/pyyaml:6.0--py39h89e85a6_2' :
-        'python:3.9-slim' }"
+        'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0' }"
 
     input:
-    path(individual_receipts)
+    tuple val(meta), path(individual_receipts)
 
     output:
     path("*_batch_receipt.tsv"), emit: tsv_receipt
