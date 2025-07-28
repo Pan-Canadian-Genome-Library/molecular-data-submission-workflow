@@ -24,7 +24,7 @@ nextflow_workflow {
                         id: 'TEST_002',
                         type: 'sequenceExperiment', 
                         study: 'TEST_STUDY',
-                        status: 'success'
+                        status: 'pass'
                     ],
                     file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_file_meta.tsv'),
                     file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_analysis_meta.tsv'),
@@ -60,7 +60,7 @@ nextflow_workflow {
                         id: 'FAIL_TEST',
                         type: 'invalid_type',
                         study: 'TEST_STUDY',
-                        status: 'success'
+                        status: 'pass'
                     ],
                     file('nonexistent_file_meta.tsv'),
                     file('nonexistent_analysis.tsv'),
@@ -94,7 +94,7 @@ nextflow_workflow {
                         id: 'VALIDATION_FAIL_TEST',
                         type: 'sequenceExperiment', 
                         study: 'TEST_STUDY',
-                        status: 'success'
+                        status: 'pass'
                     ],
                     file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_file_meta_invalid.tsv'),
                     file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_analysis_meta_invalid.tsv'),
@@ -128,21 +128,21 @@ nextflow_workflow {
                 // Create mixed success/failure input (all TSV files)
                 input[0] = Channel.of(
                     [
-                        [id: 'SUCCESS_001', type: 'sequenceExperiment', study: 'TEST_STUDY', status: 'success'],
+                        [id: 'SUCCESS_001', type: 'sequenceExperiment', study: 'TEST_STUDY', status: 'pass'],
                         file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_file_meta.tsv'),
                         file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_analysis_meta.tsv'),
                         file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_workflow_meta.tsv'),
                         [file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/sample2.bam')]
                     ],
                     [
-                        [id: 'SUCCESS_002', type: 'sequenceAlignment', study: 'TEST_STUDY', status: 'success'],
+                        [id: 'SUCCESS_002', type: 'sequenceAlignment', study: 'TEST_STUDY', status: 'pass'],
                         file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_file_meta.tsv'),
                         file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_analysis_meta.tsv'),
                         file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_workflow_meta.tsv'),
                         [file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/sample2.bam')]
                     ],
                     [
-                        [id: 'FAIL_TEST', type: 'invalid_type', study: 'TEST_STUDY', status: 'success'],
+                        [id: 'FAIL_TEST', type: 'invalid_type', study: 'TEST_STUDY', status: 'pass'],
                         file('nonexistent_file_meta.tsv'),
                         file('nonexistent_analysis.tsv'),
                         file('nonexistent_workflow.tsv'),
@@ -182,7 +182,7 @@ nextflow_workflow {
                         id: 'STUB_TEST',
                         type: 'sequenceExperiment',
                         study: 'TEST_STUDY',
-                        status: 'success'
+                        status: 'pass'
                     ],
                     file('stub_file_meta.tsv'),
                     file('stub_analysis_meta.tsv'),

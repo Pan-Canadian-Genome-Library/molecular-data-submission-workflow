@@ -37,23 +37,9 @@ def validate_payload(payload, schema):
     try:
         import jsonschema
     except ImportError:
-        # Try common package locations first
-        import subprocess
-        
-        # Check if jsonschema is available under different import paths
-        for module_name in ['jsonschema', 'jsonschema.validate']:
-            try:
-                __import__(module_name)
-                import jsonschema
-                break
-            except ImportError:
-                continue
-        else:
-            # If still not found, provide a clear error message
-            error_msg = ("jsonschema library not available in container. "
-                        "Please ensure the container includes jsonschema or update the container image.")
-            print(error_msg, file=sys.stderr)
-            return False, error_msg
+        error_msg = "jsonschema library not available in container"
+        print(error_msg, file=sys.stderr)
+        return False, error_msg
     
     # Extract the actual schema from the wrapper if it exists
     # The downloaded schema may be wrapped in metadata, we need the actual JSON schema
@@ -78,27 +64,18 @@ def main():
     parser = argparse.ArgumentParser(description='Validate JSON payload against schema from URL')
     parser.add_argument('--payload', required=True, help='Path to JSON payload file')
     parser.add_argument('--schema-url', required=True, help='URL to download JSON schema')
-    parser.add_argument('--output-report', required=True, help='Path to write validation report')
     
     args = parser.parse_args()
     
     # Load payload first to get analysisType
     payload = load_payload(args.payload)
     if payload is None:
-        with open(args.output_report, 'w') as f:
-            f.write("STATUS: INVALID\n")
-            f.write("MESSAGE: Failed to load payload file\n")
-            f.write(f"PAYLOAD_FILE: {args.payload}\n")
         print("Failed to load payload file", file=sys.stderr)
         sys.exit(1)  # Script execution error, not validation error
     
     # Extract analysisType from payload to construct final schema URL
     analysis_type = payload.get('analysisType', {}).get('name', '')
     if not analysis_type:
-        with open(args.output_report, 'w') as f:
-            f.write("STATUS: INVALID\n")
-            f.write("MESSAGE: analysisType.name not found in payload\n")
-            f.write(f"PAYLOAD_FILE: {args.payload}\n")
         print("analysisType.name not found in payload", file=sys.stderr)
         sys.exit(1)  # Script execution error, not validation error
     
@@ -108,37 +85,23 @@ def main():
     # Download schema
     schema = download_schema(final_schema_url)
     if schema is None:
-        with open(args.output_report, 'w') as f:
-            f.write("STATUS: INVALID\n")
-            f.write(f"MESSAGE: Failed to download schema from {final_schema_url}\n")
-            f.write(f"PAYLOAD_FILE: {args.payload}\n")
-            f.write(f"ANALYSIS_TYPE: {analysis_type}\n")
-            f.write(f"BASE_SCHEMA_URL: {args.schema_url}\n")
-            f.write(f"FINAL_SCHEMA_URL: {final_schema_url}\n")
         print(f"Failed to download schema from {final_schema_url}", file=sys.stderr)
         sys.exit(1)  # Script execution error, not validation error
     
     # Validate payload
     is_valid, message = validate_payload(payload, schema)
     
-    # Write validation report
-    status = "VALID" if is_valid else "INVALID"
-    with open(args.output_report, 'w') as f:
-        f.write(f"STATUS: {status}\n")
-        f.write(f"MESSAGE: {message}\n")
-        f.write(f"PAYLOAD_FILE: {args.payload}\n")
-        f.write(f"ANALYSIS_TYPE: {analysis_type}\n")
-        f.write(f"BASE_SCHEMA_URL: {args.schema_url}\n")
-        f.write(f"FINAL_SCHEMA_URL: {final_schema_url}\n")
+    # Print error message to stderr if validation failed
+    if not is_valid:
+        print(message, file=sys.stderr)
     
-    # Print result
-    print(f"Validation {status}: {message}")
+    # Print result to stdout
+    print(f"Validation {'VALID' if is_valid else 'INVALID'}: {message}")
     print(f"Analysis Type: {analysis_type}")
     print(f"Schema URL: {final_schema_url}")
     
-    # Always exit with success - let Nextflow handle the exit logic based on validation result
-    # The validation result is captured in the report file and exit code is determined by parsing it
-    sys.exit(1 if not is_valid else 0)
+    # Exit with validation result
+    sys.exit(0 if is_valid else 1)
 
 if __name__ == "__main__":
     main()

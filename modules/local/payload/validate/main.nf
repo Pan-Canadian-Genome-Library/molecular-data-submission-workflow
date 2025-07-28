@@ -23,14 +23,14 @@ process PAYLOAD_VALIDATE {
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/multiqc:1.13--pyhdfd78af_0' :
-        'ghcr.io/icgc-argo-workflows/data-processing-utility-tools.payload-gen-seq-experiment:0.8.3' }"
+        'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0'}"
 
     input:
     tuple val(meta), path(payload_file), path(data_files)
 
     output:
     tuple val(meta), path(payload_file), path(data_files), emit: validated_payload_files
-    tuple val({ meta.findAll { key, value -> key != 'status' } }), path("*_status.yml"), emit: status
+    tuple val(meta), path("*_status.yml"), emit: status
     path "versions.yml", emit: versions
 
     when:
@@ -38,6 +38,7 @@ process PAYLOAD_VALIDATE {
 
     script:
     def exit_on_error = task.ext.exit_on_error ?: false
+    def exit_on_error_str = exit_on_error.toString()
     def schema_url = task.ext.schema_url ?: ''
     
     if (!schema_url) {
@@ -49,8 +50,8 @@ process PAYLOAD_VALIDATE {
     set +e
     
     # Check if upstream payload generation was successful by checking meta.status
-    if [ "${meta.status}" != "success" ]; then
-        echo "Upstream process failed (meta.status: ${meta.status}), skipping validation"
+    if [ "${meta.status ?: 'pass'}" != "pass" ]; then
+        echo "Upstream process failed (meta.status: ${meta.status ?: 'pass'}), skipping validation"
         VALIDATION_EXIT_CODE=1
         ERROR_DETAILS="Skipped validation due to upstream failure"
     elif grep -q '"error": "payload_generation_failed"' "${payload_file}" 2>/dev/null; then
@@ -60,28 +61,41 @@ process PAYLOAD_VALIDATE {
     else
         echo "Upstream process successful, proceeding with validation"
         
-        validate_payload.py \\
-            --payload "${payload_file}" \\
-            --schema-url "${schema_url}" \\
-            --output-report "validation_report_${meta.id}.txt"
+        # Install required Python packages only when we need to run validation
+        echo "Installing required Python packages..."
         
-        VALIDATION_EXIT_CODE=\$?
+        # Create a temporary directory for package installation
+        TEMP_PYTHON_LIB="\$(mktemp -d)/python_packages"
+        mkdir -p "\$TEMP_PYTHON_LIB"
         
-        # Read validation report for error details if validation failed
-        ERROR_DETAILS=""
-        if [ \$VALIDATION_EXIT_CODE -ne 0 ] && [ -f "validation_report_${meta.id}.txt" ]; then
-            # Extract only MESSAGE lines from the validation report
-            ERROR_DETAILS=\$(grep "^MESSAGE:" "validation_report_${meta.id}.txt" | sed 's/^MESSAGE: //' | tr '\\n' ' | ' | sed 's/ | \$//')
-            
-            # If no MESSAGE lines found, fall back to last line
-            if [ -z "\$ERROR_DETAILS" ]; then
-                ERROR_DETAILS=\$(tail -1 "validation_report_${meta.id}.txt" | xargs)
+        # Install to temporary directory and add to Python path
+        pip install --target "\$TEMP_PYTHON_LIB" jsonschema
+        if [ \$? -ne 0 ]; then
+            echo "Failed to install jsonschema package" >&2
+            VALIDATION_EXIT_CODE=1
+            ERROR_DETAILS="Failed to install required Python dependencies"
+        else
+            # Run validation with the installed package by updating PYTHONPATH
+            export PYTHONPATH="\$TEMP_PYTHON_LIB:\${PYTHONPATH:-}"
+            main.py \\
+                --payload "${payload_file}" \\
+                --schema-url "${schema_url}" \\
+                2>validation_errors.tmp
+
+            VALIDATION_EXIT_CODE=\$?
+            # Read validation report for error details if validation failed
+            ERROR_DETAILS=""
+            if [ \$VALIDATION_EXIT_CODE -ne 0 ] && [ -f "validation_errors.tmp" ] && [ -s "validation_errors.tmp" ]; then
+                # Read all error details from captured stderr
+                ERROR_DETAILS=\$(cat "validation_errors.tmp" | tr '\\n' ' | ' | sed 's/ | \$//' || echo "Validation failed")
+            elif [ \$VALIDATION_EXIT_CODE -ne 0 ]; then
+                ERROR_DETAILS="Validation failed"
             fi
         fi
     fi
     
     # Create step-specific status file (meta.id used for grouping in channel)
-    cat <<-END_STATUS > "${meta.id}_status.yml"
+    cat <<-END_STATUS > "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     process: "${task.process}"
     status: "\$(if [ \$VALIDATION_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$VALIDATION_EXIT_CODE
@@ -90,12 +104,12 @@ process PAYLOAD_VALIDATE {
         analysis_id: "${meta.id}"
         payload_file: "${payload_file}"
         schema_url: "${schema_url}"
-        exit_on_error_enabled: "${exit_on_error}"
+        exit_on_error_enabled: "${exit_on_error_str}"
     END_STATUS
     
     # Add error message to status file if validation failed
     if [ \$VALIDATION_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
-        echo "        error_message: \"\$ERROR_DETAILS\"" >> "${meta.id}_status.yml"
+        echo "        error_message: \"\$ERROR_DETAILS\"" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     fi
     
     # Update meta with analysis status for downstream decision making
@@ -109,21 +123,22 @@ process PAYLOAD_VALIDATE {
     END_VERSIONS
     
     # Only exit with error if exit_on_error is explicitly true
-    if [ "${exit_on_error}" == "true" ] && [ \$VALIDATION_EXIT_CODE -ne 0 ]; then
+    if [ "${exit_on_error_str}" == "true" ] && [ \$VALIDATION_EXIT_CODE -ne 0 ]; then
         echo "Validation failed and exit_on_error is true, exiting with error"
         exit \$VALIDATION_EXIT_CODE
     else
-        echo "Continuing workflow regardless of validation result (exit_on_error=${exit_on_error})"
+        echo "Continuing workflow regardless of validation result (exit_on_error=${exit_on_error_str})"
         exit 0
     fi
     """
 
     stub:
     def exit_on_error = task.ext.exit_on_error ?: false
+    def exit_on_error_str = exit_on_error.toString()
     def schema_url = task.ext.schema_url ?: 'https://example.com/schema.json'
     """
     # Create mock step-specific status file
-    cat <<-END_STATUS > "${meta.id}_status.yml"
+    cat <<-END_STATUS > "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     process: "${task.process}"
     status: "SUCCESS"
     exit_code: 0
@@ -132,7 +147,7 @@ process PAYLOAD_VALIDATE {
         analysis_id: "${meta.id}"
         payload_file: "${payload_file}"
         schema_url: "${schema_url}"
-        exit_on_error_enabled: "${exit_on_error}"
+        exit_on_error_enabled: "${exit_on_error_str}"
     END_STATUS
 
     cat <<-END_VERSIONS > versions.yml
