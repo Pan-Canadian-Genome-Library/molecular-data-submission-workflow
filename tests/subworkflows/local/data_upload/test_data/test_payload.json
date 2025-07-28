@@ -10,8 +10,8 @@
     {
       "fileName": "test_file.fastq.gz",
       "fileType": "FASTQ",
-      "fileSize": 1024,
-      "fileMd5sum": "d41d8cd98f00b204e9800998ecf8427p",
+      "fileSize": 25,
+      "fileMd5sum": "0d4dff58e1120c2984a779cc6b9ea3be",
       "fileAccess": "controlled"
     }
   ]

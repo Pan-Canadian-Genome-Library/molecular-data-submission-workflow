@@ -21,9 +21,9 @@ nextflow_workflow {
                     study_id: 'TEST_STUDY_002',
                     status: 'pass'
                 ]
-                def payload_file = file('${projectDir}/tests/subworkflows/local/data_upload/test_payload.json', checkIfExists: true)
+                def payload_file = file('${projectDir}/tests/subworkflows/local/data_upload/test_data/test_payload.json', checkIfExists: true)
                 def data_files = [
-                    file('${projectDir}/tests/subworkflows/local/data_upload/test_file.fastq.gz', checkIfExists: true)
+                    file('${projectDir}/tests/subworkflows/local/data_upload/test_data/test_file.fastq.gz', checkIfExists: true)
                 ]
 
                 input[0] = Channel.of([payload_meta, payload_file, data_files])
@@ -60,9 +60,9 @@ nextflow_workflow {
                     study_id: 'TEST_STUDY_STUB',
                     status: 'pass'
                 ]
-                def payload_file = file('${projectDir}/tests/subworkflows/local/data_upload/test_payload.json', checkIfExists: true)
+                def payload_file = file('${projectDir}/tests/subworkflows/local/data_upload/test_data/test_payload.json', checkIfExists: true)
                 def data_files = [
-                    file('${projectDir}/tests/subworkflows/local/data_upload/test_file.fastq.gz', checkIfExists: true)
+                    file('${projectDir}/tests/subworkflows/local/data_upload/test_data/test_file.fastq.gz', checkIfExists: true)
                 ]
 
                 input[0] = Channel.of([payload_meta, payload_file, data_files])
@@ -98,9 +98,9 @@ nextflow_workflow {
                     study_id: 'TEST_STUDY_RESILIENT',
                     status: 'pass'
                 ]
-                def payload_file = file('${projectDir}/tests/subworkflows/local/data_upload/test_payload.json', checkIfExists: true)
+                def payload_file = file('${projectDir}/tests/subworkflows/local/data_upload/test_data/test_payload.json', checkIfExists: true)
                 def data_files = [
-                    file('${projectDir}/tests/subworkflows/local/data_upload/test_file.fastq.gz', checkIfExists: true)
+                    file('${projectDir}/tests/subworkflows/local/data_upload/test_data/test_file.fastq.gz', checkIfExists: true)
                 ]
 
                 input[0] = Channel.of([payload_meta, payload_file, data_files])
