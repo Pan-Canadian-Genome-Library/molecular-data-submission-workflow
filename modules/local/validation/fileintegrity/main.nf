@@ -96,7 +96,7 @@ process VALIDATION_FILEINTEGRITY {
     fi
     
     # Create step-specific status file
-    cat <<-END_STATUS > "${meta.id}_status.yml"
+    cat <<-END_STATUS > "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     process: "${task.process}"
     status: "\$(if [ \$INTEGRITY_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$INTEGRITY_EXIT_CODE
@@ -109,7 +109,7 @@ process VALIDATION_FILEINTEGRITY {
     
     # Add error message to status file if validation failed
     if [ \$INTEGRITY_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
-        echo "        error_message: \"\$ERROR_DETAILS\"" >> "${meta.id}_status.yml"
+        echo "        error_message: \"\$ERROR_DETAILS\"" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     fi
     
     # Always create versions.yml before any exit
@@ -133,7 +133,7 @@ process VALIDATION_FILEINTEGRITY {
     def exit_on_error_str = exit_on_error ? "true" : "false"
     """
     # Create mock integrity status file
-    cat <<-END_STATUS > "${meta.id}_status.yml"
+    cat <<-END_STATUS > "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     process: "${task.process}"
     status: "SUCCESS"
     exit_code: 0

@@ -55,7 +55,7 @@ process VALIDATION_METADATA {
     rm -f validation_errors.tmp
     
     # Create step-specific status file
-    cat <<-END_STATUS > "${meta.id}_status.yml"
+    cat <<-END_STATUS > "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     process: "${task.process}"
     status: "\$(if [ \$METADATA_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$METADATA_EXIT_CODE
@@ -75,8 +75,8 @@ process VALIDATION_METADATA {
     # Add error message to status file if validation failed
     if [ \$METADATA_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
         # Format multi-line error details properly for YAML
-        echo "        error_details: |" >> "${meta.id}_status.yml"
-        echo "\$ERROR_DETAILS" | sed 's/^/            /' >> "${meta.id}_status.yml"
+        echo "        error_details: |" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
+        echo "\$ERROR_DETAILS" | sed 's/^/            /' >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     fi
     
     # Always create versions.yml before any exit
@@ -100,7 +100,7 @@ process VALIDATION_METADATA {
     def exit_on_error_str = exit_on_error ? "true" : "false"
     """
     # Create mock metadata status file
-    cat <<-END_STATUS > "${meta.id}_status.yml"
+    cat <<-END_STATUS > "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     process: "${task.process}"
     status: "SUCCESS"
     exit_code: 0
