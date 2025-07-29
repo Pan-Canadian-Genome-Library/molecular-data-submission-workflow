@@ -32,7 +32,7 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
         .map { row ->
             def meta = [
                 id: row.submitter_analysis_id,
-                study_id: row.studyId,
+                study: row.studyId,
                 type: row.analysisType,
                 status: "pass"
             ]

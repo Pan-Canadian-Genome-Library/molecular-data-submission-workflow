@@ -159,7 +159,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
         )
         .map { meta, status_files, analysis_json -> 
             // analysis_json will be null for records that don't have matches in ch_analysis
-            [meta, status_files, analysis_json ?: null]
+            [meta, status_files, analysis_json ?: []]
         }
     ch_status_analysis.subscribe{println "status_analysis: $it"}
     BATCH_RECEIPT_GENERATION(ch_status_analysis)
