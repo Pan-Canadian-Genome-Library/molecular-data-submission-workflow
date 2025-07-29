@@ -112,13 +112,13 @@ def generate_individual_receipt(processes, analysis_info, output_file):
     
     # Create individual receipt structure
     receipt = {
-        'submitter_analysis_id': processes[0]['submitter_analysis_id'],
+        'submitter_analysis_id': analysis_info.get('submitter_analysis_id', processes[0]['submitter_analysis_id']),
         'song_analysis_id': analysis_info.get('song_analysis_id', 'unknown'),
         'overall_status': overall_status,
         'analysis_type': analysis_info.get('analysis_type', 'unknown'),
         'study_id': analysis_info.get('study_id', 'unknown'),
-        'analysis_state': analysis_info.get('analysis_state', 'unknown'),
-        'published_at': analysis_info.get('published_at', 'unknown'),
+        'analysis_state': analysis_info.get('song_analysis_state', 'unknown'),
+        'published_at': analysis_info.get('song_analysis_publish_at', 'unknown'),
         'generated_at': datetime.now().isoformat() + 'Z',
         'processes': clean_processes
     }
@@ -131,24 +131,47 @@ def main():
     parser = argparse.ArgumentParser(description='Generate individual analysis receipt')
     parser.add_argument('--status-files', nargs='+', required=True,
                         help='List of status YAML files')
-    parser.add_argument('--analysis-file', required=True,
-                        help='Analysis JSON file')
+    parser.add_argument('--analysis-file', required=False,
+                        help='Analysis JSON file (optional, only for song_analysis_id, song_analysis_state, song_analysis_publish_at)')
+    parser.add_argument('--submitter-analysis-id', required=True, help='Submitter analysis id (from meta)')
+    parser.add_argument('--study-id', required=True, help='Study id (from meta)')
+    parser.add_argument('--analysis-type', required=True, help='Analysis type (from meta)')
     parser.add_argument('--output-json', required=True,
                         help='Output JSON file path')
-    
+
     args = parser.parse_args()
-    
-    # Parse analysis file first
-    print(f"Parsing analysis file: {args.analysis_file}", file=sys.stderr)
-    analysis_info = parse_analysis_file(args.analysis_file)
-    print(f"Analysis info: {analysis_info['song_analysis_id']} (submitter: {analysis_info['submitter_analysis_id']}, state: {analysis_info['analysis_state']})", file=sys.stderr)
-    
+
+    # Parse analysis file if provided, else use defaults for song fields
+    song_analysis_id = 'unknown'
+    song_analysis_state = 'unknown'
+    song_analysis_publish_at = 'unknown'
+    if args.analysis_file:
+        try:
+            with open(args.analysis_file, 'r') as f:
+                data = json.load(f)
+            song_analysis_id = data.get('analysisId', 'unknown')
+            song_analysis_state = data.get('analysisState', 'unknown')
+            song_analysis_publish_at = data.get('publishedAt', 'unknown')
+        except Exception as e:
+            print(f"Error parsing analysis file {args.analysis_file}: {e}", file=sys.stderr)
+    else:
+        print("No analysis file provided, using default values for song_analysis_id, song_analysis_state, song_analysis_publish_at.", file=sys.stderr)
+
+    # Build analysis_info dict for receipt
+    analysis_info = {
+        'song_analysis_id': song_analysis_id,
+        'song_analysis_state': song_analysis_state,
+        'song_analysis_publish_at': song_analysis_publish_at,
+        'submitter_analysis_id': args.submitter_analysis_id,
+        'study_id': args.study_id,
+        'analysis_type': args.analysis_type
+    }
     # Parse all status files (they are already grouped by submitter_analysis_id)
     processes = []
     submitter_analysis_id = None
-    
+
     print(f"Processing {len(args.status_files)} status files", file=sys.stderr)
-    
+
     for status_file in args.status_files:
         data = parse_status_file(status_file)
         if data and data['submitter_analysis_id']:
@@ -159,21 +182,21 @@ def main():
             processes.append(data)
         else:
             print(f"Warning: Could not extract submitter_analysis_id from {status_file}", file=sys.stderr)
-    
+
     if not processes:
         print("No valid status files found", file=sys.stderr)
         sys.exit(1)
-    
+
     if not submitter_analysis_id:
         print("No submitter_analysis_id found in status files", file=sys.stderr)
         sys.exit(1)
-    
+
     # Sort processes by timestamp
     processes.sort(key=lambda x: x['timestamp'])
-    
+
     # Generate individual receipt
     generate_individual_receipt(processes, analysis_info, args.output_json)
-    
+
     print(f"Generated individual receipt for analysis {submitter_analysis_id} with {len(processes)} processes", file=sys.stderr)
     print(f"JSON: {args.output_json}", file=sys.stderr)
 
