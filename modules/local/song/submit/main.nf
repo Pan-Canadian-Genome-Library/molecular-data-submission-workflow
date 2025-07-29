@@ -4,12 +4,8 @@ process SONG_SUBMIT {
     label 'process_single'
 
     container "${ params.song_container ?: 'ghcr.io/pan-canadian-genome-library/file-manager-client' }:${ params.song_container_version ?: 'edge' }"
-    
-    if (workflow.containerEngine == "singularity") {
-        containerOptions "--bind \$(pwd):/song-client/logs"
-    } else if (workflow.containerEngine == "docker") {
-        containerOptions "-v \$(pwd):/song-client/logs"
-    }
+    containerOptions "-v \$(pwd):/song-client/logs"
+
 
     input:
     tuple val(meta), path(payload), path(files)
@@ -30,7 +26,9 @@ process SONG_SUBMIT {
     def song_url = params.song_url_upload ?: params.song_url
     def accessToken = params.token
     def VERSION = params.song_container_version ?: 'edge'
-    def study_id = "${meta.study_id}"
+    def study_id = "${meta.study}"
+    def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
+
     """
     # Set error handling to continue on failure for resilient processing
     set +e
@@ -72,23 +70,23 @@ process SONG_SUBMIT {
     else
         STATUS_RESULT="FAILED"
     fi
-    
-    echo "process: \\"${task.process}\\"" > "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "status: \\"\${STATUS_RESULT}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "exit_code: \${SUBMIT_EXIT_CODE}" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "details:" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    study_id: \\"${study_id}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    song_url: \\"${song_url}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    payload_file: \\"${payload}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+
+    echo "process: \\"${task.process}\\"" > "${status_file_name}"
+    echo "status: \\"\${STATUS_RESULT}\\"" >> "${status_file_name}"
+    echo "exit_code: \${SUBMIT_EXIT_CODE}" >> "${status_file_name}"
+    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${status_file_name}"
+    echo "details:" >> "${status_file_name}"
+    echo "    study_id: \\"${study_id}\\"" >> "${status_file_name}"
+    echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${status_file_name}"
+    echo "    song_url: \\"${song_url}\\"" >> "${status_file_name}"
+    echo "    payload_file: \\"${payload}\\"" >> "${status_file_name}"
+    echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${status_file_name}"
 
     # Add error message to status file if submission failed
     if [ \${SUBMIT_EXIT_CODE} -ne 0 ] && [ -n "\${ERROR_DETAILS:-}" ]; then
-        echo "    error_message: \\"\${ERROR_DETAILS}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+        echo "    error_message: \\"\${ERROR_DETAILS}\\"" >> "${status_file_name}"
     elif [ \${SUBMIT_EXIT_CODE} -ne 0 ]; then
-        echo "    error_message: \\"Submission failed\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+        echo "    error_message: \\"Submission failed\\"" >> "${status_file_name}"
     fi
 
     # Always create versions.yml before any exit

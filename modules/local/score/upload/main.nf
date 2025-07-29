@@ -4,12 +4,7 @@ process SCORE_UPLOAD {
     label 'process_medium'
 
     container "${ params.score_container ?: 'ghcr.io/pan-canadian-genome-library/file-transfer' }:${ params.score_container_version ?: 'edge' }"
-
-    if (workflow.containerEngine == "singularity") {
-        containerOptions "--bind \$(pwd):/score-client/logs"
-    } else if (workflow.containerEngine == "docker") {
-        containerOptions "-v \$(pwd):/score-client/logs"
-    }
+    containerOptions "-v \$(pwd):/score-client/logs"
 
     input:
     tuple val(meta), path(analysis_id_file), path(manifest), path(upload)
@@ -31,7 +26,9 @@ process SCORE_UPLOAD {
     def transport_parallel = params.transport_parallel ?: task.cpus
     def transport_mem = params.transport_mem ?: "2"
     def accessToken = params.token
-    def VERSION = params.score_container_version ?: '5.10.1'
+    def VERSION = params.score_container_version ?: 'edge'
+    def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
+
     """
     # Set error handling to continue on failure for resilient processing
     set +e
@@ -82,24 +79,24 @@ process SCORE_UPLOAD {
         STATUS_RESULT="FAILED"
     fi
     
-    echo "process: \\"${task.process}\\"" > "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "status: \\"\${STATUS_RESULT}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "exit_code: \${UPLOAD_EXIT_CODE}" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "details:" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    song_url: \\"${song_url}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    score_url: \\"${score_url}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    manifest_file: \\"${manifest}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    transport_parallel: \\"${transport_parallel}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    transport_memory: \\"${transport_mem}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
-    
+    echo "process: \\"${task.process}\\"" > "${status_file_name}"
+    echo "status: \\"\${STATUS_RESULT}\\"" >> "${status_file_name}"
+    echo "exit_code: \${UPLOAD_EXIT_CODE}" >> "${status_file_name}"
+    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${status_file_name}"
+    echo "details:" >> "${status_file_name}"
+    echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${status_file_name}"
+    echo "    song_url: \\"${song_url}\\"" >> "${status_file_name}"
+    echo "    score_url: \\"${score_url}\\"" >> "${status_file_name}"
+    echo "    manifest_file: \\"${manifest}\\"" >> "${status_file_name}"
+    echo "    transport_parallel: \\"${transport_parallel}\\"" >> "${status_file_name}"
+    echo "    transport_memory: \\"${transport_mem}\\"" >> "${status_file_name}"
+    echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${status_file_name}"
+
     # Add error message to status file if upload failed
     if [ \${UPLOAD_EXIT_CODE} -ne 0 ] && [ -n "\${ERROR_DETAILS:-}" ]; then
-        echo "    error_message: \\"\${ERROR_DETAILS}\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+        echo "    error_message: \\"\${ERROR_DETAILS}\\"" >> "${status_file_name}"
     elif [ \${UPLOAD_EXIT_CODE} -ne 0 ]; then
-        echo "    error_message: \\"SCORE upload failed\\"" >> "${meta.id}_${task.process.toLowerCase()}_status.yml"
+        echo "    error_message: \\"SCORE upload failed\\"" >> "${status_file_name}"
     fi
 
     # Always create versions.yml before any exit
