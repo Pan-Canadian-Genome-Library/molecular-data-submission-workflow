@@ -71,7 +71,7 @@ process VALIDATION_CROSSCHECK {
     # Add error message to status file if validation failed
     if [ \$CROSSCHECK_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
         # Format multi-line error details properly for YAML
-        echo "        error_details: |" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
+        echo "    error_details: |" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
         echo "\$ERROR_DETAILS" | sed 's/^/            /' >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     fi
     
