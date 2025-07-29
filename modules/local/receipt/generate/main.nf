@@ -25,7 +25,7 @@ process RECEIPT_GENERATE {
         'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0' }"
 
     input:
-    tuple val(meta), path(status_files), path(analysis_file, optional: true)
+    tuple val(meta), path(status_files), path(analysis_file)
 
     output:
     tuple val(meta), path("${meta.id}_receipt.json"), emit: json_receipt
@@ -35,6 +35,7 @@ process RECEIPT_GENERATE {
     task.ext.when == null || task.ext.when
 
     script:
+    def meta_args = "--submitter-analysis-id ${meta.id} --study-id ${meta.study} --analysis-type ${meta.type}"
     """
     # Install required Python packages to temporary directory
     echo "Installing required Python packages..."
@@ -55,17 +56,16 @@ process RECEIPT_GENERATE {
 
 
     # Generate receipt files using the external script
-    META_ARGS="--submitter-analysis-id \"${meta.id}\" --study-id \"${meta.study}\" --analysis-type \"${meta.type}\""
     if [[ -f "${analysis_file}" ]]; then
         main.py \
             --status-files ${status_files.join(' ')} \
             --analysis-file "${analysis_file}" \
-            $META_ARGS \
+            $meta_args \
             --output-json "${meta.id}_receipt.json"
     else
         main.py \
             --status-files ${status_files.join(' ')} \
-            $META_ARGS \
+            $meta_args \
             --output-json "${meta.id}_receipt.json"
     fi
 
