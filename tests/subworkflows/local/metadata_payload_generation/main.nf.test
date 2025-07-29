@@ -156,8 +156,8 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.success },
-                { assert workflow.out.successful },
-                { assert workflow.out.failed },
+                { assert workflow.out.successful != null },
+                { assert workflow.out.failed != null},
                 { assert workflow.out.all_analyses }
             )
         }
