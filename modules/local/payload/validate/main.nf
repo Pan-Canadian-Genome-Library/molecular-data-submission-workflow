@@ -109,7 +109,7 @@ process PAYLOAD_VALIDATE {
     
     # Add error message to status file if validation failed
     if [ \$VALIDATION_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
-        echo "        error_message: \"\$ERROR_DETAILS\"" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
+        echo "    error_message: \\"\$ERROR_DETAILS\\"" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     fi
     
     # Update meta with analysis status for downstream decision making
