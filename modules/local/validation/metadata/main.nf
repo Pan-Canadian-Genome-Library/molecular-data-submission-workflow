@@ -8,8 +8,7 @@ process VALIDATION_METADATA {
         'biocontainers/python:3.9--1' }"
 
     input:
-    tuple val(meta), path(payload), path(payload_files)
-    tuple val(meta2), path(specimen), path(sample), path(experiment), path(read_group)
+    tuple val(meta), path(payload), path(payload_files), path(specimen), path(sample), path(experiment), path(read_group)
 
     output:
     tuple val(meta), path(payload), path(payload_files), emit: ch_payload_files
@@ -32,27 +31,36 @@ process VALIDATION_METADATA {
     echo "Starting metadata validation..."
     echo "Analysis type: ${meta.type}"
     
-    # Build Python script arguments - always pass all files, let Python handle all requirements and availability
-    PYTHON_ARGS="${payload}"
-    PYTHON_ARGS="\$PYTHON_ARGS --specimen-file ${specimen}"
-    PYTHON_ARGS="\$PYTHON_ARGS --sample-file ${sample}"
-    PYTHON_ARGS="\$PYTHON_ARGS --experiment-file ${experiment}"
-    PYTHON_ARGS="\$PYTHON_ARGS --read-group-file ${read_group}"
-    PYTHON_ARGS="\$PYTHON_ARGS --analysis-type ${meta.type}"
-    PYTHON_ARGS="\$PYTHON_ARGS --verbose"
-    
-    # Run validation - Python script handles all file availability and requirement logic
-    echo "Running validation with command: main.py \$PYTHON_ARGS"
-    # Capture stderr for error details, let stdout flow normally (will be suppressed)
-    main.py \$PYTHON_ARGS 2>validation_errors.tmp >/dev/null
-    VALIDATION_EXIT_CODE=\$?
-    
-    if [ \$VALIDATION_EXIT_CODE -ne 0 ]; then
+    # Check if upstream process was successful by checking meta.status
+    if [ "${meta.status ?: 'pass'}" = "failed" ]; then
+        echo "Upstream process failed (meta.status=failed), skipping metadata validation"
         METADATA_EXIT_CODE=1
-        # Read error details from stderr (validation_errors.tmp)
-        ERROR_DETAILS=\$(cat validation_errors.tmp)
+        ERROR_DETAILS="Skipped due to upstream failure"
+    else
+        echo "Upstream process successful or not set, proceeding with metadata validation"
+        
+        # Build Python script arguments - always pass all files, let Python handle all requirements and availability
+        PYTHON_ARGS="${payload}"
+        PYTHON_ARGS="\$PYTHON_ARGS --specimen-file ${specimen}"
+        PYTHON_ARGS="\$PYTHON_ARGS --sample-file ${sample}"
+        PYTHON_ARGS="\$PYTHON_ARGS --experiment-file ${experiment}"
+        PYTHON_ARGS="\$PYTHON_ARGS --read-group-file ${read_group}"
+        PYTHON_ARGS="\$PYTHON_ARGS --analysis-type ${meta.type}"
+        PYTHON_ARGS="\$PYTHON_ARGS --verbose"
+        
+        # Run validation - Python script handles all file availability and requirement logic
+        echo "Running validation with command: main.py \$PYTHON_ARGS"
+        # Capture stderr for error details, let stdout flow normally (will be suppressed)
+        main.py \$PYTHON_ARGS 2>validation_errors.tmp >/dev/null
+        VALIDATION_EXIT_CODE=\$?
+        
+        if [ \$VALIDATION_EXIT_CODE -ne 0 ]; then
+            METADATA_EXIT_CODE=1
+            # Read error details from stderr (validation_errors.tmp)
+            ERROR_DETAILS=\$(cat validation_errors.tmp)
+        fi
+        rm -f validation_errors.tmp
     fi
-    rm -f validation_errors.tmp
     
     # Create step-specific status file
     cat <<-END_STATUS > "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
@@ -64,6 +72,7 @@ process VALIDATION_METADATA {
         analysis_id: "${meta.id}"
         analysis_type: "${meta.type}"
         study_id: "${meta.study}"
+        upstream_status: "${meta.status}"
         payload_file: "${payload}"
         read_group_file: "${read_group}"
         specimen_file: "${specimen}"
@@ -109,6 +118,7 @@ process VALIDATION_METADATA {
         analysis_id: "${meta.id}"
         analysis_type: "${meta.type}"
         study_id: "${meta.study}"
+        upstream_status: "${meta.status}"
         payload_file: "${payload}"
         read_group_file: "${read_group}"
         specimen_file: "${specimen}"

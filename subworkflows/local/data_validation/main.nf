@@ -12,8 +12,7 @@ workflow DATA_VALIDATION {
 
     take:
     // Input channels as specified
-    ch_payload_files       // channel: [ val(meta), payload(json), [files] ] - from molecular_payload_generation
-    ch_biospecimen_entity  // channel: [ val(meta), specimen(path), sample(path), experiment(path), read_group(path) ] - biospecimen entity files
+    ch_payload_files_biospecimen       // channel: [ val(meta), payload(json), [files], specimen(path), sample(path), experiment(path), read_group(path)] - from molecular_payload_generation
 
     main:
 
@@ -24,7 +23,7 @@ workflow DATA_VALIDATION {
 
     // Step 1: Validate metadata consistency with analysis payload
     // Pass the two input channels directly to VALIDATION_METADATA
-    VALIDATION_METADATA ( ch_payload_files, ch_biospecimen_entity )
+    VALIDATION_METADATA ( ch_payload_files_biospecimen )
     ch_versions = ch_versions.mix(VALIDATION_METADATA.out.versions.first())
 
     // Step 2: MD5 checksum cross-check validation
