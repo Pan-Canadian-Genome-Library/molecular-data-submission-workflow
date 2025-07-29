@@ -18,7 +18,7 @@ nextflow_workflow {
                 def payload_meta = [
                     id: 'test_analysis_001',
                     type: 'sequenceExperiment',
-                    study_id: 'TEST_STUDY_002',
+                    study: 'TEST_STUDY_002',
                     status: 'pass'
                 ]
                 def payload_file = file('${projectDir}/tests/subworkflows/local/data_upload/test_data/test_payload.json', checkIfExists: true)
@@ -57,7 +57,7 @@ nextflow_workflow {
                 def payload_meta = [
                     id: 'test_analysis_stub',
                     type: 'sequenceExperiment',
-                    study_id: 'TEST_STUDY_STUB',
+                    study: 'TEST_STUDY_STUB',
                     status: 'pass'
                 ]
                 def payload_file = file('${projectDir}/tests/subworkflows/local/data_upload/test_data/test_payload.json', checkIfExists: true)
@@ -95,7 +95,7 @@ nextflow_workflow {
                 def payload_meta = [
                     id: 'test_analysis_resilient',
                     type: 'sequenceExperiment',
-                    study_id: 'TEST_STUDY_RESILIENT',
+                    study: 'TEST_STUDY_RESILIENT',
                     status: 'pass'
                 ]
                 def payload_file = file('${projectDir}/tests/subworkflows/local/data_upload/test_data/test_payload.json', checkIfExists: true)
