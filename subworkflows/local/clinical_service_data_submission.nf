@@ -5,6 +5,7 @@
 // TODO nf-core: A subworkflow SHOULD import at least two modules
 
 //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/59
+// DUMMY IMPLEMENTATION FOR TESTING - Replace with actual implementation
 
 workflow CLINICAL_SERVICE_DATA_SUBMISSION {
 
@@ -12,14 +13,37 @@ workflow CLINICAL_SERVICE_DATA_SUBMISSION {
     clinical_upload
     
     main:
-    Channel.value(1).subscribe{println "CLINICAL_SERVICE_DATA_SUBMISSION helloB"}
+    
     ch_versions = Channel.empty()
-    successful_registeration = [{},[]]
-    unsuccessful_registeration = [{},[]]
+    
+    // Create dummy versions
+    ch_versions = ch_versions.mix(Channel.value("clinical_service: v1.0"))
+    
+    // Generate dummy successful registrations
+    successful_registeration = clinical_upload
+        .filter { meta, _csv_files -> meta.id != "analysis_002" } // Simulate that analysis_002 clinical data failed
+        .map { meta, csv_files -> 
+            // Add success metadata
+            def success_meta = meta.clone()
+            success_meta.registration_status = "success"
+            success_meta.registered_id = "REG_${meta.id}"
+            [success_meta, csv_files]
+        }
+    
+    // Generate dummy unsuccessful registrations  
+    unsuccessful_registeration = clinical_upload
+        .filter { meta, _csv_files -> meta.id == "analysis_002" } // Simulate that analysis_002 clinical data failed
+        .map { meta, csv_files ->
+            // Add failure metadata
+            def failure_meta = meta.clone() 
+            failure_meta.registration_status = "failed"
+            failure_meta.error_reason = "validation_failed"
+            [failure_meta, csv_files]
+        }
+    
     emit:
-    // TODO nf-core: edit emitted channels
-    successful_registeration // channel: [ val(meta), [csv] ] multiple CSVs per entity, each CSV contains unique identifer column
-    unsuccessful_registeration // channel: [ val(meta), [csv] ] multiple CSVs per entity, each CSV contains unique identifer column
-    versions = ch_versions                     // channel: [ versions.yml ]
+    successful_registeration   // channel: [ val(meta), [csv] ] multiple CSVs per entity, each CSV contains unique identifier column
+    unsuccessful_registeration // channel: [ val(meta), [csv] ] multiple CSVs per entity, each CSV contains unique identifier column  
+    versions = ch_versions     // channel: [ versions.yml ]
 }
 

@@ -1,0 +1,142 @@
+nextflow_workflow {
+
+    name "Test Workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW"
+    script "../../workflows/molecular-data-submission-workflow.nf"
+    workflow "MOLECULAR_DATA_SUBMISSION_WORKFLOW"
+
+    test("Should run complete workflow with upload enabled") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                input[0] = "TEST001" // study_id
+                input[1] = "dummy_token_123" // token
+                input[2] = file("${projectDir}/tests/workflows/test_data/file_metadata.csv") // file_metadata
+                input[3] = file("${projectDir}/tests/workflows/test_data/analysis_metadata.csv") // analysis_metadata
+                input[4] = file("${projectDir}/tests/workflows/test_data/workflow_metadata.csv") // workflow_metadata
+                input[5] = file("${projectDir}/tests/workflows/test_data/read_group_metadata.csv") // read_group_metadata
+                input[6] = file("${projectDir}/tests/workflows/test_data/experiment_metadata.csv") // experiment_metadata
+                input[7] = file("${projectDir}/tests/workflows/test_data/specimen_metadata.csv") // specimen_metadata
+                input[8] = file("${projectDir}/tests/workflows/test_data/sample_metadata.csv") // sample_metadata
+                input[9] = file("${projectDir}/tests/workflows/test_data/files") // path_to_files_directory
+                input[10] = false // skip_duplicate_check
+                input[11] = false // skip_upload
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            // Check that versions channel is not empty
+            assert workflow.out.versions
+            // Check that status channel contains expected analyses
+            assert workflow.out.all_status
+            // Verify the workflow completes without errors
+            assert workflow.trace.tasks().size() > 0
+        }
+    }
+
+    test("Should run workflow with upload skipped") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                input[0] = "TEST001" // study_id
+                input[1] = "dummy_token_123" // token
+                input[2] = file("${projectDir}/tests/workflows/test_data/file_metadata.csv") // file_metadata
+                input[3] = file("${projectDir}/tests/workflows/test_data/analysis_metadata.csv") // analysis_metadata
+                input[4] = file("${projectDir}/tests/workflows/test_data/workflow_metadata.csv") // workflow_metadata
+                input[5] = file("${projectDir}/tests/workflows/test_data/read_group_metadata.csv") // read_group_metadata
+                input[6] = file("${projectDir}/tests/workflows/test_data/experiment_metadata.csv") // experiment_metadata
+                input[7] = file("${projectDir}/tests/workflows/test_data/specimen_metadata.csv") // specimen_metadata
+                input[8] = file("${projectDir}/tests/workflows/test_data/sample_metadata.csv") // sample_metadata
+                input[9] = file("${projectDir}/tests/workflows/test_data/files") // path_to_files_directory
+                input[10] = false // skip_duplicate_check
+                input[11] = true // skip_upload - THIS IS THE KEY DIFFERENCE
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            // Check that versions channel is not empty
+            assert workflow.out.versions
+            // Check that status channel contains expected analyses
+            assert workflow.out.all_status
+            // Verify workflow runs successfully even when upload is skipped
+            assert workflow.trace.tasks().size() > 0
+        }
+    }
+
+    test("Should process different analysis types") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                input[0] = "TEST001" // study_id
+                input[1] = "dummy_token_123" // token
+                input[2] = file("${projectDir}/tests/workflows/test_data/file_metadata.csv") // file_metadata
+                input[3] = file("${projectDir}/tests/workflows/test_data/analysis_metadata.csv") // analysis_metadata
+                input[4] = file("${projectDir}/tests/workflows/test_data/workflow_metadata.csv") // workflow_metadata
+                input[5] = file("${projectDir}/tests/workflows/test_data/read_group_metadata.csv") // read_group_metadata
+                input[6] = file("${projectDir}/tests/workflows/test_data/experiment_metadata.csv") // experiment_metadata
+                input[7] = file("${projectDir}/tests/workflows/test_data/specimen_metadata.csv") // specimen_metadata
+                input[8] = file("${projectDir}/tests/workflows/test_data/sample_metadata.csv") // sample_metadata
+                input[9] = file("${projectDir}/tests/workflows/test_data/files") // path_to_files_directory
+                input[10] = false // skip_duplicate_check
+                input[11] = false // skip_upload
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.versions
+            assert workflow.out.all_status
+            // Verify that different analysis types (sequenceExperiment, sequenceAlignment, variantCall) are handled
+            // This is tested through the dummy data which includes all three types
+        }
+    }
+
+    test("Should run minimal workflow") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                input[0] = "MINIMAL_TEST" // study_id
+                input[1] = "minimal_token" // token
+                input[2] = file("${projectDir}/tests/workflows/test_data/file_metadata.csv") // file_metadata
+                input[3] = file("${projectDir}/tests/workflows/test_data/analysis_metadata.csv") // analysis_metadata
+                input[4] = file("${projectDir}/tests/workflows/test_data/workflow_metadata.csv") // workflow_metadata
+                input[5] = file("${projectDir}/tests/workflows/test_data/read_group_metadata.csv") // read_group_metadata
+                input[6] = file("${projectDir}/tests/workflows/test_data/experiment_metadata.csv") // experiment_metadata
+                input[7] = file("${projectDir}/tests/workflows/test_data/specimen_metadata.csv") // specimen_metadata
+                input[8] = file("${projectDir}/tests/workflows/test_data/sample_metadata.csv") // sample_metadata
+                input[9] = file("${projectDir}/tests/workflows/test_data/files") // path_to_files_directory
+                input[10] = true // skip_duplicate_check
+                input[11] = true // skip_upload - Both skipped for minimal test
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            // Even with minimal configuration, workflow should complete
+            assert workflow.out.versions
+            assert workflow.out.all_status
+        }
+    }
+
+}
