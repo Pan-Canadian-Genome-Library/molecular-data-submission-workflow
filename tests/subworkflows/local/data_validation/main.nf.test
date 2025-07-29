@@ -34,8 +34,7 @@ nextflow_workflow {
                 def read_group = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/read_group.tsv")
 
                 // Define input channels
-                input[0] = Channel.of([meta, payload, files])
-                input[1] = Channel.of([meta, specimen, sample, experiment, read_group])
+                input[0] = Channel.of([meta, payload, files, specimen, sample, experiment, read_group])
                 """
             }
         }
@@ -85,8 +84,7 @@ nextflow_workflow {
                 def read_group = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/read_group.tsv")
 
                 // Define input channels
-                input[0] = Channel.of([meta, payload, files])
-                input[1] = Channel.of([meta, specimen, sample, experiment, read_group])
+                input[0] = Channel.of([meta, payload, files,specimen, sample, experiment, read_group])
                 """
             }
         }
