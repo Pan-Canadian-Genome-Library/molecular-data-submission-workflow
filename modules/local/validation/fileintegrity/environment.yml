@@ -1,0 +1,7 @@
+name: validation_fileintegrity
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconda::samtools=1.17

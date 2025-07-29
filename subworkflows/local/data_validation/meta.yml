@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "data_validation"
+## TODO nf-core: Add a description of the subworkflow and list keywords
+description: Comprehensive data validation subworkflow for genomic files with read group file consistency validation, cross-check validation, and file integrity checks (executed in that order)
+keywords:
+  - validation
+  - file integrity
+  - metadata
+  - genomics
+  - quality control
+## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+components:
+  - validation/fileintegrity
+  - validation/metadata
+  - validation/crosscheck
+## TODO nf-core: List all of the channels used as input with a description and their structure
+input:
+  - ch_payload_files:
+      type: channel
+      description: |
+        Channel containing payload files from molecular_payload_generation
+        Structure: [ val(meta.id=submitter_analysis_id, meta.type=analysisType, meta.study=studyId, meta.status), payload(json), [files] ]
+  - ch_biospecimen_entity:
+      type: channel
+      description: |
+        Channel containing biospecimen entity files from clinical_submission used for read group file validation
+        Structure: [ val(meta.id=submitter_analysis_id, meta.type=analysisType, meta.study=studyId, meta.status), specimen(tsv), sample(tsv), experiment(tsv), read_group(tsv) ]
+## TODO nf-core: List all of the channels used as output with a descriptions and their structure
+output:
+  - validated_payload_files:
+      type: channel
+      description: |
+        Channel containing validated payload files
+        Structure: [ val(meta.id=submitter_analysis_id, meta.type=analysisType, meta.study=studyId, meta.status), payload(json), [files] ]
+      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+  - status:
+      type: channel
+      description: |
+        Channel containing validation status files
+        Structure: [ val(meta.id=submitter_analysis_id, meta.type=analysisType, meta.study=studyId), [*_status.yml] ]
+      pattern: "*_status.yml"
+  - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+      pattern: "versions.yml"
+authors:
+  - "@lindaxiang"
+maintainers:
+  - "@lindaxiang"
