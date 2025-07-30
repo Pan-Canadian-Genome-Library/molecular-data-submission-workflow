@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "data_upload"
+description: Upload validated payload files and associated data to SONG/SCORE repositories with automatic study management
+keywords:
+  - upload
+  - song
+  - score
+  - submission
+  - metadata
+  - payload
+  - study
+  - management
+components:
+  - icgc-argo-workflows/song_score_upload
+  - local/song/getallstudyids
+  - local/song/createstudy
+input:
+  - validated_payload_files:
+      type: file
+      description: |
+        Channel containing validated payload files and associated data files ready for upload
+        Structure: [ val(meta.id=submitter_analysis_id, meta.type=analysisType, meta.study=studyId), path(payload), [data_files] ]
+      pattern: "*.json"
+  - study_metadata:
+      type: file
+      description: |
+        Channel containing study metadata (for potential future use)
+        Structure: [ val(meta.id=study_id), path(study) ]
+output:
+  - analysis_id:
+      type: val
+      description: |
+        Channel containing analysis IDs from successful uploads
+        Structure: [ val(meta), val(analysis_id) ]
+  - status:
+      type: file
+      description: |
+        Channel containing status files from study management processes
+        Structure: [ val(meta), path(*_status.yml) ]
+      pattern: "*_status.yml"
+  - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+authors:
+  - "@lindaxiang"
+maintainers:
+  - "@lindaxiang"
