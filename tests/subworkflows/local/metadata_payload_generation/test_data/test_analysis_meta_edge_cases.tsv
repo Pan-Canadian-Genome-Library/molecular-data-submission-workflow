@@ -1,0 +1,3 @@
+studyId,submitter_analysis_id,analysisType,submitter_participant_id,submitter_specimen_id,submitter_sample_id,submitter_experiment_id,data_category,variant_class,variant_calling_strategy,genome_build,genome_annotation
+TEST_STUDY,EDGE_CASE_001,variant_calling,PART_002,SPEC_002,SAMPLE_002,EXP_002,genomic,INDEL,mutect2,GRCh37,GENCODE_v19
+TEST_STUDY,EDGE_CASE_002,rna_seq,PART_003,SPEC_003,SAMPLE_003,EXP_003,transcriptomic,,,,GRCh38,GENCODE_v39

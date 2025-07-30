@@ -1,0 +1,8 @@
+process: "PAYLOAD_VALIDATE"
+status: "SUCCESS"
+exit_code: 0
+timestamp: "2025-07-28T10:31:00Z"
+details:
+    analysis_id: "test_analysis_001"
+    payload_file: "test_payload.json"
+    schema_url: "https://example.com/schema.json"

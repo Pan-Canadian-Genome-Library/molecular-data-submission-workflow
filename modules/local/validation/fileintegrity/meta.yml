@@ -1,0 +1,54 @@
+name: "validation_fileintegrity"
+description: Validate file integrity for various genomic file formats (BAM, CRAM, VCF, FASTQ)
+keywords:
+  - validation
+  - file integrity
+  - BAM
+  - CRAM
+  - VCF
+  - FASTQ
+  - genomics
+tools:
+  - samtools:
+      description: Tools for manipulating next-generation sequencing data
+      homepage: http://www.htslib.org/
+      documentation: http://www.htslib.org/doc/samtools.html
+      tool_dev_url: https://github.com/samtools/samtools
+      doi: "10.1093/bioinformatics/btp352"
+      licence: ["MIT"]
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  - files:
+      type: file
+      description: Input genomic files to validate (BAM, CRAM, VCF, FASTQ formats)
+      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  - validated_files:
+      type: file
+      description: The same input files, passed through after validation
+      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+  - status:
+      type: file
+      description: YAML status file containing validation results and process metadata
+      pattern: "*_integrity_status.yml"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@your_github_username"
+
+maintainers:
+  - "@your_github_username"

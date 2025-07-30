@@ -1,0 +1,2 @@
+submitter_experiment_id	submitter_sample_id	experiment_type	experiment_design	assay_type_code	assay_type_term	platform	instrument	instrument_metadata	sequencing_protocol
+EXP001	SAMPLE001	Sequencing	Whole genome sequencing	WGS	Whole genome sequencing	ILLUMINA	Illumina HiSeq 2000	{"run_name": "test_run"}	Illumina TruSeq DNA PCR-Free

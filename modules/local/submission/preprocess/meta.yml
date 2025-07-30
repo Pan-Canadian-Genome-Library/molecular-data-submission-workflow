@@ -1,0 +1,111 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/yaml-schema.json
+name: "preprocess_submission"
+description: Preprocess submission metadata files and reorganize them for downstream subworkflows. Processes real input files by filtering and extracting data for specific analysis IDs.
+keywords:
+  - metadata
+  - submission
+  - reorganization
+  - file processing
+  - genomics
+tools:
+  - "python":
+      description: "Python programming language"
+      homepage: "https://www.python.org/"
+      documentation: "https://docs.python.org/"
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', type:'sequenceExperiment', study_id:'TEST001', status:'pass' ]`
+  - file_metadata:
+      type: file
+      description: File metadata spreadsheet (TSV/CSV format)
+      pattern: "*.{tsv,csv}"
+  - analysis_metadata:
+      type: file
+      description: Analysis metadata spreadsheet (TSV/CSV format)
+      pattern: "*.{tsv,csv}"
+  - workflow_metadata:
+      type: file
+      description: Workflow metadata spreadsheet (TSV/CSV format)
+      pattern: "*.{tsv,csv}"
+  - read_group_metadata:
+      type: file
+      description: Read group metadata spreadsheet (TSV/CSV format)
+      pattern: "*.{tsv,csv}"
+  - experiment_metadata:
+      type: file
+      description: Experiment metadata spreadsheet (TSV/CSV format)
+      pattern: "*.{tsv,csv}"
+  - specimen_metadata:
+      type: file
+      description: Specimen metadata spreadsheet (TSV/CSV format)
+      pattern: "*.{tsv,csv}"
+  - sample_metadata:
+      type: file
+      description: Sample metadata spreadsheet (TSV/CSV format)
+      pattern: "*.{tsv,csv}"
+  - files_directory:
+      type: file
+      description: Directory containing target data files (will be staged by Nextflow)
+      pattern: "*"
+
+output:
+  #TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
+  #              MUST be provided as an output via a Groovy Map called "meta".
+  #              This information may not be required in some instances e.g. indexing reference genome files:
+  #              https://github.com/nf-core/modules/blob/master/modules/nf-core/bwa/index/main.nf
+  #TODO nf-core: Where applicable please provide/convert compressed files as input/output
+  #              e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1' ]`
+  - file_meta:
+      type: file
+      description: File metadata TSV file filtered for the specific analysis
+      pattern: "file_meta_*.tsv"
+  - analysis_meta:
+      type: file
+      description: Analysis metadata TSV file filtered for the specific analysis
+      pattern: "analysis_meta_*.tsv"
+  - workflow_meta:
+      type: file
+      description: Workflow metadata TSV file filtered for the specific analysis
+      pattern: "workflow_meta_*.tsv"
+  - specimen:
+      type: file
+      description: Specimen metadata TSV file filtered for the specific analysis
+      pattern: "specimen_*.tsv"
+  - sample:
+      type: file
+      description: Sample metadata TSV file filtered for the specific analysis
+      pattern: "sample_*.tsv"
+  - experiment:
+      type: file
+      description: Experiment metadata TSV file filtered for the specific analysis
+      pattern: "experiment_*.tsv"
+  - read_group:
+      type: file
+      description: Read group metadata TSV file filtered for the specific analysis
+      pattern: "read_group_*.tsv"
+  - data_files:
+      type: file
+      description: Text file containing paths to actual data files for this analysis
+      pattern: "data_files_*.txt"
+  - status:
+      type: file
+      description: Status YAML file indicating processing status
+      pattern: "status_*.yml"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@lindaxiang"
+maintainers:
+  - "@lindaxiang"
