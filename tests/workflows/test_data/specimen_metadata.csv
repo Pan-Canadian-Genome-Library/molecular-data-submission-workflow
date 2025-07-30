@@ -2,3 +2,4 @@ submitter_participant_id,submitter_specimen_id,specimen_tissue_source_code,speci
 PART_001,SPEC_001,NCIT:C12434,Blood,frozen,fresh,45,C50.9,Breast NOS,Left
 PART_002,SPEC_002,NCIT:C164014,Solid Tissue Sample,frozen,fresh,52,C78.00,Secondary malignant neoplasm of lung,Right
 PART_003,SPEC_003,NCIT:C164014,Solid Tissue Sample,paraffin,fixed,38,C25.9,Pancreas NOS,Not applicable
+PART_004,SPEC_004,NCIT:C164014,Solid Tissue Sample,frozen,fresh,60,C18.9,Colon NOS,Not applicable
