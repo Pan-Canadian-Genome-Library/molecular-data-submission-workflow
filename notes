@@ -1,0 +1,118 @@
+python modules/local/checkclinical/resources/usr/bin/main.py \
+--sample_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Sample.tsv \
+--specimen_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Specimen.tsv \
+--experiment_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Experiment.tsv \
+--read_group_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Read_Group.tsv \
+--file_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Read_Group.tsv \
+--clinical_url https://submission.pcgl-dev.cumulus.genomeinformatics.org \
+--file_manager_url https://file-manager.pcgl-dev.cumulus.genomeinformatics.org \
+--token NNNN-NNNN-NNNN-NNNN \
+--study_id  EXAMPLE-CA
+
+
+python modules/local/checkclinical/resources/usr/bin/main.py \
+--sample_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Sample.tsv \
+--specimen_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Specimen.tsv \
+--experiment_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Experiment.tsv \
+--read_group_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Read_Group.tsv \
+--file_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Read_Group.tsv \
+--analysis_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Analysis.tsv \
+--workflow_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Workflow.tsv \
+--clinical_url https://submission.pcgl-dev.cumulus.genomeinformatics.org \
+--file_manager_url https://file-manager.pcgl-dev.cumulus.genomeinformatics.org \
+--token NNNN-NNNN-NNNN-NNNN \
+--study_id  EXAMPLE-CA
+
+
+python modules/local/checkclinical/resources/usr/bin/main.py \
+--read_group_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Read_Group.tsv \
+--file_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Files.tsv \
+--analysis_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Analysis.tsv \
+--workflow_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Workflow.tsv \
+--clinical_url https://submission.pcgl-dev.cumulus.genomeinformatics.org \
+--file_manager_url https://file-manager.pcgl-dev.cumulus.genomeinformatics.org \
+--token NNNN-NNNN-NNNN-NNNN \
+--study_id EXAMPLE-CA
+
+###Registe example-ca
+python modules/local/checkclinical/resources/usr/bin/main.py \
+--read_group_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/bad_path/Read_Group.tsv \
+--file_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Files.tsv \
+--analysis_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Analysis.tsv \
+--workflow_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Workflow.tsv \
+--clinical_url https://submission.pcgl-dev.cumulus.genomeinformatics.org \
+--file_manager_url https://file-manager.pcgl-dev.cumulus.genomeinformatics.org \
+--token NNNN-NNNN-NNNN-NNNN \
+--study_id EXAMPLE-CA
+
+
+python modules/local/checkclinical/resources/usr/bin/tmp.py \
+--read_group_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Read_Group.tsv \
+--file_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Files.tsv \
+--analysis_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Analysis.tsv \
+--workflow_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Workflow.tsv \
+--clinical_url https://submission.pcgl-dev.cumulus.genomeinformatics.org \
+--file_manager_url https://file-manager.pcgl-dev.cumulus.genomeinformatics.org \
+--token NNNN-NNNN-NNNN-NNNN \
+--study_id EXAMPLE-CA
+
+python modules/local/checkclinical/resources/usr/bin/tmp.py \
+--sample_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Sample.tsv \
+--specimen_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Specimen.tsv \
+--experiment_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Experiment.tsv \
+--read_group_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Read_Group.tsv \
+--file_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Files.tsv \
+--analysis_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Analysis.tsv \
+--workflow_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Workflow.tsv \
+--clinical_url https://submission.pcgl-dev.cumulus.genomeinformatics.org \
+--file_manager_url https://file-manager.pcgl-dev.cumulus.genomeinformatics.org \
+--token NNNN-NNNN-NNNN-NNNN \
+--study_id  EXAMPLE-CA
+
+
+###
+#01,02 tests bulk
+#03 will reference existing experiment only
+python modules/local/checkclinical/resources/usr/bin/tmp.py \
+--sample_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path_all_new/Sample.tsv \
+--specimen_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path_all_new/Specimen.tsv \
+--experiment_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path_all_new/Experiment.tsv \
+--read_group_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path_all_new/Read_Group.tsv \
+--file_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path_all_new/Files.tsv \
+--analysis_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path_all_new/Analysis.tsv \
+--clinical_url https://submission.pcgl-dev.cumulus.genomeinformatics.org \
+--file_manager_url https://file-manager.pcgl-dev.cumulus.genomeinformatics.org \
+--token NNNN-NNNN-NNNN-NNNN \
+--study_id  EXAMPLE-CA \
+--data-directory /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path
+
+
+###
+#04 references non-existing experiment in submission
+#05 missing workflow
+#06- wrong study
+#07 missing analysis column
+#08 missing clinical column
+python modules/local/checkclinical/resources/usr/bin/main.py \
+--sample_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Sample.tsv \
+--specimen_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Specimen.tsv \
+--experiment_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Experiment.tsv \
+--read_group_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Read_Group.tsv \
+--workflow_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Workflow.tsv \
+--file_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Files.tsv \
+--analysis_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path/Analysis.tsv \
+--clinical_url https://submission.pcgl-dev.cumulus.genomeinformatics.org \
+--file_manager_url https://file-manager.pcgl-dev.cumulus.genomeinformatics.org \
+--token NNNN-NNNN-NNNN-NNNN \
+--study_id  EXAMPLE-CA \
+--data-directory /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path
+
+python modules/local/checkclinical/resources/usr/bin/main.py \
+--file_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/bad_path/Files.tsv \
+--analysis_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/bad_path/Analysis.tsv \
+--experiment_metadata_csv /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/bad_path/Experiment.tsv \
+--clinical_url https://submission.pcgl-dev.cumulus.genomeinformatics.org \
+--file_manager_url https://file-manager.pcgl-dev.cumulus.genomeinformatics.org \
+--token NNNN-NNNN-NNNN-NNNN \
+--study_id  EXAMPLE-CA \
+--data-directory /Users/esu/Desktop/GitHub/pcgl/molecular-data-submission-workflow/test_data/modules/checkclinical/happy_path
