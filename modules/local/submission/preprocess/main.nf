@@ -84,7 +84,7 @@ process PREPROCESS_SUBMISSION {
     details:
         analysis_id: "${meta.id}"
         analysis_type: "${meta.type}"
-        study_id: "${meta.study_id}"
+        study_id: "${meta.study}"
         upstream_status: "${meta.status}"
         file_metadata: "${file_metadata}"
         analysis_metadata: "${analysis_metadata}"
