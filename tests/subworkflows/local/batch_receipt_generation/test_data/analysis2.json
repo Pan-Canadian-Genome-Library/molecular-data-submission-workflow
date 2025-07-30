@@ -1,0 +1,13 @@
+{
+  "analysisId": "3ba5e603-007f-6c0d-b471-48209f30d0fd",
+  "studyId": "TEST_STUDY_001", 
+  "analysisState": "UNPUBLISHED",
+  "analysisType": {
+    "name": "sequenceExperiment",
+    "version": 4
+  },
+  "submitter_analysis_id": "test_analysis_002",
+  "createdAt": "2025-07-28T16:15:45.526491",
+  "updatedAt": "2025-07-28T16:15:59.413555",
+  "data_category": "Genomics"
+}

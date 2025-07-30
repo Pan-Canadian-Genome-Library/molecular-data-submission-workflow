@@ -1,0 +1,8 @@
+process: "PAYLOAD_GENERATE"
+status: "FAILED"
+exit_code: 1
+timestamp: "2025-07-28T10:30:00Z"
+details:
+    analysis_id: "test_analysis_002"
+    payload_file: "test_payload2.json"
+    error_message: "Missing required metadata fields"

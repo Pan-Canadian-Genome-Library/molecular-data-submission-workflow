@@ -1,0 +1,7 @@
+process: "PAYLOAD_GENERATE"
+status: "SUCCESS"
+exit_code: 0
+timestamp: "2025-07-28T10:30:00Z"
+details:
+    analysis_id: "test_analysis_001"
+    payload_file: "test_payload.json"
