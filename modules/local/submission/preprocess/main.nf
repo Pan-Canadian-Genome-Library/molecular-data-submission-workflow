@@ -54,7 +54,7 @@ process PREPROCESS_SUBMISSION {
 
         main.py \\
             "${meta.id}" \\
-            "${meta.study_id}" \\
+            "${meta.study}" \\
             "${meta.type}" \\
             "${meta.status}" \\
             "${file_metadata}" \\

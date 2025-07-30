@@ -2,3 +2,4 @@ submitter_workflow_id,submitter_analysis_id,workflow_name,workflow_version,workf
 WF_001,analysis_001,molecular-data-submission-workflow,1.0.0,https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow
 WF_002,analysis_002,molecular-data-submission-workflow,1.0.0,https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow
 WF_003,analysis_003,molecular-data-submission-workflow,1.0.0,https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow
+WF_004,analysis_004,molecular-data-submission-workflow,1.0.0,https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow

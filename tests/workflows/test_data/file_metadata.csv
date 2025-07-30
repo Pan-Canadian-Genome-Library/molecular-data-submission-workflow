@@ -3,3 +3,4 @@ analysis_001,test_file_001_1.bam,69,3ffac00f58862a7c06a705795e7ac26a,BAM,control
 analysis_001,test_file_001_2.bam,69,39744760b92b097738ba4758961e0121,BAM,controlled,Aligned reads
 analysis_002,test_file_002_1.bam,74,b3fa249fdcbbe7de479c4394132eb4cc,BAM,controlled,Aligned reads
 analysis_003,test_file_003_1.vcf,124,02b4359d79feb76d67b0ea66fbbc2c86,VCF,controlled,Single Nucleotide Variants (SNVs)
+analysis_004,test_rg_3.v2.bam,14911,178f97f7b1ca8bfc28fd5586bdd56799,BAM,controlled,Aligned reads
