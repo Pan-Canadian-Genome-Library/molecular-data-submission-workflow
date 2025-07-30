@@ -1,0 +1,2 @@
+studyId	submitter_analysis_id	analysisType	submitter_participant_id	submitter_specimen_id	submitter_sample_id	submitter_experiment_id	data_category	variant_class	variant_calling_strategy	genome_build	genome_annotation
+TEST_STUDY	VALIDATION_FAIL_TEST	sequenceExperiment	PART_001	SPEC_001	SAMPLE_001	EXP_001	genomic	SNV	gatk	GRCh38	GENCODE_v39

@@ -1,0 +1,4 @@
+submitter_analysis_id,fileName,fileSize,fileMd5sum,fileType,fileAccess,dataType
+EDGE_CASE_001,special_chars_file.fastq.gz,1000000,d4e5f6789012345678901234567890abc3,FASTQ,open,Aligned Reads
+EDGE_CASE_002,empty_size_file.bam,,e5f678901234567890123456789abc3d4,BAM,controlled,Aligned Reads
+EMPTY_PATH_003,zero_size.fastq.gz,0,f6789012345678901234567890abc3d4e5,FASTQ,controlled,Aligned Reads
