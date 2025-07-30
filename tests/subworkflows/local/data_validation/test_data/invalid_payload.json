@@ -1,0 +1,19 @@
+{
+  "analysisType": {
+    "name": "invalidType"
+  },
+  "data_category": "Unknown Category",
+  "files": [
+    {
+      "dataType": "Unknown Data Type",
+      "fileAccess": "unknown",
+      "fileMd5sum": "invalid_checksum",
+      "fileName": "corrupt_file.bam",
+      "fileSize": -1,
+      "fileType": "UNKNOWN"
+    }
+  ],
+  "studyId": "FAIL-STUDY",
+  "submitter_analysis_id": "FAIL001",
+  "submitter_experiment_id": "INVALID_EXP"
+}

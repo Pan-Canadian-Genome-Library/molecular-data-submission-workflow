@@ -1,0 +1,70 @@
+name: "validation_metadata"
+description: Validate metadata consistency and cross-check with analysis payload using dedicated Python validation script
+keywords:
+  - validation
+  - metadata
+  - payload
+  - analysis
+  - consistency
+  - genomics
+  - read groups
+tools:
+  - python:
+      description: Python programming language
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      tool_dev_url: https://github.com/python/cpython
+      licence: ["Python Software Foundation License"]
+
+files:
+  - resources/bin/validate_metadata.py:
+      description: Python script for comprehensive metadata validation and read group file consistency checking
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  - files:
+      type: file
+      description: Input genomic files to cross-check with payload metadata
+      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+  - integrity_status:
+      type: file
+      description: Status file from upstream file integrity validation
+      pattern: "*_integrity_status.yml"
+  - analysis_payload:
+      type: file
+      description: JSON analysis payload containing metadata for cross-validation
+      pattern: "*.json"
+  - read_group_data:
+      type: tuple
+      description: |
+        Tuple containing meta and read group TSV data from biospecimen entity
+        Structure: [ val(meta), path(read_group.tsv) ]
+
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  - validated_files:
+      type: file
+      description: The same input files, passed through after metadata validation
+      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+  - status:
+      type: file
+      description: YAML status file containing metadata validation results
+      pattern: "*_metadata_status.yml"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@your_github_username"
+
+maintainers:
+  - "@your_github_username"
