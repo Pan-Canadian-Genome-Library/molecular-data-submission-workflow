@@ -45,6 +45,8 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/58
     CHECK_SUBMISSION_DEPENDENCIES(
+        study_id,
+        token,
         file_metadata, // Spreadsheet
         analysis_metadata, // Spreadsheet
         workflow_metadata, // Spreadsheet
