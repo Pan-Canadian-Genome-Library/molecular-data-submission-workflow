@@ -4,7 +4,7 @@
     - "check_submission_dependencies"
     - "checkclinical"
     - "pass"
-- name "checkclinical happy path"
+- name "checkclinical bad path"
   command : nextflow run test/subworkflows/check_submission_dependencies/main.nf -entry test_check_input -c test/modules/checkclinical/bad_path.config -profile docker
   tags:
     - "check_submission_dependencies"
