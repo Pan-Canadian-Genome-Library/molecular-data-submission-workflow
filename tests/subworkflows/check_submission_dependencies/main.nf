@@ -17,11 +17,30 @@ workflow test_check_input {
         params.experiment_metadata == null ? [[]] : [params.experiment_metadata],
         params.specimen_metadata == null ? [[]] : [params.specimen_metadata],
         params.sample_metadata == null ? [[]] : [params.sample_metadata],
-        params.data_directory == null ? [[]] : [params.data_directory]
+        params.data_directory
     )
 
     CHECK_SUBMISSION_DEPENDENCIES.out.analysis_channels.subscribe{
-        println "${it.meta.id} META:${it.meta}\n${it.meta.id} ANALYSIS:${it.analysis}\n${it.meta.id} CLINICAL:${it.clinical}\n${it.meta.id} FILES:${it.files}\n${it.meta.id} STATUS:${it.status}\n${it.meta.id} STATUS_FILE:${it.status_file}"}
+    println """
+    ${it.meta.id}\tMETA
+    \tID : ${it.meta.id}
+    \tstudy : ${it.meta.study}
+    \ttype : ${it.meta.type}
+    ${it.meta.id}\tANALYSIS
+    \tanalysis : ${it.analysis.analysis}
+    \tworkflow : ${it.analysis.workflow}
+    \tfiles : ${it.analysis.files}
+    ${it.meta.id}\tCLINICAL
+    \tspecimen : ${it.clinical.specimen}
+    \tsample : ${it.clinical.sample}
+    \texperiment : ${it.clinical.experiment}
+    \tread_group : ${it.clinical.read_group}
+    ${it.meta.id}\tFILES
+    \tfiles : \n${"\t\t"+it.files.join("\n\t\t")}
+    ${it.meta.id}\tSTATUS_FILE
+    \tstatus_file : ${it.status_file}
+    """
+        }
 
 
 }

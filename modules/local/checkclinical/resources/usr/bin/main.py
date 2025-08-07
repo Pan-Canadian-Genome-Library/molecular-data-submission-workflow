@@ -110,21 +110,14 @@ def retrieve_category_id(clinical_url,study_id,token):
         categories=response.json()
 
         for cat_id in categories:
-                url="%s/category/%s" % (clinical_url,str(cat_id['id']))
+                if study_id.lower() in cat_id['name']:
+                        return(str(cat_id["id"]))
 
-                try:
-                        study_response=requests.get(url,headers=headers)
-                except:
-                        raise ValueError('ERROR REACHING %s' % (url))
+        for cat_id in categories:
+                if "prod_pcgl_schema" in cat_id['name']:
+                        return(str(cat_id["id"]))
 
-                if study_response.status_code!=200:
-                        raise ValueError('ERROR w/ %s : Code %s' % (url,study_response.status_code))
-                        exit(1)
-
-                if study_id in study_response.json()['organizations']:
-                        return(str(study_response.json()['id']))
-
-        raise ValueError('ERROR w/ %s : %s study was not found' % (url,study_id))
+        raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
 
 def check_analysis_types(file_manager_url,study_id,token):
         analysis_types=[]
@@ -719,11 +712,11 @@ def main(args):
                 )
 
         ###R1b - The pipeline shall query the study service to check for registered study. Study registration is assumed pre-existing; failure here should halt the pipeline.
-        #check_clinical_study(
-        #        args.clinical_url,
-        #        args.study_id,
-        #        args.token
-        #        )
+        check_clinical_study(
+               args.clinical_url,
+               args.study_id,
+               args.token
+               )
 
         check_file_manager_study(
                args.file_manager_url,
@@ -798,7 +791,7 @@ if __name__ == "__main__":
         parser.add_argument("-si", "--study_id", dest="study_id", required=True, help="study_id")
         parser.add_argument("-t", "--token", dest="token", required=True, help="token")
         parser.add_argument("-od", "--output-directory", dest="output_directory", required=False, help="output directory where entity files are saved by analysis",default="output")
-        parser.add_argument("-dd", "--data-directory", dest="data_directory", required=False, help="data directory where entity files are saved by analysis",default=os.getcwd())
+        parser.add_argument("-dd", "--data-directory", dest="data_directory", required=True, help="data directory where entity files are saved by analysis",default=os.getcwd())
 
         args = parser.parse_args()
 
