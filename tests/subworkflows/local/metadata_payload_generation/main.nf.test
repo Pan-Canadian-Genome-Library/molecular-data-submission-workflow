@@ -28,7 +28,7 @@ nextflow_workflow {
                     ],
                     file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_file_meta.tsv'),
                     file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_analysis_meta.tsv'),
-                    file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_workflow_meta.tsv'),
+                    [],
                     [
                         file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/sample2.bam')
                     ]
