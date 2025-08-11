@@ -32,38 +32,31 @@ import os
 import glob
 
 def retrieve_category_id(clinical_url,study_id,token):
-    print("Retrieve Category ID")
-    # url="%s/category" % (clinical_url)
-    # headers={
-    #         "Authorization" : "Bearer %s" % token
-    # }
-    # try:
-    #         response=requests.get(url,headers=headers)
-    # except:
-    #         raise ValueError('ERROR REACHING %s' % (url))
+        print("Retrieve Category ID")
+        url="%s/category" % (clinical_url)
+        headers={
+                "Authorization" : "Bearer %s" % token
+        }
+        try:
+                response=requests.get(url,headers=headers)
+        except:
+                raise ValueError('ERROR REACHING %s' % (url))
 
-    # if response.status_code!=200:
-    #         raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
-    #         exit(1)
+        if response.status_code!=200:
+                raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+                exit(1)
 
-    # categories=response.json()
+        categories=response.json()
 
-    # for cat_id in categories:
-    #         url="%s/category/%s" % (clinical_url,str(cat_id['id']))
+        for cat_id in categories:
+                if study_id.lower() in cat_id['name']:
+                        return(str(cat_id["id"]))
 
-    #         try:
-    #                 study_response=requests.get(url,headers=headers)
-    #         except:
-    #                 raise ValueError('ERROR REACHING %s' % (url))
+        for cat_id in categories:
+                if "prod_pcgl_schema" in cat_id['name']:
+                        return(str(cat_id["id"]))
 
-    #         if study_response.status_code!=200:
-    #                 raise ValueError('ERROR w/ %s : Code %s' % (url,study_response.status_code))
-    #                 exit(1)
-            
-    #         return(str(study_response.json()['id']))
-
-    # raise ValueError('ERROR w/ %s : %s study was not found' % (url,study_id))
-    return(str(1))
+        raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
 
 
 def check_existing_submission(category_id,clinical_url,study_id,token):

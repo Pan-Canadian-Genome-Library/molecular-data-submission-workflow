@@ -1,0 +1,183 @@
+nextflow_workflow {
+    name "Test Subworkflow CLINICAL_SERVICE_DATA_SUBMISSION"
+    script "subworkflows/local/clinical_service_data_submission.nf"
+    workflow "CLINICAL_SERVICE_DATA_SUBMISSION"
+    
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/clinical_service_data_submission"
+
+    test("clinical service data submission happy path") {
+
+        when {
+            workflow {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    meta: [study_id:"EXAMPLE-CA9",status:"pass",id:"NEW_ANALYSIS_02",type:[]],
+                    analysis: [analysis:[],files:[],workflow:[]],
+                    clinical : [specimen:file('${projectDir}/tests/modules/clinicalsubmission/registerable_specimen.tsv'),sample:file('${projectDir}/tests/modules/clinicalsubmission/registerable_sample.tsv'),experiment:file('${projectDir}/tests/modules/clinicalsubmission/registerable_experiment.tsv'),read_group:file('${projectDir}/tests/modules/clinicalsubmission/registerable_read_group.tsv')],
+                    files : [[],[],[]]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+
+                { assert workflow.out.versions},
+                { assert workflow.out.registering_files},
+                { assert workflow.out.registering_files.meta},
+                { assert workflow.out.registering_files.meta.id},
+                { assert workflow.out.registering_files.meta.study},
+                { assert workflow.out.registering_files.meta.type},
+                { assert workflow.out.registering_files.meta.status},
+                { assert workflow.out.registering_files.analysis},
+                { assert workflow.out.registering_files.analysis.analysis},
+                { assert workflow.out.registering_files.analysis.workflow},
+                { assert workflow.out.registering_files.analysis.files},
+                { assert workflow.out.registering_files.clinical},
+                { assert workflow.out.registering_files.clinical.specimen},
+                { assert workflow.out.registering_files.clinical.sample},
+                { assert workflow.out.registering_files.clinical.experiment},
+                { assert workflow.out.registering_files.clinical.read_group},
+                { assert workflow.out.registering_files.files},
+                { assert workflow.out.successful_registeration},
+                { assert workflow.out.successful_registeration.meta},
+                { assert workflow.out.successful_registeration.meta.id},
+                { assert workflow.out.successful_registeration.meta.study},
+                { assert workflow.out.successful_registeration.meta.type},
+                { assert workflow.out.successful_registeration.meta.status},
+                { assert workflow.out.successful_registeration.analysis},
+                { assert workflow.out.successful_registeration.analysis.analysis},
+                { assert workflow.out.successful_registeration.analysis.workflow},
+                { assert workflow.out.successful_registeration.analysis.files},
+                { assert workflow.out.successful_registeration.clinical},
+                { assert workflow.out.successful_registeration.clinical.specimen},
+                { assert workflow.out.successful_registeration.clinical.sample},
+                { assert workflow.out.successful_registeration.clinical.experiment},
+                { assert workflow.out.successful_registeration.clinical.read_group},
+                { assert workflow.out.successful_registeration.files}
+            )
+        }
+    }
+
+    test("clinical service data submission bad path - fail dependency") {
+
+        when {
+            workflow {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    meta: [study_id:"GARGAMEL",status:"failed",id:"NEW_ANALYSIS_02",type:[]],
+                    analysis: [analysis:[],files:[],workflow:[]],
+                    clinical : [specimen:file('${projectDir}/tests/modules/clinicalsubmission/registerable_specimen.tsv'),sample:file('${projectDir}/tests/modules/clinicalsubmission/registerable_sample.tsv'),experiment:file('${projectDir}/tests/modules/clinicalsubmission/registerable_experiment.tsv'),read_group:file('${projectDir}/tests/modules/clinicalsubmission/registerable_read_group.tsv')],
+                    files : [[],[],[]]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+
+                { assert workflow.out.versions},
+                { assert workflow.out.registering_files},
+                { assert workflow.out.registering_files.meta},
+                { assert workflow.out.registering_files.meta.id},
+                { assert workflow.out.registering_files.meta.study},
+                { assert workflow.out.registering_files.meta.type},
+                { assert workflow.out.registering_files.meta.status},
+                { assert workflow.out.registering_files.analysis},
+                { assert workflow.out.registering_files.analysis.analysis},
+                { assert workflow.out.registering_files.analysis.workflow},
+                { assert workflow.out.registering_files.analysis.files},
+                { assert workflow.out.registering_files.clinical},
+                { assert workflow.out.registering_files.clinical.specimen},
+                { assert workflow.out.registering_files.clinical.sample},
+                { assert workflow.out.registering_files.clinical.experiment},
+                { assert workflow.out.registering_files.clinical.read_group},
+                { assert workflow.out.registering_files.files},
+                { assert workflow.out.unsuccessful_registeration},
+                { assert workflow.out.unsuccessful_registeration.meta},
+                { assert workflow.out.unsuccessful_registeration.meta.id},
+                { assert workflow.out.unsuccessful_registeration.meta.study},
+                { assert workflow.out.unsuccessful_registeration.meta.type},
+                { assert workflow.out.unsuccessful_registeration.meta.status},
+                { assert workflow.out.unsuccessful_registeration.analysis},
+                { assert workflow.out.unsuccessful_registeration.analysis.analysis},
+                { assert workflow.out.unsuccessful_registeration.analysis.workflow},
+                { assert workflow.out.unsuccessful_registeration.analysis.files},
+                { assert workflow.out.unsuccessful_registeration.clinical},
+                { assert workflow.out.unsuccessful_registeration.clinical.specimen},
+                { assert workflow.out.unsuccessful_registeration.clinical.sample},
+                { assert workflow.out.unsuccessful_registeration.clinical.experiment},
+                { assert workflow.out.unsuccessful_registeration.clinical.read_group},
+                { assert workflow.out.unsuccessful_registeration.files}
+            )
+        }
+    }
+
+    test("clinical service data submission bad path - fail submission") {
+
+        when {
+            workflow {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    meta: [study_id:"GARGAMEL",status:"pass",id:"NEW_ANALYSIS_02",type:[]],
+                    analysis: [analysis:[],files:[],workflow:[]],
+                    clinical : [specimen:file('${projectDir}/tests/modules/clinicalsubmission/registerable_specimen.tsv'),sample:file('${projectDir}/tests/modules/clinicalsubmission/registerable_sample.tsv'),experiment:file('${projectDir}/tests/modules/clinicalsubmission/registerable_experiment.tsv'),read_group:file('${projectDir}/tests/modules/clinicalsubmission/registerable_read_group.tsv')],
+                    files : []
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+
+                { assert workflow.out.versions},
+                { assert workflow.out.registering_files},
+                { assert workflow.out.registering_files.meta},
+                { assert workflow.out.registering_files.meta.id},
+                { assert workflow.out.registering_files.meta.study},
+                { assert workflow.out.registering_files.meta.type},
+                { assert workflow.out.registering_files.meta.status},
+                { assert workflow.out.registering_files.analysis},
+                { assert workflow.out.registering_files.analysis.analysis},
+                { assert workflow.out.registering_files.analysis.workflow},
+                { assert workflow.out.registering_files.analysis.files},
+                { assert workflow.out.registering_files.clinical},
+                { assert workflow.out.registering_files.clinical.specimen},
+                { assert workflow.out.registering_files.clinical.sample},
+                { assert workflow.out.registering_files.clinical.experiment},
+                { assert workflow.out.registering_files.clinical.read_group},
+                { assert workflow.out.registering_files.files},
+                { assert workflow.out.unsuccessful_registeration},
+                { assert workflow.out.unsuccessful_registeration.meta},
+                { assert workflow.out.unsuccessful_registeration.meta.id},
+                { assert workflow.out.unsuccessful_registeration.meta.study},
+                { assert workflow.out.unsuccessful_registeration.meta.type},
+                { assert workflow.out.unsuccessful_registeration.meta.status},
+                { assert workflow.out.unsuccessful_registeration.analysis},
+                { assert workflow.out.unsuccessful_registeration.analysis.analysis},
+                { assert workflow.out.unsuccessful_registeration.analysis.workflow},
+                { assert workflow.out.unsuccessful_registeration.analysis.files},
+                { assert workflow.out.unsuccessful_registeration.clinical},
+                { assert workflow.out.unsuccessful_registeration.clinical.specimen},
+                { assert workflow.out.unsuccessful_registeration.clinical.sample},
+                { assert workflow.out.unsuccessful_registeration.clinical.experiment},
+                { assert workflow.out.unsuccessful_registeration.clinical.read_group},
+                { assert workflow.out.unsuccessful_registeration.files}
+            )
+        }
+    }
+}

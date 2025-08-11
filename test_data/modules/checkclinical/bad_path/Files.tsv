@@ -1,9 +1,0 @@
-fileName	fileSize	fileMd5sum	fileType	fileAccess	dataType	submitter_analysis_id
-C0HVY.2_r1.fq.gz	2040	64cf635dbc54f53cae2cb03ec8e8471b	FASTQ	controlled	Raw Sequencing Reads	NEW_ANALYSIS_01
-C0HVY.2_r2.fq.gz	2042	ceb7e66d031cb894fa9d1d3f8da65fc7	FASTQ	controlled	Raw Sequencing Reads	NEW_ANALYSIS_01
-D0RE2.1_r1.fq.gz	2309	44bea7aa32a1afb68eec24496b608545	FASTQ	controlled	Raw Sequencing Reads	NEW_ANALYSIS_02
-D0RE2.1_r2.fq.gz	2365	d73b37eca9375258ab42905f7943b1b6	FASTQ	controlled	Raw Sequencing Reads	NEW_ANALYSIS_02
-D0RH0.2_r1.fq.gz	1872	b90a3c9750db29406f31e9488d5b7e2b	FASTQ	controlled	Raw Sequencing Reads	NEW_ANALYSIS_02
-D0RH0.2_r2.fq.gz	1894	a407247b584daa078114ab05e6e489be	FASTQ	controlled	Raw Sequencing Reads	NEW_ANALYSIS_02
-anon_chr1_completeA.cram	132507	0d1776d44d8da87758d6b159aa8e6bc	CRAM	controlled	Aligned Reads	DONOR_01_EXPERIMENT_02
-anon_chr1_completeA.cram.crai	67	0a60cf4ee4f7693c3c3fa209246608cb	CRAI	controlled	Aligned Reads	DONOR_01_EXPERIMENT_02

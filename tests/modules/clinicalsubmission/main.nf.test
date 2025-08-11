@@ -1,0 +1,139 @@
+// nf-test for check_clinical dependencies process
+nextflow_process{
+    name "Test module check_clinical"
+    script "modules/local/clinical_submission/main.nf"
+    process "CLINICAL_SUBMISSION"
+
+    tag "modules"
+    tag "modules_local"
+    tag "modules/clinical_submission"
+
+    test("clinical submission happy path") {
+
+        when {
+            process {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    meta: [study_id:"EXAMPLE-CA9",status:"pass",id:"NEW_ANALYSIS_02",type:[]],
+                    analysis: [analysis:[],files:[],workflow:[]],
+                    clinical : [specimen:file('${projectDir}/tests/modules/clinicalsubmission/registerable_specimen.tsv'),sample:file('${projectDir}/tests/modules/clinicalsubmission/registerable_sample.tsv'),experiment:file('${projectDir}/tests/modules/clinicalsubmission/registerable_experiment.tsv'),read_group:file('${projectDir}/tests/modules/clinicalsubmission/registerable_read_group.tsv')],
+                    files : [[],[],[]]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+
+                { assert process.out.versions},
+                { assert process.out.analysis_channels},
+                { assert process.out.analysis_channels.meta},
+                { assert process.out.analysis_channels.meta.id},
+                { assert process.out.analysis_channels.meta.study},
+                { assert process.out.analysis_channels.meta.type},
+                { assert process.out.analysis_channels.meta.status},
+                { assert process.out.analysis_channels.analysis},
+                { assert process.out.analysis_channels.analysis.analysis},
+                { assert process.out.analysis_channels.analysis.workflow},
+                { assert process.out.analysis_channels.analysis.files},
+                { assert process.out.analysis_channels.clinical},
+                { assert process.out.analysis_channels.clinical.specimen},
+                { assert process.out.analysis_channels.clinical.sample},
+                { assert process.out.analysis_channels.clinical.experiment},
+                { assert process.out.analysis_channels.clinical.read_group},
+                { assert process.out.analysis_channels.files},
+                { assert process.out.status_file}
+            )
+        }
+    }
+
+    test("clinical submission bad path - fail dependency") {
+
+        when {
+            process {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    meta: [study_id:"GARGAMEL",status:"failed",id:"NEW_ANALYSIS_02",type:[]],
+                    analysis: [analysis:[],files:[],workflow:[]],
+                    clinical : [specimen:file('${projectDir}/tests/modules/clinicalsubmission/registerable_specimen.tsv'),sample:file('${projectDir}/tests/modules/clinicalsubmission/registerable_sample.tsv'),experiment:file('${projectDir}/tests/modules/clinicalsubmission/registerable_experiment.tsv'),read_group:file('${projectDir}/tests/modules/clinicalsubmission/registerable_read_group.tsv')],
+                    files : [[],[],[]]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+
+                { assert process.out.versions},
+                { assert process.out.analysis_channels},
+                { assert process.out.analysis_channels.meta},
+                { assert process.out.analysis_channels.meta.id},
+                { assert process.out.analysis_channels.meta.study},
+                { assert process.out.analysis_channels.meta.type},
+                { assert process.out.analysis_channels.meta.status},
+                { assert process.out.analysis_channels.analysis},
+                { assert process.out.analysis_channels.analysis.analysis},
+                { assert process.out.analysis_channels.analysis.workflow},
+                { assert process.out.analysis_channels.analysis.files},
+                { assert process.out.analysis_channels.clinical},
+                { assert process.out.analysis_channels.clinical.specimen},
+                { assert process.out.analysis_channels.clinical.sample},
+                { assert process.out.analysis_channels.clinical.experiment},
+                { assert process.out.analysis_channels.clinical.read_group},
+                { assert process.out.analysis_channels.files},
+                { assert process.out.status_file}
+            )
+        }
+    }
+
+    test("clinical submission bad path - fail submission") {
+
+        when {
+            process {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    meta: [study_id:"GARGAMEL",status:"pass",id:"NEW_ANALYSIS_02",type:[]],
+                    analysis: [analysis:[],files:[],workflow:[]],
+                    clinical : [specimen:file('${projectDir}/tests/modules/clinicalsubmission/registerable_specimen.tsv'),sample:file('${projectDir}/tests/modules/clinicalsubmission/registerable_sample.tsv'),experiment:file('${projectDir}/tests/modules/clinicalsubmission/registerable_experiment.tsv'),read_group:file('${projectDir}/tests/modules/clinicalsubmission/registerable_read_group.tsv')],
+                    files : [[],[],[]]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+
+                { assert process.out.versions},
+                { assert process.out.analysis_channels},
+                { assert process.out.analysis_channels.meta},
+                { assert process.out.analysis_channels.meta.id},
+                { assert process.out.analysis_channels.meta.study},
+                { assert process.out.analysis_channels.meta.type},
+                { assert process.out.analysis_channels.meta.status},
+                { assert process.out.analysis_channels.analysis},
+                { assert process.out.analysis_channels.analysis.analysis},
+                { assert process.out.analysis_channels.analysis.workflow},
+                { assert process.out.analysis_channels.analysis.files},
+                { assert process.out.analysis_channels.clinical},
+                { assert process.out.analysis_channels.clinical.specimen},
+                { assert process.out.analysis_channels.clinical.sample},
+                { assert process.out.analysis_channels.clinical.experiment},
+                { assert process.out.analysis_channels.clinical.read_group},
+                { assert process.out.analysis_channels.files},
+                { assert process.out.status_file}
+            )
+        }
+    }
+}
