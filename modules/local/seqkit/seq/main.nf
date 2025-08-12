@@ -62,7 +62,8 @@ process SEQKIT_SEQ {
     
     # Add error message if validation failed
     if [ \$FASTQ_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
-        echo "    error_message: \"\$ERROR_DETAILS\"" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${fastq_file.baseName}_status.yml"
+        echo "    error_details: |" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${fastq_file.baseName}_status.yml"
+        echo "\$ERROR_DETAILS" | sed 's/^/            /' >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${fastq_file.baseName}_status.yml"
     fi
     
     # Create versions file

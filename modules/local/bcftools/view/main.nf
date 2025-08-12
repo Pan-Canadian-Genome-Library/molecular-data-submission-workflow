@@ -62,9 +62,14 @@ process BCFTOOLS_VIEW {
     
     # Add error message if validation failed
     if [ \$VCF_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
-        echo "    error_message: \"\$ERROR_DETAILS\"" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${vcf_file.baseName}_status.yml"
+        # Format multi-line error details properly for YAML
+        echo "    error_details: |" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${vcf_file.baseName}_status.yml"
+        echo "\$ERROR_DETAILS" | sed 's/^/            /' >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${vcf_file.baseName}_status.yml"
+
     fi
-    
+
+
+
     # Create versions file
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
