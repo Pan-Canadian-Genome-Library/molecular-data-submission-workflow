@@ -1,50 +1,53 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "data_validation"
-## TODO nf-core: Add a description of the subworkflow and list keywords
-description: Comprehensive data validation subworkflow for genomic files with read group file consistency validation, cross-check validation, and file integrity checks (executed in that order)
+description: Comprehensive data validation subworkflow orchestrating metadata validation, MD5 crosscheck validation, and file integrity validation in sequential order
 keywords:
   - validation
   - file integrity
-  - metadata
+  - metadata validation
+  - md5 checksum
+  - crosscheck
   - genomics
   - quality control
-## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+  - biospecimen
 components:
-  - validation/fileintegrity
+  - file_integrity
   - validation/metadata
   - validation/crosscheck
-## TODO nf-core: List all of the channels used as input with a description and their structure
 input:
-  - ch_payload_files:
+  - ch_payload_files_biospecimen:
       type: channel
       description: |
-        Channel containing payload files from molecular_payload_generation
-        Structure: [ val(meta.id=submitter_analysis_id, meta.type=analysisType, meta.study=studyId, meta.status), payload(json), [files] ]
-  - ch_biospecimen_entity:
-      type: channel
-      description: |
-        Channel containing biospecimen entity files from clinical_submission used for read group file validation
-        Structure: [ val(meta.id=submitter_analysis_id, meta.type=analysisType, meta.study=studyId, meta.status), specimen(tsv), sample(tsv), experiment(tsv), read_group(tsv) ]
-## TODO nf-core: List all of the channels used as output with a descriptions and their structure
+        Channel containing payload files with biospecimen data from molecular_payload_generation
+        Structure: [ val(meta), payload(json), [files], specimen(path), sample(path), experiment(path), read_group(path) ]
+        - meta: Map containing analysis metadata (id, type, study, status)
+        - payload: JSON payload file with analysis metadata  
+        - files: List of genomic files for validation
+        - specimen: TSV file with specimen metadata
+        - sample: TSV file with sample metadata
+        - experiment: TSV file with experiment metadata
+        - read_group: TSV file with read group metadata
 output:
   - validated_payload_files:
       type: channel
       description: |
-        Channel containing validated payload files
-        Structure: [ val(meta.id=submitter_analysis_id, meta.type=analysisType, meta.study=studyId, meta.status), payload(json), [files] ]
-      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+        Channel containing validated payload files with final validation status
+        Structure: [ val(meta), payload(json), [files] ]
+        - meta: Updated map with final validation status (status: 'pass' or 'failed')
+        - payload: Original JSON payload file
+        - files: List of validated genomic files
+      pattern: "*.{bam,cram,vcf,vcf.gz,bcf,fastq,fq,fastq.gz,fq.gz}"
   - status:
       type: channel
       description: |
-        Channel containing validation status files
-        Structure: [ val(meta.id=submitter_analysis_id, meta.type=analysisType, meta.study=studyId), [*_status.yml] ]
+        Channel containing all validation status files from metadata, crosscheck, and file integrity steps
+        Structure: [ val(meta), *_status.yml ]
+        - Includes status files from VALIDATION_METADATA, VALIDATION_CROSSCHECK, and FILE_INTEGRITY
       pattern: "*_status.yml"
   - versions:
-      type: file
+      type: channel
       description: |
-        File containing software versions
-        Structure: [ path(versions.yml) ]
-      pattern: "versions.yml"
+        Channel containing software versions from all validation modules
+        Structure: [ versions.yml ]
       pattern: "versions.yml"
 authors:
   - "@lindaxiang"

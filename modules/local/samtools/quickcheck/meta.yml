@@ -1,0 +1,60 @@
+name: "samtools_quickcheck"
+description: BAM and CRAM file validation using samtools quickcheck
+keywords:
+  - samtools
+  - bam
+  - cram
+  - validation
+  - file integrity
+tools:
+  - "samtools":
+      description: Tools for manipulating next-generation sequencing data
+      homepage: http://www.htslib.org/
+      documentation: http://www.htslib.org/doc/samtools.html
+      tool_dev_url: https://github.com/samtools/samtools
+      doi: "10.1093/bioinformatics/btr509"
+      licence: ["MIT"]
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
+  - payload:
+      type: file
+      description: Payload file containing metadata
+      pattern: "*.{json,yml,yaml}"
+  - alignment_file:
+      type: file
+      description: BAM or CRAM format file to validate
+      pattern: "*.{bam,cram}"
+  - index_files:
+      type: file
+      description: Index files for the alignment file (optional)
+      pattern: "*.{bai,csi,crai}"
+
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+  - ch_validated_file:
+      type: tuple
+      description: Tuple containing meta, payload, validated alignment file, and index files
+      pattern: "[meta, payload, alignment_file, index_files]"
+  - status:
+      type: tuple
+      description: Tuple containing meta and validation status file
+      pattern: "[meta, *_status.yml]"
+
+authors:
+  - "@lindaxiang"
+
+maintainers:
+  - "@lindaxiang"

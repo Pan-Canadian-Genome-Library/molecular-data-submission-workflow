@@ -21,6 +21,7 @@ process VALIDATION_METADATA {
     script:
     def exit_on_error = params.exit_on_error ?: task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
+    def read_group_arg = read_group && !read_group.name.contains('NO_FILE') ? "--read-group-file ${read_group}" : ""
     """
     # Set error handling to continue on failure for resilient processing
     set +e
@@ -39,14 +40,13 @@ process VALIDATION_METADATA {
     else
         echo "Upstream process successful or not set, proceeding with metadata validation"
         
-        # Build Python script arguments - always pass all files, let Python handle all requirements and availability
+        # Build Python script arguments - read_group is conditionally added based on availability
         PYTHON_ARGS="${payload}"
         PYTHON_ARGS="\$PYTHON_ARGS --specimen-file ${specimen}"
         PYTHON_ARGS="\$PYTHON_ARGS --sample-file ${sample}"
         PYTHON_ARGS="\$PYTHON_ARGS --experiment-file ${experiment}"
-        PYTHON_ARGS="\$PYTHON_ARGS --read-group-file ${read_group}"
+        PYTHON_ARGS="\$PYTHON_ARGS ${read_group_arg}"
         PYTHON_ARGS="\$PYTHON_ARGS --analysis-type ${meta.type}"
-        PYTHON_ARGS="\$PYTHON_ARGS --verbose"
         
         # Run validation - Python script handles all file availability and requirement logic
         echo "Running validation with command: main.py \$PYTHON_ARGS"

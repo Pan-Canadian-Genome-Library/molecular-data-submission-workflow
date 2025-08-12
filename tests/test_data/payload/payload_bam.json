@@ -1,0 +1,34 @@
+{
+  "analysisType": {
+    "name": "sequenceAlignment"
+  },
+  "data_category": "Aligned Reads",
+  "files": [
+    {
+      "dataType": "Aligned Reads",
+      "fileAccess": "controlled",
+      "fileMd5sum": "d41d8cd98f00b204e9800998ecf8427e",
+      "fileName": "test_sample.bam",
+      "fileSize": 1024,
+      "fileType": "BAM"
+    },
+    {
+      "dataType": "Aligned Reads Index",
+      "fileAccess": "controlled", 
+      "fileMd5sum": "d41d8cd98f00b204e9800998ecf8427e",
+      "fileName": "test_sample.bam.bai",
+      "fileSize": 512,
+      "fileType": "BAI"
+    }
+  ],
+  "genome_build": "GRCh38",
+  "studyId": "TEST-CA",
+  "submitter_analysis_id": "TEST_BAM_ANALYSIS_001",
+  "submitter_experiment_id": "TEST_EXPERIMENT_001",
+  "workflow": {
+    "submitter_workflow_id": "TEST_WORKFLOW_001",
+    "workflow_name": "BWA-MEM Alignment",
+    "workflow_url": "https://github.com/ICGC-ARGO-Workflows/bwa-mem-aligner",
+    "workflow_version": "1.0.0"
+  }
+}

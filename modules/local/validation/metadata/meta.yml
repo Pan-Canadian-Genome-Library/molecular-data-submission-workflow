@@ -7,6 +7,10 @@ keywords:
   - analysis
   - consistency
   - genomics
+  - clinical data
+  - specimen
+  - sample
+  - experiment
   - read groups
 tools:
   - python:
@@ -17,8 +21,8 @@ tools:
       licence: ["Python Software Foundation License"]
 
 files:
-  - resources/bin/validate_metadata.py:
-      description: Python script for comprehensive metadata validation and read group file consistency checking
+  - resources/usr/bin/main.py:
+      description: Python script for comprehensive metadata validation including specimen, sample, experiment, and read group file consistency checking
 
 input:
   - meta:
@@ -26,45 +30,48 @@ input:
       description: |
         Groovy Map containing sample information
         e.g. `[ id:'sample1', single_end:false ]`
-  - files:
-      type: file
-      description: Input genomic files to cross-check with payload metadata
-      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
-  - integrity_status:
-      type: file
-      description: Status file from upstream file integrity validation
-      pattern: "*_integrity_status.yml"
-  - analysis_payload:
+  - payload:
       type: file
       description: JSON analysis payload containing metadata for cross-validation
       pattern: "*.json"
-  - read_group_data:
-      type: tuple
-      description: |
-        Tuple containing meta and read group TSV data from biospecimen entity
-        Structure: [ val(meta), path(read_group.tsv) ]
+  - payload_files:
+      type: file
+      description: Input genomic data files to cross-check with payload metadata
+      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+  - specimen:
+      type: file
+      description: TSV file containing specimen-level metadata
+      pattern: "*_specimen.tsv"
+  - sample:
+      type: file
+      description: TSV file containing sample-level metadata
+      pattern: "*_sample.tsv"
+  - experiment:
+      type: file
+      description: TSV file containing experiment-level metadata
+      pattern: "*_experiment.tsv"
+  - read_group:
+      type: file
+      description: TSV file containing read group metadata
+      pattern: "*_read_group.tsv"
 
 output:
-  - meta:
-      type: map
+  - ch_payload_files:
+      type: tuple
       description: |
-        Groovy Map containing sample information
-        e.g. `[ id:'sample1', single_end:false ]`
-  - validated_files:
-      type: file
-      description: The same input files, passed through after metadata validation
-      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+        Tuple containing meta, payload, and payload_files after validation
+        Structure: [ val(meta), path(payload), path(payload_files) ]
   - status:
       type: file
       description: YAML status file containing metadata validation results
-      pattern: "*_metadata_status.yml"
+      pattern: "*_status.yml"
   - versions:
       type: file
       description: File containing software versions
       pattern: "versions.yml"
 
 authors:
-  - "@your_github_username"
+  - "@lindaxiang"
 
 maintainers:
-  - "@your_github_username"
+  - "@lindaxiang"
