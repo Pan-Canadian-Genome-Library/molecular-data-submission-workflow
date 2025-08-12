@@ -94,7 +94,7 @@ def main():
     workflow_metadata = None
     if args.workflow_meta:
         workflow_data = read_metadata_file(args.workflow_meta)
-        if not workflow_data:
+        if not workflow_data and args.analysis_type != "sequenceExperiment":
             print(f"Error: Could not read workflow metadata from {args.workflow_meta}", file=sys.stderr)
             sys.exit(1)
         # Convert list of rows to single dict for workflow_meta (assuming single row)
