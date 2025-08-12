@@ -106,7 +106,8 @@ def main():
                     target_id = analysis_row.get('submitter_experiment_id')
                 else:  # read_group
                     target_id = analysis_row.get('submitter_experiment_id')  # Read groups are linked to experiments
-                
+                    id_col = 'submitter_experiment_id'
+                    
                 if target_id:
                     entity_rows.extend(filter_by_analysis_id(metadata_file, id_col, target_id))
         

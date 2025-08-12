@@ -3,3 +3,4 @@ EXP_001,SAMPLE_001,WGS,,OBI:0002117,Whole genome sequencing,ILLUMINA,Illumina Hi
 EXP_002,SAMPLE_002,WGS,,OBI:0002117,Whole genome sequencing,ILLUMINA,Illumina HiSeq 2500,HiSeq 2500 v4,TruSeq DNA PCR-Free
 EXP_003,SAMPLE_003,WGS,,OBI:0002117,Whole genome sequencing,ILLUMINA,Illumina NovaSeq 6000,NovaSeq 6000 S4,TruSeq DNA PCR-Free
 EXP_004,SAMPLE_004,WGS,,OBI:0002117,Whole genome sequencing,ILLUMINA,Illumina NovaSeq 6000,NovaSeq 6000 S4,TruSeq DNA PCR-Free
+EXP_005,SAMPLE_004,WGS,,OBI:0002117,Whole genome sequencing,ILLUMINA,Illumina NovaSeq 6000,NovaSeq 6000 S4,TruSeq DNA PCR-Free

@@ -1,6 +1,5 @@
-submitter_read_group_id,submitter_experiment_id,file_r1,file_r2,library_name,library_layout,platform_unit,library_description,read_group_id_in_bam,read_length_r1,read_length_r2,insert_size
-RG_001,EXP_001,test_file_001_1.bam,test_file_001_2.bam,LIB_001,OBI:0000722 (paired-end library),ILLUMINA_001,TruSeq DNA PCR-Free Library,RG001,150,150,350
-RG_002,EXP_002,test_file_002_1.bam,,LIB_002,OBI:0000736 (single fragment library),ILLUMINA_002,TruSeq DNA PCR-Free Library,RG002,150,,
-RG_003,EXP_004,test_rg_3.v2.bam,test_rg_3.v2.bam,LIB_003,OBI:0000722 (paired-end library),ILLUMINA_003,TruSeq DNA PCR-Free Library,RG003,150,,
-RG_004,EXP_004,test_rg_3.v2.bam,test_rg_3.v2.bam,LIB_003,OBI:0000722 (paired-end library),ILLUMINA_003,TruSeq DNA PCR-Free Library,RG003,150,,
-RG_005,EXP_004,test_rg_3.v2.bam,test_rg_3.v2.bam,LIB_003,OBI:0000722 (paired-end library),ILLUMINA_003,TruSeq DNA PCR-Free Library,RG003,150,,
+submitter_read_group_id,submitter_experiment_id,file_r1,file_r2,library_name,library_layout,platform_unit,library_description,read_group_id_in_bam,read_length_r1,read_length_r2,insert_size,
+RG_001,EXP_001,test_file_001_1.bam,test_file_001_2.bam,LIB_001,OBI:0000722 (paired-end library),ILLUMINA_001,TruSeq DNA PCR-Free Library,RG001,150,150,350,
+RG_002,EXP_002,test_file_002_1.bam,,LIB_002,OBI:0000736 (single fragment library),ILLUMINA_002,TruSeq DNA PCR-Free Library,RG002,150,,,
+RG_004,EXP_004,test_rg_3.v2.bam,test_rg_3.v2.bam,LIB_004,OBI:0000722 (paired-end library),ILLUMINA_004,TruSeq DNA PCR-Free Library,RG004,150,,,
+RG_005,EXP_005,test_sample_R1.fastq.gz,test_sample_R2.fastq.gz,LIB_005,OBI:0000722 (paired-end library),ILLUMINA_005,TruSeq DNA PCR-Free Library,,150,,,
