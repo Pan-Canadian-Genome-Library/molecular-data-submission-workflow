@@ -4,7 +4,7 @@ nextflow_workflow {
     script "subworkflows/local/data_validation/main.nf"
     workflow "DATA_VALIDATION"
 
-    test("Should run without failures") {
+    test("Two BAMS should pass all validation steps") {
 
         when {
             params {
@@ -21,17 +21,17 @@ nextflow_workflow {
                 ]
 
                 // Create mock payload files using test data
-                def payload = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/test_payload.json")
+                def payload = file("${projectDir}/tests/test_data/payload/test_payload.json")
                 def files = [
-                    file("${projectDir}/tests/subworkflows/local/data_validation/test_data/test_file1.bam"), 
-                    file("${projectDir}/tests/subworkflows/local/data_validation/test_data/test_file2.bam")
+                    file("${projectDir}/tests/test_data/genomics/test_file1.bam"), 
+                    file("${projectDir}/tests/test_data/genomics/test_file2.bam")
                 ]
                 
                 // Create mock biospecimen entity files
-                def specimen = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/specimen.tsv")
-                def sample = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/sample.tsv") 
-                def experiment = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/experiment.tsv")
-                def read_group = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/read_group.tsv")
+                def specimen = file("${projectDir}/tests/test_data/biospecimen/specimen.tsv")
+                def sample = file("${projectDir}/tests/test_data/biospecimen/sample.tsv") 
+                def experiment = file("${projectDir}/tests/test_data/biospecimen/experiment.tsv")
+                def read_group = file("${projectDir}/tests/test_data/biospecimen/read_group.tsv")
 
                 // Define input channels
                 input[0] = Channel.of([meta, payload, files, specimen, sample, experiment, read_group])
@@ -52,9 +52,115 @@ nextflow_workflow {
                 assert versions.size() >= 3  // At least 3 version files
             }
             
-            // assert snapshot(workflow.out).match()
         }
 
+    }
+
+    test("VCF + TBI files validation") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "TEST_VCF_001",
+                    type: "variantCall",
+                    study: "TEST-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_vcf.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz"), 
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz.tbi")
+                ]
+
+                // Create mock biospecimen entity files
+                def specimen = file("${projectDir}/tests/test_data/biospecimen/specimen.tsv")
+                def sample = file("${projectDir}/tests/test_data/biospecimen/sample.tsv") 
+                def experiment = file("${projectDir}/tests/test_data/biospecimen/experiment.tsv")
+        
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files, specimen, sample, experiment, []])
+
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.validated_payload_files.size() == 1
+            assert workflow.out.status.size() >= 1
+            assert workflow.out.versions.size() >= 1
+
+            // Check that both VCF and TBI files are present in output
+            def output_files = workflow.out.validated_payload_files[0][2]
+            assert output_files.size() == 2
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.vcf.gz') 
+            }
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.tbi') 
+            }
+        }
+    }
+
+    test("Two FASTQs should pass all validation steps") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "TEST_FASTQ_001",
+                    type: "sequenceExperiment",
+                    study: "TEST-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_fastq.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz"), 
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R2.fastq.gz")
+                ]
+
+                // Create mock biospecimen entity files
+                def specimen = file("${projectDir}/tests/test_data/biospecimen/specimen.tsv")
+                def sample = file("${projectDir}/tests/test_data/biospecimen/sample.tsv") 
+                def experiment = file("${projectDir}/tests/test_data/biospecimen/experiment.tsv")
+                def read_group = file("${projectDir}/tests/test_data/biospecimen/read_group_fastq.tsv")
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files, specimen, sample, experiment, read_group])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.validated_payload_files.size() == 1
+            assert workflow.out.status.size() >= 2  // Two FASTQ files = two status files
+            assert workflow.out.versions.size() >= 2
+
+            // Check that both FASTQ files are present in output
+            def output_files = workflow.out.validated_payload_files[0][2]
+            assert output_files.size() == 2
+            assert output_files.findAll { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.fastq.gz') 
+            }.size() == 2
+        }
     }
 
     test("Should handle validation failures gracefully") {
@@ -74,17 +180,17 @@ nextflow_workflow {
                 ]
 
                 // Create mock payload and files using invalid test data
-                def payload = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/invalid_payload.json")
-                def files = [file("${projectDir}/tests/subworkflows/local/data_validation/test_data/corrupt_file.bam")]
-                
+                def payload = file("${projectDir}/tests/test_data/payload/invalid_payload.json")
+                def files = [file("${projectDir}/tests/test_data/genomics/corrupt_file.bam")]
+
                 // Create mock biospecimen entity files (reuse valid ones)
-                def specimen = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/specimen.tsv")
-                def sample = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/sample.tsv")
-                def experiment = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/experiment.tsv") 
-                def read_group = file("${projectDir}/tests/subworkflows/local/data_validation/test_data/read_group.tsv")
+                def specimen = file("${projectDir}/tests/test_data/biospecimen/specimen.tsv")
+                def sample = file("${projectDir}/tests/test_data/biospecimen/sample.tsv")
+                def experiment = file("${projectDir}/tests/test_data/biospecimen/experiment.tsv")
+                def read_group = file("${projectDir}/tests/test_data/biospecimen/read_group.tsv")
 
                 // Define input channels
-                input[0] = Channel.of([meta, payload, files,specimen, sample, experiment, read_group])
+                input[0] = Channel.of([meta, payload, files, specimen, sample, experiment, read_group])
                 """
             }
         }
@@ -94,8 +200,6 @@ nextflow_workflow {
             assert workflow.out.validated_payload_files
             assert workflow.out.status
             assert workflow.out.versions
-            
-            // assert snapshot(workflow.out).match("validation_failures")
         }
 
     }

@@ -61,22 +61,40 @@ def validate_read_group_files(payload, read_groups):
     read_group_files = set()
     
     for rg in read_groups:
-        rg_id = rg.get('submitter_read_group_id', 'unknown')
+        rg_id = rg.get('submitter_read_group_id')
         
-        # Check R1 file
-        if 'file_r1' in rg and rg['file_r1']:
-            read_group_files.add(rg['file_r1'])
-            if rg['file_r1'] not in payload_filenames:
-                validation_errors.append(f'Read group {rg_id} references file_r1 "{rg["file_r1"]}" not found in payload')
+        # Check file_r1
+        file_r1 = rg.get('file_r1').strip()
+        if file_r1:
+            read_group_files.add(file_r1)
+            if file_r1 not in payload_filenames:
+                validation_errors.append(f'Read group {rg_id}: file_r1 "{file_r1}" not found in payload files')
         
-        # Check R2 file (optional)
-        if 'file_r2' in rg and rg['file_r2']:
-            read_group_files.add(rg['file_r2'])
-            if rg['file_r2'] not in payload_filenames:
-                validation_errors.append(f'Read group {rg_id} references file_r2 "{rg["file_r2"]}" not found in payload')
+        # Check file_r2
+        file_r2 = rg.get('file_r2', '').strip()
+        if file_r2:
+            read_group_files.add(file_r2)
+            if file_r2 not in payload_filenames:
+                validation_errors.append(f'Read group {rg_id}: file_r2 "{file_r2}" not found in payload files')
+        
+        # Validate library layout consistency
+        library_layout = rg.get('library_layout').upper()
+        if 'PAIRED' in library_layout:
+            if not file_r1:
+                validation_errors.append(f'Read group {rg_id}: library_layout is PAIRED but file_r1 is missing')
+            if not file_r2:
+                validation_errors.append(f'Read group {rg_id}: library_layout is PAIRED but file_r2 is missing')
+        elif 'SINGLE' in library_layout:
+            if not file_r1:
+                validation_errors.append(f'Read group {rg_id}: library_layout is SINGLE but file_r1 is missing')
+            if file_r2:
+                validation_errors.append(f'Read group {rg_id}: library_layout is SINGLE but file_r2 is provided')
+        else:
+            pass
     
+
     print(f'Found {len(read_group_files)} files referenced in read groups: {sorted(read_group_files)}')
-    
+  
     return validation_errors
 
 
@@ -90,7 +108,7 @@ def comprehensive_validation(payload_file, specimen_file, sample_file, experimen
         if not analysis_type and 'analysisType' in payload:
             analysis_type = payload['analysisType'].get('name', '')
         
-        print(f'Analysis type: {analysis_type or "unknown"}')
+        print(f'Analysis type: {analysis_type}')
         
         # Check if read group is required (only for sequenceExperiment)
         read_group_required = analysis_type == "sequenceExperiment"
@@ -122,7 +140,6 @@ def comprehensive_validation(payload_file, specimen_file, sample_file, experimen
         if validation_errors:
             return False, validation_errors
         
-        print('Payload-read group file consistency validation completed successfully')
         return True, []
     
     except Exception as e:
@@ -138,8 +155,7 @@ def main():
     parser.add_argument('--sample-file', required=True, help='Path to sample TSV file')
     parser.add_argument('--experiment-file', required=True, help='Path to experiment TSV file')
     parser.add_argument('--read-group-file', help='Path to read group TSV file (analysis type dependent)')
-    parser.add_argument('--analysis-type', help='Analysis type from metadata (optional, will be extracted from payload if available)')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose output')
+    parser.add_argument('--analysis-type', required=True, help='Analysis type from metadata (optional, will be extracted from payload if available)')
     
     args = parser.parse_args()
     
@@ -161,7 +177,7 @@ def main():
                 print(f'  - {error}', file=sys.stderr)
             sys.exit(1)
         else:
-            print('Payload-read group file consistency validation completed successfully')
+            print('Payload-Biospecimen files consistency validation completed successfully')
             sys.exit(0)
     
     except Exception as e:

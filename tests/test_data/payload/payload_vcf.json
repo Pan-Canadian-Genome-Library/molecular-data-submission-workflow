@@ -1,0 +1,37 @@
+{
+  "analysisType": {
+    "name": "variantCall"
+  },
+  "data_category": "Simple Nucleotide Variation",
+  "files": [
+    {
+      "dataType": "Simple Somatic Mutation",
+      "fileAccess": "controlled",
+      "fileMd5sum": "9a2d5034845272d32ea829cb29552073",
+      "fileName": "test_variants.vcf.gz",
+      "fileSize": 2048,
+      "fileType": "VCF"
+    },
+    {
+      "dataType": "Simple Somatic Mutation Index",
+      "fileAccess": "controlled",
+      "fileMd5sum": "a76295ab7aede4ce116c9e359b0d8719",
+      "fileName": "test_variants.vcf.gz.tbi",
+      "fileSize": 256,
+      "fileType": "TBI"
+    }
+  ],
+  "genome_annotation": "GENCODE v38",
+  "genome_build": "GRCh38",
+  "studyId": "TEST-CA",
+  "submitter_analysis_id": "TEST_VCF_ANALYSIS_001",
+  "submitter_experiment_id": "TEST_EXPERIMENT_001",
+  "variant_calling_strategy": "Tumor-Normal Paired",
+  "variant_class": "Somatic",
+  "workflow": {
+    "submitter_workflow_id": "TEST_WORKFLOW_001",
+    "workflow_name": "GATK-Mutect2 Variant Calling",
+    "workflow_url": "https://github.com/ICGC-ARGO-Workflows/gatk-mutect2-variant-calling",
+    "workflow_version": "4.2.0"
+  }
+}

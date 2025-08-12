@@ -4,7 +4,7 @@
 //               https://nf-co.re/join
 // TODO nf-core: A subworkflow SHOULD import at least two modules
 
-include { VALIDATION_FILEINTEGRITY } from '../../../modules/local/validation/fileintegrity/main'
+include { FILE_INTEGRITY         } from '../file_integrity/main'
 include { VALIDATION_METADATA      } from '../../../modules/local/validation/metadata/main'
 include { VALIDATION_CROSSCHECK    } from '../../../modules/local/validation/crosscheck/main'
 
@@ -56,27 +56,65 @@ workflow DATA_VALIDATION {
             [updated_meta, payload, files]
         }
 
-    VALIDATION_FILEINTEGRITY ( ch_integrity_input )
-    ch_versions = ch_versions.mix(VALIDATION_FILEINTEGRITY.out.versions.first())
+    FILE_INTEGRITY ( ch_integrity_input )
+    ch_versions = ch_versions.mix(FILE_INTEGRITY.out.versions.first())
 
-    // Reconstruct validated_payload_files channel with final meta.status
-    // Get final results from file integrity validation with updated meta.status
-    ch_validated_payload_files = VALIDATION_FILEINTEGRITY.out.ch_payload_files
-        .join(VALIDATION_FILEINTEGRITY.out.status, by: 0)
-        .map { meta, payload, files, status_file ->
-            // Update meta with final validation status
-            def status_content = status_file.text
-            def status_value = status_content.contains('status: "FAILED"') ? 'failed' : 'pass'
+    // Aggregate status from FILE_INTEGRITY validation which may contain multiple status files
+    // Group status files by meta.id to aggregate all validation results per sample
+    ch_file_integrity_aggregated_status = FILE_INTEGRITY.out.status
+        .map { meta, status_file -> [meta.id, meta, status_file] }
+        .groupTuple(by: 0)
+        .map { _id, metas, status_files ->
+            // Use first meta (should be identical for same sample)
+            def meta = metas[0]
+            
+            // Aggregate status from all file validation results
+            def overall_status = "pass"  // Default status
+            
+            // Check each status file for failures
+            status_files.each { status_file ->
+                if (status_file.exists()) {
+                    def content = status_file.text.toLowerCase()
+                    // Check for failure indicators in status file content
+                    if (content.contains('status: "failed"')) {
+                        overall_status = "failed"
+                    }
+                }
+            }
+            
+            // Handle upstream failures - preserve existing failed status
+            if (meta.status == "failed") {
+                overall_status = "failed"
+            }
+            
+            // Create updated meta with aggregated status
             def updated_meta = meta.clone()
-            updated_meta.status = status_value
+            updated_meta.status = overall_status
+
+            [updated_meta.id, updated_meta]
+        }
+
+    // Reconstruct validated_payload_files channel with final aggregated meta.status
+    // Get final results from file integrity validation with updated meta.status
+    ch_validated_payload_files = FILE_INTEGRITY.out.ch_payload_files
+        .map { meta, payload, files -> [meta.id, meta, payload, files] }
+        .join(ch_file_integrity_aggregated_status, by: 0)
+        .map { _id, _original_meta, payload, files, updated_meta ->
+            // Use the updated meta with aggregated status
             [updated_meta, payload, files]
         }
 
     // Collect all status files from all validation steps
+    // Use original FILE_INTEGRITY status files since we only update meta.status internally
     ch_all_status = Channel.empty()
         .mix(VALIDATION_METADATA.out.status)
         .mix(VALIDATION_CROSSCHECK.out.status)
-        .mix(VALIDATION_FILEINTEGRITY.out.status)
+        .mix(FILE_INTEGRITY.out.status)
+
+    // Debug output: View the final validated payload files channel
+    ch_validated_payload_files.view { meta, payload, files ->
+        "DATA_VALIDATION OUTPUT: meta.id=${meta.id}, meta.status=${meta.status}, payload=${payload.name}, files=[${files.collect{it.name}.join(', ')}] (${files.size()} total)"
+    }
 
     emit:
     // Output channels as specified

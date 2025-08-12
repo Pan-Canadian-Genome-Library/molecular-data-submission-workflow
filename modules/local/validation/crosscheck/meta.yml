@@ -58,7 +58,7 @@ output:
       pattern: "versions.yml"
 
 authors:
-  - "@your_github_username"
+  - "@lindaxiang"
 
 maintainers:
-  - "@your_github_username"
+  - "@lindaxiang"

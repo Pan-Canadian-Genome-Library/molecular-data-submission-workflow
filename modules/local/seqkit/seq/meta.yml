@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "seqkit_seq"
+description: Validate FASTQ files using seqkit seq
+keywords:
+  - sequencing
+  - fastq
+  - validation
+  - seqkit
+  - quality control
+tools:
+  - seqkit:
+      description: |
+        SeqKit is a cross-platform and ultrafast toolkit for FASTA/Q file manipulation.
+        It provides a rich set of functions including format validation, statistics,
+        and sequence manipulation.
+      homepage: https://bioinf.shenwei.me/seqkit/
+      documentation: https://bioinf.shenwei.me/seqkit/usage/
+      tool_dev_url: https://github.com/shenwei356/seqkit
+      doi: "10.1371/journal.pone.0163962"
+      licence: ["MIT"]
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
+  - payload:
+      type: file
+      description: Payload file containing metadata
+      pattern: "*.{json,yml,yaml}"
+  - fastq_file:
+      type: file
+      description: FASTQ file to validate
+      pattern: "*.{fastq,fastq.gz,fq,fq.gz}"
+
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+  - ch_validated_file:
+      type: tuple
+      description: Tuple containing meta, payload, and validated FASTQ file
+      pattern: "[meta, payload, fastq_file]"
+  - status:
+      type: tuple
+      description: Tuple containing meta and validation status file
+      pattern: "[meta, *_status.yml]"
+
+authors:
+  - "@lindaxiang"
+
+maintainers:
+  - "@lindaxiang"

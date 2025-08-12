@@ -33,7 +33,6 @@ def validate_md5_checksums(payload_file, files_list):
             payload = json.load(f)
         
         print(f'Loaded payload for MD5 validation: {payload.get("studyId", "unknown")}')
-        
         print(f'Files to validate: {len(files_list)} files')
         
         # Create payload file mapping by filename
@@ -96,10 +95,9 @@ def validate_md5_checksums(payload_file, files_list):
 
 def main():
     """Main function for command line execution."""
-    parser = argparse.ArgumentParser(description='Validate MD5 checksums of files against payload metadata')
+    parser = argparse.ArgumentParser(description='Validate MD5 checksums of files against analysis payload metadata')
     parser.add_argument('payload_file', help='Path to analysis payload JSON file')
     parser.add_argument('files', nargs='+', help='List of files to validate')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose output')
     
     args = parser.parse_args()
     

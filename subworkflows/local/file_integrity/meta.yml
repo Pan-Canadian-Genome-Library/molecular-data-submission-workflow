@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "file_integrity"
+description: File integrity validation subworkflow with dedicated processes for each genomic file type, processing files in parallel for maximum throughput with index file support
+keywords:
+  - validation
+  - genomics
+  - file integrity
+  - quality control
+  - bam
+  - cram
+  - vcf
+  - fastq
+  - index files
+  - parallel processing
+components:
+  - samtools/quickcheck
+  - bcftools/view
+  - seqkit/seq
+input:
+  - ch_payload:
+      type: channel
+      description: |
+        Channel containing metadata, payload, and files to validate
+        Structure: [ val(meta), path(payload), [files] ]
+        - meta: Map containing sample metadata including analysis_id and status
+        - payload: Path to the payload JSON file
+        - files: List of genomic files for validation (BAM/CRAM/VCF/FASTQ and their index files)
+output:
+  - ch_payload_files:
+      type: channel
+      description: |
+        Channel containing validated files regrouped after parallel validation
+        Structure: [ val(meta), path(payload), [files] ]
+        - meta: Updated map with validation status
+        - payload: Original payload file
+        - files: List of all validated files (main files + index files + passthrough files)
+      pattern: "*.{bam,cram,vcf,vcf.gz,bcf,fastq,fq,fastq.gz,fq.gz,bai,csi,tbi,crai}"
+  - status:
+      type: channel
+      description: |
+        Channel containing validation status files from all validation processes
+        Structure: [ val(meta), path("*_status.yml") ]
+        - Includes status from samtools quickcheck, bcftools view, and seqkit seq validations
+      pattern: "*_status.yml"
+  - versions:
+      type: channel
+      description: |
+        Channel containing version information from all validation tools
+        Structure: [ path("versions.yml") ]
+        - Includes versions from samtools, bcftools, and seqkit
+      pattern: "versions.yml"
+authors:
+  - "@lindaxiang"
+maintainers:
+  - "@lindaxiang"
