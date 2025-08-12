@@ -42,30 +42,31 @@ process PAYLOAD_GENERATE {
     def exit_on_error = task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error.toString()
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def workflow_meta_arg = (workflow_meta && workflow_meta != [] && workflow_meta.toString() != '[]') ? "--workflow-meta \"${workflow_meta}\"" : ""
     """
     # Set error handling to continue on failure for resilient processing
     set +e
-    
+
     # Check if upstream process was successful by checking meta.status
     if [ "${meta.status ?: 'pass'}" != "pass" ]; then
         echo "Upstream process failed (meta.status: ${meta.status ?: 'pass'}), skipping payload generation"
         GENERATION_EXIT_CODE=1
         ERROR_DETAILS="Skipped payload generation due to upstream failure"
-        
+
         # Create placeholder payload file to satisfy Nextflow output requirements
         echo '{"error": "payload_generation_failed", "message": "Placeholder file created due to upstream failure"}' > "${prefix}_payload.json"
     else
         echo "Upstream process successful, proceeding with payload generation"
-        
+
         # Run main.py once and capture both exit code and error output
-        main.py \\
-            --submitter-analysis-id "${meta.id}" \\
-            --analysis-type "${meta.type}" \\
-            --study-id "${meta.study}" \\
-            --file-meta "${file_meta}" \\
-            --analysis-meta "${analysis_meta}" \\
-            --workflow-meta "${workflow_meta}" \\
-            --data-files ${data_files} \\
+        main.py \
+            --submitter-analysis-id "${meta.id}" \
+            --analysis-type "${meta.type}" \
+            --study-id "${meta.study}" \
+            --file-meta "${file_meta}" \
+            --analysis-meta "${analysis_meta}" \
+            ${workflow_meta_arg} \
+            --data-files ${data_files} \
             --output "${prefix}_payload.json" 2>generation_errors.tmp
 
         GENERATION_EXIT_CODE=\$?
@@ -79,7 +80,7 @@ process PAYLOAD_GENERATE {
             else
                 ERROR_DETAILS="Script execution failed"
             fi
-                
+
             # Create empty/placeholder payload file if generation failed to satisfy Nextflow output requirements
             if [ ! -f "${prefix}_payload.json" ]; then
                 echo '{"error": "payload_generation_failed", "message": "Placeholder file created due to generation failure"}' > "${prefix}_payload.json"

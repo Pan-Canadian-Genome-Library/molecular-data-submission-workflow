@@ -104,12 +104,12 @@ def main():
     files_info = []
     for file_row in file_data:
         file_info = {
-            "fileName": file_row.get("fileName", ""),
-            "fileSize": int(file_row.get("fileSize", 0)) if file_row.get("fileSize", "").isdigit() else 0,
-            "dataType": file_row.get("dataType", ""),
+            "fileName": file_row.get("fileName", None),
+            "fileSize": int(file_row.get("fileSize")) if file_row.get("fileSize") and file_row.get("fileSize").isdigit() else None,
+            "dataType": file_row.get("dataType", None),
             "fileAccess": file_row.get("fileAccess", "controlled"),
-            "fileMd5sum": file_row.get("fileMd5sum", ""),
-            "fileType": file_row.get("fileType", "")
+            "fileMd5sum": file_row.get("fileMd5sum", None),
+            "fileType": file_row.get("fileType", None)
         }
         files_info.append(file_info)
     
@@ -141,29 +141,24 @@ def main():
         
         if workflow_metadata:
             payload["workflow"] = {
-                "submitter_workflow_id": workflow_metadata.get("submitter_workflow_id", ""),
-                "workflow_name": workflow_metadata.get("workflow_name", ""),
-                "workflow_url": workflow_metadata.get("workflow_url", ""),
-                "workflow_version": workflow_metadata.get("workflow_version", "")
+                "submitter_workflow_id": workflow_metadata.get("submitter_workflow_id", None),
+                "workflow_name": workflow_metadata.get("workflow_name", None),
+                "workflow_url": workflow_metadata.get("workflow_url", None),
+                "workflow_version": workflow_metadata.get("workflow_version", None)
             }
             
     elif args.analysis_type == "variantCall":
         # Add genome_annotation, genome_build, variant fields and workflow for variantCall
-        if "genome_annotation" in analysis_metadata:
-            payload["genome_annotation"] = analysis_metadata["genome_annotation"]
-        if "genome_build" in analysis_metadata:
-            payload["genome_build"] = analysis_metadata["genome_build"]
-        if "variant_calling_strategy" in analysis_metadata:
-            payload["variant_calling_strategy"] = analysis_metadata["variant_calling_strategy"]
-        if "variant_class" in analysis_metadata:
-            payload["variant_class"] = analysis_metadata["variant_class"]
+        for field in ["genome_annotation", "genome_build", "variant_calling_strategy", "variant_class"]:
+            if field in analysis_metadata:
+                payload[field] = analysis_metadata[field] 
         
         if workflow_metadata:
             payload["workflow"] = {
-                "submitter_workflow_id": workflow_metadata.get("submitter_workflow_id", ""),
-                "workflow_name": workflow_metadata.get("workflow_name", ""),
-                "workflow_url": workflow_metadata.get("workflow_url", ""),
-                "workflow_version": workflow_metadata.get("workflow_version", "")
+                "submitter_workflow_id": workflow_metadata.get("submitter_workflow_id", None),
+                "workflow_name": workflow_metadata.get("workflow_name", None),
+                "workflow_url": workflow_metadata.get("workflow_url", None),
+                "workflow_version": workflow_metadata.get("workflow_version", None)
             }
     
     # Write payload to JSON file
