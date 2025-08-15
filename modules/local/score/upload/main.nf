@@ -3,7 +3,7 @@ process SCORE_UPLOAD {
     tag "$meta.id"
     label 'process_medium'
 
-    container "${ params.score_container ?: 'ghcr.io/pan-canadian-genome-library/file-transfer' }:${ params.score_container_version ?: 'edge' }"
+    container "${ params.file_transfer_container ?: 'ghcr.io/pan-canadian-genome-library/file-transfer' }:${ params.file_transfer_container_tag }"
     containerOptions "-v \$(pwd):/score-client/logs"
 
     input:
@@ -21,8 +21,8 @@ process SCORE_UPLOAD {
     def args = task.ext.args ?: ''
     def exit_on_error = params.exit_on_error ?: task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
-    def song_url = params.song_url_upload ?: params.song_url
-    def score_url = params.score_url_upload ?: params.score_url
+    def file_manager_url = params.file_manager_url_upload ?: params.file_manager_url
+    def file_transfer_url = params.file_transfer_url_upload ?: params.file_transfer_url
     def transport_parallel = params.transport_parallel ?: task.cpus
     def transport_mem = params.transport_mem ?: "2"
     def accessToken = params.token
@@ -58,8 +58,8 @@ process SCORE_UPLOAD {
         echo "Upstream process successful, proceeding with SCORE upload"
         
         export ACCESSTOKEN=${accessToken}
-        export METADATA_URL=${song_url}
-        export STORAGE_URL=${score_url}
+        export METADATA_URL=${file_manager_url}
+        export STORAGE_URL=${file_transfer_url}
         export TRANSPORT_PARALLEL=${transport_parallel}
         export TRANSPORT_MEM=${transport_mem}
 
@@ -68,7 +68,13 @@ process SCORE_UPLOAD {
         UPLOAD_EXIT_CODE=\${?}
         
         if [ \${UPLOAD_EXIT_CODE} -ne 0 ]; then
-            ERROR_DETAILS="SCORE upload command failed"
+            # Capture error details, converting carriage returns to newlines and filtering for ERROR lines
+            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
+                # Convert carriage returns to newlines, then get lines containing ERROR
+                ERROR_DETAILS=\$(tr '\\r' '\\n' < ".command.err" | grep "ERROR" || echo "No ERROR lines found")
+            else
+                ERROR_DETAILS="Script execution failed - no error details available"
+            fi
         fi
     fi
 
@@ -85,8 +91,8 @@ process SCORE_UPLOAD {
     echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${status_file_name}"
     echo "details:" >> "${status_file_name}"
     echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${status_file_name}"
-    echo "    song_url: \\"${song_url}\\"" >> "${status_file_name}"
-    echo "    score_url: \\"${score_url}\\"" >> "${status_file_name}"
+    echo "    file_manager_url: \\"${file_manager_url}\\"" >> "${status_file_name}"
+    echo "    file_transfer_url: \\"${file_transfer_url}\\"" >> "${status_file_name}"
     echo "    manifest_file: \\"${manifest}\\"" >> "${status_file_name}"
     echo "    transport_parallel: \\"${transport_parallel}\\"" >> "${status_file_name}"
     echo "    transport_memory: \\"${transport_mem}\\"" >> "${status_file_name}"
@@ -94,9 +100,13 @@ process SCORE_UPLOAD {
 
     # Add error message to status file if upload failed
     if [ \${UPLOAD_EXIT_CODE} -ne 0 ] && [ -n "\${ERROR_DETAILS:-}" ]; then
-        echo "    error_message: \\"\${ERROR_DETAILS}\\"" >> "${status_file_name}"
+        echo "    error_details: |" >> "${status_file_name}"
+        # Use printf to properly handle special characters and preserve formatting
+        echo "\$ERROR_DETAILS" | while IFS= read -r line; do
+            echo "        \$line" >> "${status_file_name}"
+        done
     elif [ \${UPLOAD_EXIT_CODE} -ne 0 ]; then
-        echo "    error_message: \\"SCORE upload failed\\"" >> "${status_file_name}"
+        echo "    error_details: \\"SCORE upload failed\\"" >> "${status_file_name}"
     fi
 
     # Always create versions.yml before any exit
@@ -113,5 +123,35 @@ process SCORE_UPLOAD {
         echo "Continuing workflow regardless of upload result (exit_on_error=${exit_on_error_str})"
         exit 0
     fi
+    """
+
+    stub:
+    def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
+    """
+    # Create output directory
+    mkdir -p out
+    
+    # Create stub analysis_id file (copy input to output)
+    cp ${analysis_id_file} ./out/analysis_id.txt
+    
+    # Create stub status file
+    echo "process: \\"${task.process}\\"" > "${status_file_name}"
+    echo "status: \\"SUCCESS\\"" >> "${status_file_name}"
+    echo "exit_code: 0" >> "${status_file_name}"
+    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${status_file_name}"
+    echo "details:" >> "${status_file_name}"
+    echo "    analysis_id: \\"stub-analysis-id-12345\\"" >> "${status_file_name}"
+    echo "    file_manager_url: \\"${params.file_manager_url_upload ?: params.file_manager_url}\\"" >> "${status_file_name}"
+    echo "    file_transfer_url: \\"${params.file_transfer_url_upload ?: params.file_transfer_url}\\"" >> "${status_file_name}"
+    echo "    manifest_file: \\"${manifest}\\"" >> "${status_file_name}"
+    echo "    transport_parallel: \\"${params.transport_parallel ?: task.cpus}\\"" >> "${status_file_name}"
+    echo "    transport_memory: \\"${params.transport_mem ?: "2"}\\"" >> "${status_file_name}"
+    echo "    exit_on_error_enabled: \\"false\\"" >> "${status_file_name}"
+
+    # Create stub versions file
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        score-client: stub
+    END_VERSIONS
     """
 }

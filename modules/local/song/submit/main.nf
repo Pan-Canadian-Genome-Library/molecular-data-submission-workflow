@@ -3,7 +3,7 @@ process SONG_SUBMIT {
     tag "$meta.id"
     label 'process_single'
 
-    container "${ params.song_container ?: 'ghcr.io/pan-canadian-genome-library/file-manager-client' }:${ params.song_container_version ?: 'edge' }"
+    container "${ params.file_manager_container ?: 'ghcr.io/pan-canadian-genome-library/file-manager-client' }:${ params.file_manager_container_tag ?: 'edge' }"
     containerOptions "-v \$(pwd):/song-client/logs"
 
 
@@ -23,12 +23,12 @@ process SONG_SUBMIT {
     def args = task.ext.args ?: ''
     def exit_on_error = params.exit_on_error ?: task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
-    def song_url = params.song_url_upload ?: params.song_url
+    def file_manager_url = params.file_manager_url_upload ?: params.file_manager_url
     def accessToken = params.token
-    def VERSION = params.song_container_version ?: 'edge'
+    def VERSION = params.file_manager_container ?: 'edge'
     def study_id = "${meta.study}"
     def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
-
+    def allow_duplicates_arg  = params.allow_duplicates ? "--allow-duplicates" : ''
     """
     # Set error handling to continue on failure for resilient processing
     set +e
@@ -45,19 +45,24 @@ process SONG_SUBMIT {
         ANALYSIS_ID="unavailable"
     else
         echo "Upstream process successful, proceeding with SONG submit"
-        
-        export CLIENT_SERVER_URL=${song_url}
+
+        export CLIENT_SERVER_URL=${file_manager_url}
         export CLIENT_STUDY_ID=${study_id}
         export CLIENT_ACCESS_TOKEN=${accessToken}
 
         # Execute SONG submit and capture output
-        ANALYSIS_ID=\$(sing submit -f ${payload} $args | jq -er .analysisId | tr -d '\\n' 2>&1)
+        ANALYSIS_ID=\$(sing submit -f ${payload} $args $allow_duplicates_arg | jq -er .analysisId | tr -d '\\n' 2>&1)
         SUBMIT_EXIT_CODE=\${?}
         
         # Create placeholder analysis ID if submission failed
         if [ \${SUBMIT_EXIT_CODE} -ne 0 ]; then
             ANALYSIS_ID="unavailable"
-            ERROR_DETAILS="SONG submit command failed"
+            # Capture error details preserving original formatting
+            if [ -f "song.log" ] && [ -s "song.log" ]; then
+                ERROR_DETAILS=\$(cat "song.log")
+            else
+                ERROR_DETAILS="Script execution failed - no error details available"
+            fi
         fi
     fi
     
@@ -78,13 +83,15 @@ process SONG_SUBMIT {
     echo "details:" >> "${status_file_name}"
     echo "    study_id: \\"${study_id}\\"" >> "${status_file_name}"
     echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${status_file_name}"
-    echo "    song_url: \\"${song_url}\\"" >> "${status_file_name}"
+    echo "    file_manager_url: \\"${file_manager_url}\\"" >> "${status_file_name}"
     echo "    payload_file: \\"${payload}\\"" >> "${status_file_name}"
     echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${status_file_name}"
 
     # Add error message to status file if submission failed
     if [ \${SUBMIT_EXIT_CODE} -ne 0 ] && [ -n "\${ERROR_DETAILS:-}" ]; then
-        echo "    error_message: \\"\${ERROR_DETAILS}\\"" >> "${status_file_name}"
+        echo "    error_details: |" >> "${status_file_name}"
+        echo "\$ERROR_DETAILS" | sed 's/^/            /' >> "${status_file_name}"
+
     elif [ \${SUBMIT_EXIT_CODE} -ne 0 ]; then
         echo "    error_message: \\"Submission failed\\"" >> "${status_file_name}"
     fi
@@ -104,5 +111,30 @@ process SONG_SUBMIT {
         exit 0
     fi
 
+    """
+
+    stub:
+    def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
+    """
+    # Create stub analysis ID
+    echo "stub-analysis-id-12345" > analysis_id.txt
+    
+    # Create stub status file
+    echo "process: \\"${task.process}\\"" > "${status_file_name}"
+    echo "status: \\"SUCCESS\\"" >> "${status_file_name}"
+    echo "exit_code: 0" >> "${status_file_name}"
+    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${status_file_name}"
+    echo "details:" >> "${status_file_name}"
+    echo "    study_id: \\"${meta.study}\\"" >> "${status_file_name}"
+    echo "    analysis_id: \\"stub-analysis-id-12345\\"" >> "${status_file_name}"
+    echo "    file_manager_url: \\"${params.file_manager_url_upload ?: params.file_manager_url}\\"" >> "${status_file_name}"
+    echo "    payload_file: \\"${payload}\\"" >> "${status_file_name}"
+    echo "    exit_on_error_enabled: \\"false\\"" >> "${status_file_name}"
+
+    # Create stub versions file
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        song-client: stub
+    END_VERSIONS
     """
 }
