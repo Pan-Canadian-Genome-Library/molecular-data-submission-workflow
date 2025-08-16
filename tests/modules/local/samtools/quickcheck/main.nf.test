@@ -1,0 +1,184 @@
+nextflow_process {
+
+    name "Test Process SAMTOOLS_QUICKCHECK"
+    script "modules/local/samtools/quickcheck/main.nf"
+    process "SAMTOOLS_QUICKCHECK"
+
+    tag "modules"
+    tag "modules_local"
+    tag "samtools"
+    tag "samtools/quickcheck"
+
+    test("BAM file with BAI index validation") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_BAM_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_bam.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"),
+                    [file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam.bai")]
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+            assert process.out.versions.size() == 1
+
+            // Check output structure
+            def validated_output = process.out.ch_validated_file[0]
+            assert validated_output.size() == 4  // [meta, payload, bam_file, index_files]
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.bam')
+            def indexFileName = validated_output[3] instanceof File ? validated_output[3].name : validated_output[3].toString()
+            assert indexFileName.endsWith('.bai')
+
+        }
+    }
+
+    test("CRAM file with CRAI index validation") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_CRAM_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_cram.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample.cram"),
+                    [file("${projectDir}/tests/test_data/genomics/test_sample.cram.crai")]
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+            assert process.out.versions.size() == 1
+
+            // Check output structure
+            def validated_output = process.out.ch_validated_file[0]
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.cram')
+            def indexFileName = validated_output[3] instanceof File ? validated_output[3].name : validated_output[3].toString()
+            assert indexFileName.endsWith('.crai')
+
+        }
+    }
+
+    test("BAM file without index") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_BAM_NO_INDEX_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_bam.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"),
+                    []  // Empty index files array
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+
+            // Check output structure - should still work without index
+            def validated_output = process.out.ch_validated_file[0]
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.bam')
+            assert validated_output[3].size() == 0  // Empty index files array
+
+
+        }
+    }
+
+    test("Upstream failure handling") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_UPSTREAM_FAIL_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'failed'  // Upstream failure
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_bam.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"),
+                    [file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam.bai")]
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success  // Process should continue but mark as failed
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+
+        }
+    }
+
+    test("Stub test for samtools quickcheck") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'STUB_BAM_001',
+                        type: 'WGS',
+                        study: 'STUB-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_bam.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"),
+                    [file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam.bai")]
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+            assert process.out.versions.size() == 1
+
+            // Check output structure in stub mode
+            def validated_output = process.out.ch_validated_file[0]
+            assert validated_output.size() == 4
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.bam')
+
+        }
+    }
+}

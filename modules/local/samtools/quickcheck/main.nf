@@ -36,10 +36,16 @@ process SAMTOOLS_QUICKCHECK {
         ERROR_DETAILS="Skipped samtools quickcheck due to upstream failure"
     else
         echo "Running samtools quickcheck on: ${alignment_file}"
-        samtools quickcheck "${alignment_file}" 2>&1
+        samtools quickcheck -v "${alignment_file}"
         if [ \$? -ne 0 ]; then
             QUICKCHECK_EXIT_CODE=1
-            ERROR_DETAILS="Alignment file ${alignment_file}: Failed samtools quickcheck"
+            # Capture error details from .command.err file
+            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
+                # Remove ANSI color codes, carriage returns, and filter out empty lines
+                ERROR_DETAILS=\$(sed 's/\\x1b\\[[0-9;]*m//g' ".command.err" | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || cat ".command.err" | sed 's/\\x1b\\[[0-9;]*m//g')
+            else
+                ERROR_DETAILS="Alignment file ${alignment_file}: Failed samtools quickcheck"
+            fi
             echo "ERROR: samtools quickcheck failed for ${alignment_file}"
         else
             echo "SUCCESS: samtools quickcheck passed for ${alignment_file}"
@@ -62,7 +68,9 @@ process SAMTOOLS_QUICKCHECK {
     # Add error message if validation failed
     if [ \$QUICKCHECK_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
         echo "    error_details: |" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${alignment_file.baseName}_status.yml"
-        echo "\$ERROR_DETAILS" | sed 's/^/            /' >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${alignment_file.baseName}_status.yml"
+        echo "\$ERROR_DETAILS" | while IFS= read -r line; do
+            echo "        \$line" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${alignment_file.baseName}_status.yml"
+        done
     fi
     
     # Create versions file

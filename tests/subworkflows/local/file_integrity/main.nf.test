@@ -357,6 +357,44 @@ nextflow_workflow {
         }
     }
 
+    test("Validation failures") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta with potentially problematic data
+                def meta = [
+                    id: "FAIL001",
+                    type: "invalidType",
+                    study: "FAIL-STUDY",
+                    status: "pass"
+                ]
+
+                // Create payload and invalid files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_bam.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/simple_R1.fastq"),  // Wrong file type
+                    file("${projectDir}/tests/test_data/genomics/corrupt_file.vcf.gz"),  // Corrupted file to test failure handling
+                    file("${projectDir}/tests/test_data/genomics/corrupt_file.bam"),  // Corrupted BAM file to test failure handling
+                    file("${projectDir}/tests/test_data/genomics/corrupt_file.fastq.gz")  // Corrupted FASTQ file to test failure handling
+                ] 
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success  // Should not fail due to exit_on_error=false
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() >= 1
+            assert workflow.out.versions.size() >= 1
+        }
+    }
+
     test("Should handle validation failures gracefully") {
 
         when {
@@ -388,6 +426,61 @@ nextflow_workflow {
             assert workflow.out.ch_payload_files.size() == 1
             assert workflow.out.status.size() >= 1
             assert workflow.out.versions.size() == 1
+        }
+    }
+
+    test("Stub test for file_integrity") {
+
+        options "-stub"
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "STUB_TEST_001",
+                    type: "sequenceAlignment",
+                    study: "STUB-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_bam.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"), 
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam.bai")
+                ]
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() == 1
+            assert workflow.out.versions.size() == 1
+
+            // Check that files are passed through in stub mode
+            def output_files = workflow.out.ch_payload_files[0][2]
+            assert output_files.size() == 2
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bam') 
+            }
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bai') 
+            }
+
+            // In stub mode, status files should contain SUCCESS status
+            def status_files = workflow.out.status
+            assert status_files.size() == 1
         }
     }
 }

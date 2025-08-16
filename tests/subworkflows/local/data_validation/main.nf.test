@@ -204,4 +204,75 @@ nextflow_workflow {
 
     }
 
+    test("Stub test for data_validation") {
+
+        options "-stub"
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "STUB_TEST_001",
+                    type: "sequenceExperiment",
+                    study: "STUB-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/test_payload.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"), 
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam.bai"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R2.fastq.gz")
+                ]
+
+                // Create mock biospecimen entity files
+                def specimen = file("${projectDir}/tests/test_data/biospecimen/specimen.tsv")
+                def sample = file("${projectDir}/tests/test_data/biospecimen/sample.tsv") 
+                def experiment = file("${projectDir}/tests/test_data/biospecimen/experiment.tsv")
+                def read_group = file("${projectDir}/tests/test_data/biospecimen/read_group.tsv")
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files, specimen, sample, experiment, read_group])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.validated_payload_files
+            assert workflow.out.status
+            assert workflow.out.versions
+
+            // Check that files are passed through in stub mode
+            with(workflow.out) {
+                assert validated_payload_files.size() == 1
+                // In stub mode, we should get status files for each validation step
+                assert status.size() >= 1
+                assert versions.size() >= 1
+            }
+
+            // Verify that input files are preserved in output
+            def output_files = workflow.out.validated_payload_files[0][2]
+            assert output_files.size() == 4
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bam') 
+            }
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bai') 
+            }
+            assert output_files.findAll { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.fastq.gz') 
+            }.size() == 2
+        }
+    }
+
 }

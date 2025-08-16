@@ -1,0 +1,147 @@
+nextflow_process {
+
+    name "Test Process BCFTOOLS_VIEW"
+    script "modules/local/bcftools/view/main.nf"
+    process "BCFTOOLS_VIEW"
+
+    tag "modules"
+    tag "modules_local"
+    tag "bcftools"
+    tag "bcftools/view"
+
+    test("VCF.GZ file with TBI index validation") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_VCF_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_vcf.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz"),
+                    [file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz.tbi")]
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+            assert process.out.versions.size() == 1
+
+            // Check output structure
+            def validated_output = process.out.ch_validated_file[0]
+            assert validated_output.size() == 4  // [meta, payload, vcf_file, index_files]
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.vcf.gz')
+            def indexFileName = validated_output[3] instanceof File ? validated_output[3].name : validated_output[3].toString()
+            assert indexFileName.endsWith('.tbi')
+
+        }
+    }
+
+    test("Uncompressed VCF file validation") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_VCF_UNCOMP_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_vcf.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf"),
+                    []  // No index files for uncompressed VCF
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+
+            // Check output structure
+            def validated_output = process.out.ch_validated_file[0]
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.vcf')
+            assert validated_output[3].size() == 0  // No index files
+
+        }
+    }
+
+    test("Upstream failure handling") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_VCF_FAIL_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'failed'  // Upstream failure
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_vcf.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz"),
+                    [file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz.tbi")]
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success  // Process should continue but mark as failed
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+
+        }
+    }
+
+    test("Stub test for bcftools view") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'STUB_VCF_001',
+                        type: 'WGS',
+                        study: 'STUB-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_vcf.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz"),
+                    [file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz.tbi")]
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+            assert process.out.versions.size() == 1
+
+            // Check output structure in stub mode
+            def validated_output = process.out.ch_validated_file[0]
+            assert validated_output.size() == 4
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.vcf.gz')
+
+        }
+    }
+}

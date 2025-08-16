@@ -36,11 +36,17 @@ process BCFTOOLS_VIEW {
         ERROR_DETAILS="Skipped VCF validation due to upstream failure"
     else
         echo "Running bcftools view validation on: ${vcf_file}"
-        # Use bcftools view to validate VCF format and count variants
-        bcftools view --no-header "${vcf_file}" | wc -l > /dev/null 2>&1
+        # Use bcftools view to validate VCF format - remove redirection to see errors
+        bcftools view --no-header "${vcf_file}" | wc -l > /dev/null
         if [ \$? -ne 0 ]; then
             VCF_EXIT_CODE=1
-            ERROR_DETAILS="VCF file ${vcf_file}: Failed bcftools view validation"
+            # Capture error details from .command.err file
+            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
+                # Remove ANSI color codes, carriage returns, and filter out empty lines
+                ERROR_DETAILS=\$(sed 's/\\x1b\\[[0-9;]*m//g' ".command.err" | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || cat ".command.err" | sed 's/\\x1b\\[[0-9;]*m//g')
+            else
+                ERROR_DETAILS="VCF file ${vcf_file}: Failed bcftools view validation"
+            fi
             echo "ERROR: bcftools view validation failed for ${vcf_file}"
         else
             echo "SUCCESS: bcftools view validation passed for ${vcf_file}"
@@ -62,10 +68,10 @@ process BCFTOOLS_VIEW {
     
     # Add error message if validation failed
     if [ \$VCF_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
-        # Format multi-line error details properly for YAML
         echo "    error_details: |" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${vcf_file.baseName}_status.yml"
-        echo "\$ERROR_DETAILS" | sed 's/^/            /' >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${vcf_file.baseName}_status.yml"
-
+        echo "\$ERROR_DETAILS" | while IFS= read -r line; do
+            echo "        \$line" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${vcf_file.baseName}_status.yml"
+        done
     fi
 
 

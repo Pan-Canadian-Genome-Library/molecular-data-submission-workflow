@@ -1,0 +1,259 @@
+nextflow_process {
+
+    name "Test Process VALIDATION_METADATA"
+    script "modules/local/validation/metadata/main.nf"
+    process "VALIDATION_METADATA"
+
+    tag "modules"
+    tag "modules_local"
+    tag "validation"
+    tag "validation/metadata"
+
+    test("Metadata validation with all biospecimen files") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_META_001',
+                        type: 'sequenceExperiment',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    [
+                        file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz"),
+                        file("${projectDir}/tests/test_data/genomics/test_sample_R2.fastq.gz")
+                    ],
+                    file("${projectDir}/tests/test_data/biospecimen/specimen.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/sample.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/experiment.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/read_group.tsv")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_payload_files.size() == 1
+            assert process.out.status.size() == 1
+            assert process.out.versions.size() == 1
+
+            // Check output structure
+            def validated_output = process.out.ch_payload_files[0]
+            assert validated_output.size() == 3  // [meta, payload, payload_files]
+            assert validated_output[2].size() == 2  // Two FASTQ files
+
+            // Check status file
+            def status_file = process.out.status[0][1]
+            def status_content = status_file instanceof File ? status_file.text : new File(status_file.toString()).text
+            assert status_content.contains('process: "VALIDATION_METADATA"')
+            assert status_content.contains('analysis_id: "TEST_META_001"')
+            assert status_content.contains('analysis_type: "sequenceExperiment"')
+
+            // Check versions file
+            def versions_file = process.out.versions[0]
+            def versions_content = versions_file instanceof File ? versions_file.text : new File(versions_file.toString()).text
+            assert versions_content.contains('python:')
+        }
+    }
+
+    test("Metadata validation for variant call analysis") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_VCF_META_001',
+                        type: 'variantCall',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_vcf.json"),
+                    [
+                        file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz"),
+                        file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz.tbi")
+                    ],
+                    file("${projectDir}/tests/test_data/biospecimen/specimen.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/sample.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/experiment.tsv"),
+                    []  // No read_group file for VCF
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_payload_files.size() == 1
+            assert process.out.status.size() == 1
+            assert process.out.versions.size() == 1
+
+            // Check output structure
+            def validated_output = process.out.ch_payload_files[0]
+            assert validated_output.size() == 3
+            assert validated_output[2].size() == 2  // VCF + TBI files
+
+            // Check status file
+            def status_file = process.out.status[0][1]
+            def status_content = status_file instanceof File ? status_file.text : new File(status_file.toString()).text
+            assert status_content.contains('process: "VALIDATION_METADATA"')
+            assert status_content.contains('analysis_type: "variantCall"')
+        }
+    }
+
+    test("Metadata validation for BAM files") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_BAM_META_001',
+                        type: 'sequenceAlignment',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_bam.json"),
+                    [
+                        file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"),
+                        file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam.bai")
+                    ],
+                    file("${projectDir}/tests/test_data/biospecimen/specimen.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/sample.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/experiment.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/read_group.tsv")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_payload_files.size() == 1
+            assert process.out.status.size() == 1
+
+            // Check status file
+            def status_file = process.out.status[0][1]
+            def status_content = status_file instanceof File ? status_file.text : new File(status_file.toString()).text
+            assert status_content.contains('process: "VALIDATION_METADATA"')
+            assert status_content.contains('analysis_type: "sequenceAlignment"')
+        }
+    }
+
+    test("Upstream failure handling") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_UPSTREAM_FAIL_001',
+                        type: 'sequenceExperiment',
+                        study: 'TEST-CA',
+                        status: 'failed'  // Upstream failure
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    [file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz")],
+                    file("${projectDir}/tests/test_data/biospecimen/specimen.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/sample.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/experiment.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/read_group.tsv")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success  // Process should continue but mark as failed
+            assert process.out.ch_payload_files.size() == 1
+            assert process.out.status.size() == 1
+
+            // Check status file indicates failure due to upstream
+            def status_file = process.out.status[0][1]
+            def status_content = status_file instanceof File ? status_file.text : new File(status_file.toString()).text
+            assert status_content.contains('process: "VALIDATION_METADATA"')
+            assert status_content.contains('status: "FAILED"')
+            assert status_content.contains('upstream_status: "failed"')
+            assert status_content.contains('Skipped due to upstream failure')
+        }
+    }
+
+    test("Missing biospecimen files handling") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_MISSING_BIO_001',
+                        type: 'sequenceExperiment',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    [file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz")],
+                    [],  // Missing specimen file
+                    file("${projectDir}/tests/test_data/biospecimen/sample.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/experiment.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/read_group.tsv")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success  // Should continue but may mark as failed
+            assert process.out.ch_payload_files.size() == 1
+            assert process.out.status.size() == 1
+        }
+    }
+
+    test("Stub test for metadata validation") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'STUB_META_001',
+                        type: 'sequenceExperiment',
+                        study: 'STUB-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    [file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz")],
+                    file("${projectDir}/tests/test_data/biospecimen/specimen.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/sample.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/experiment.tsv"),
+                    file("${projectDir}/tests/test_data/biospecimen/read_group.tsv")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_payload_files.size() == 1
+            assert process.out.status.size() == 1
+            assert process.out.versions.size() == 1
+
+            // Check output structure in stub mode
+            def validated_output = process.out.ch_payload_files[0]
+            assert validated_output.size() == 3
+
+            // Check status file contains SUCCESS (stub mode)
+            def status_file = process.out.status[0][1]
+            def status_content = status_file instanceof File ? status_file.text : new File(status_file.toString()).text
+            assert status_content.contains('process: "VALIDATION_METADATA"')
+            assert status_content.contains('status: "SUCCESS"')
+            assert status_content.contains('analysis_id: "STUB_META_001"')
+            assert status_content.contains('analysis_type: "sequenceExperiment"')
+        }
+    }
+}
