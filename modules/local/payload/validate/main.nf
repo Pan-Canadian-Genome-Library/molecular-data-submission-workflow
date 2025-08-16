@@ -39,7 +39,7 @@ process PAYLOAD_VALIDATE {
     script:
     def exit_on_error = task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error.toString()
-    def schema_url = task.ext.schema_url ?: ''
+    def schema_url = "${params.file_manager_url}/schemas"
     
     if (!schema_url) {
         error "schema_url must be provided via task.ext.schema_url"
@@ -135,7 +135,7 @@ process PAYLOAD_VALIDATE {
     stub:
     def exit_on_error = task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error.toString()
-    def schema_url = task.ext.schema_url ?: 'https://example.com/schema.json'
+    def schema_url = "${params.file_manager_url}/schemas" ?: 'https://example.com/schema.json'
     """
     # Create mock step-specific status file
     cat <<-END_STATUS > "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"

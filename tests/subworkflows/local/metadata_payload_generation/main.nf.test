@@ -6,13 +6,6 @@ nextflow_workflow {
     script "subworkflows/local/metadata_payload_generation/main.nf"
     workflow "METADATA_PAYLOAD_GENERATION"
     
-    tag "subworkflows"
-    tag "subworkflows_local"
-    tag "subworkflows/metadata_payload_generation"
-    tag "payload"
-    tag "payload/generate"
-    tag "payload/validate"
-
     test("Test successful payload generation and validation") {
 
         when {
