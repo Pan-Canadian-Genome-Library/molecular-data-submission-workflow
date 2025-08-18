@@ -36,11 +36,17 @@ process SEQKIT_SEQ {
         ERROR_DETAILS="Skipped FASTQ validation due to upstream failure"
     else
         echo "Running seqkit seq validation on: ${fastq_file}"
-        # Use seqkit seq to validate FASTQ format
-        seqkit seq --validate-seq --quiet "${fastq_file}" > /dev/null 2>&1
+        # Use seqkit seq to validate FASTQ format - remove redirection to capture errors
+        seqkit seq --validate-seq --quiet "${fastq_file}" > /dev/null
         if [ \$? -ne 0 ]; then
             FASTQ_EXIT_CODE=1
-            ERROR_DETAILS="FASTQ file ${fastq_file}: Failed seqkit seq validation"
+            # Capture error details from .command.err file
+            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
+                # Remove ANSI color codes and clean up formatting
+                ERROR_DETAILS=\$(tr -d '\\033' < ".command.err" | sed 's/\\[[0-9;]*m//g' | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$')
+            else
+                ERROR_DETAILS="FASTQ file ${fastq_file}: Failed seqkit seq validation"
+            fi
             echo "ERROR: seqkit seq validation failed for ${fastq_file}"
         else
             echo "SUCCESS: seqkit seq validation passed for ${fastq_file}"
@@ -63,7 +69,9 @@ process SEQKIT_SEQ {
     # Add error message if validation failed
     if [ \$FASTQ_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
         echo "    error_details: |" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${fastq_file.baseName}_status.yml"
-        echo "\$ERROR_DETAILS" | sed 's/^/            /' >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${fastq_file.baseName}_status.yml"
+        echo "\$ERROR_DETAILS" | while IFS= read -r line; do
+            echo "        \$line" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_${fastq_file.baseName}_status.yml"
+        done
     fi
     
     # Create versions file

@@ -1,0 +1,226 @@
+nextflow_process {
+
+    name "Test Process SEQKIT_SEQ"
+    script "modules/local/seqkit/seq/main.nf"
+    process "SEQKIT_SEQ"
+
+    tag "modules"
+    tag "modules_local"
+    tag "seqkit"
+    tag "seqkit/seq"
+
+    test("FASTQ.GZ file validation") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_FASTQ_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+            assert process.out.versions.size() == 1
+
+            // Check output structure
+            def validated_output = process.out.ch_validated_file[0]
+            assert validated_output.size() == 3  // [meta, payload, fastq_file]
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.fastq.gz')
+
+        }
+    }
+
+    test("Uncompressed FASTQ file validation") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_FASTQ_UNCOMP_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+
+            // Check output structure
+            def validated_output = process.out.ch_validated_file[0]
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.fastq')
+
+        }
+    }
+
+    test("Paired-end FASTQ files validation") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_FASTQ_PE_R1_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R2.fastq.gz")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+
+        }
+    }
+
+    test("Short filename FASTQ (.fq) validation") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_FQ_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    file("${projectDir}/tests/test_data/genomics/simple_R1.fq")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+
+            // Check output structure
+            def validated_output = process.out.ch_validated_file[0]
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.fq')
+
+        }
+    }
+
+    test("Upstream failure handling") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_FASTQ_FAIL_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'failed'  // Upstream failure
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success  // Process should continue but mark as failed
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+
+        }
+    }
+
+    test("Invalid FASTQ file handling") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'TEST_INVALID_FASTQ_001',
+                        type: 'WGS',
+                        study: 'TEST-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    file("${projectDir}/tests/test_data/genomics/corrupt_file.fastq.gz")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success  // Process should continue but mark as failed
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+
+        }
+    }
+
+    test("Stub test for seqkit seq") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [
+                        id: 'STUB_FASTQ_001',
+                        type: 'WGS',
+                        study: 'STUB-CA',
+                        status: 'pass'
+                    ],
+                    file("${projectDir}/tests/test_data/payload/payload_fastq.json"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz")
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.ch_validated_file.size() == 1
+            assert process.out.status.size() == 1
+            assert process.out.versions.size() == 1
+
+            // Check output structure in stub mode
+            def validated_output = process.out.ch_validated_file[0]
+            assert validated_output.size() == 3
+            def fileName = validated_output[2] instanceof File ? validated_output[2].name : validated_output[2].toString()
+            assert fileName.endsWith('.fastq.gz')
+
+        }
+    }
+}
