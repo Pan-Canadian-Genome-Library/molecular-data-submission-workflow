@@ -36,6 +36,7 @@ process RECEIPT_GENERATE {
 
     script:
     def meta_args = "--submitter-analysis-id ${meta.id} --study-id ${meta.study} --analysis-type ${meta.type}"
+    def analysis_file_arg = analysis_file ? "--analysis-file ${analysis_file}" : ""
     """
     # Install required Python packages to temporary directory
     echo "Installing required Python packages..."
@@ -56,18 +57,12 @@ process RECEIPT_GENERATE {
 
 
     # Generate receipt files using the external script
-    if [[ -f "${analysis_file}" ]]; then
-        main.py \
-            --status-files ${status_files.join(' ')} \
-            --analysis-file "${analysis_file}" \
-            $meta_args \
-            --output-json "${meta.id}_receipt.json"
-    else
-        main.py \
-            --status-files ${status_files.join(' ')} \
-            $meta_args \
-            --output-json "${meta.id}_receipt.json"
-    fi
+    main.py \
+        --status-files ${status_files.join(' ')} \
+        ${analysis_file_arg} \
+        ${meta_args} \
+        --output-json "${meta.id}_receipt.json"
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -82,7 +77,7 @@ process RECEIPT_GENERATE {
     cat <<-END_JSON > "${meta.id}_receipt.json"
 {
   "submitter_analysis_id": "SAMPLE001",
-  "song_analysis_id": "2fa0c2ab-b042-4ec4-a0c2-abb042bec48c",
+  "file_manager_analysis_id": "2fa0c2ab-b042-4ec4-a0c2-abb042bec48c",
   "overall_status": "SUCCESS",
   "analysis_type": "sequencing_experiment",
   "study_id": "TEST_STUDY",
