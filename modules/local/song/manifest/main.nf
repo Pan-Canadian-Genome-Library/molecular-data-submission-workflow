@@ -2,7 +2,7 @@ process SONG_MANIFEST {
     tag "$meta.id"
     label 'process_single'
 
-    container "${ params.file_manager_container ?: 'ghcr.io/pan-canadian-genome-library/file-manager-client' }:${ params.file_manager_container_tag ?: 'latest' }"
+    container "${ params.file_manager_container ?: 'ghcr.io/pan-canadian-genome-library/file-manager-client' }:${ params.file_manager_container_tag ?: 'edge' }"
     containerOptions "-v \$(pwd):/song-client/logs"
 
 
@@ -24,7 +24,7 @@ process SONG_MANIFEST {
     def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
     def file_manager_url = params.file_manager_url_upload ?: params.file_manager_url
     def accessToken = params.token
-    def VERSION = params.song_container_version ?: 'edge'
+    def VERSION = params.file_manager_container_tag ?: 'edge'
     def study_id = "${meta.study}"
     def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
     """
