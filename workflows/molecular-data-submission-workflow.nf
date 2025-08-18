@@ -38,7 +38,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     sample_metadata // Spreadsheet from --sample_metadata
     path_to_files_directory // file path to directory containing target files
     skip_duplicate_check // pipeline flag from --skip_duplicate_check
-    skip_upload // pipeline flag from --skip_duplicate_check
+    skip_upload // pipeline flag from --skip_upload
     main:
 
     ch_versions = Channel.empty()
