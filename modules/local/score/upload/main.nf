@@ -23,10 +23,10 @@ process SCORE_UPLOAD {
     def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
     def file_manager_url = params.file_manager_url_upload ?: params.file_manager_url
     def file_transfer_url = params.file_transfer_url_upload ?: params.file_transfer_url
-    def transport_parallel = params.transport_parallel ?: task.cpus
-    def transport_mem = params.transport_mem ?: "2"
+    def transport_parallel = params.file_transfer_transport_parallel ?: task.cpus
+    def transport_mem = params.file_transfer_transport_mem ?: "2"
     def accessToken = params.token
-    def VERSION = params.score_container_version ?: 'edge'
+    def VERSION = params.file_transfer_container_tag ?: 'edge'
     def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
 
     """
