@@ -1,7 +1,7 @@
 nextflow_workflow {
 
     name "Test Workflow BATCH_RECEIPT_GENERATION"
-    script "../../../../subworkflows/local/batch_receipt_generation/main.nf"
+    script "subworkflows/local/batch_receipt_generation/main.nf"
     workflow "BATCH_RECEIPT_GENERATION"
 
     test("Should run without failures") {

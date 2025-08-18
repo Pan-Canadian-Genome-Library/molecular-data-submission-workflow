@@ -21,7 +21,7 @@ def parse_analysis_file(file_path):
             data = json.load(f)
         
         return {
-            'song_analysis_id': data.get('analysisId', 'unknown'),
+            'file_manager_analysis_id': data.get('analysisId', 'unknown'),
             'submitter_analysis_id': data.get('submitter_analysis_id', 'unknown'),
             'analysis_state': data.get('analysisState', 'unknown'),
             'published_at': data.get('publishedAt', 'unknown'),
@@ -31,7 +31,7 @@ def parse_analysis_file(file_path):
     except Exception as e:
         print(f"Error parsing analysis file {file_path}: {e}", file=sys.stderr)
         return {
-            'song_analysis_id': 'unknown',
+            'file_manager_analysis_id': 'unknown',
             'submitter_analysis_id': 'unknown',
             'analysis_state': 'unknown', 
             'published_at': 'unknown',
@@ -75,12 +75,12 @@ def parse_status_file(file_path):
         
         return {
             'submitter_analysis_id': submitter_analysis_id,
-            'process': data.get('process', 'UNKNOWN'),
-            'status': data.get('status', 'UNKNOWN'),
-            'exit_code': data.get('exit_code', -1),
-            'timestamp': data.get('timestamp', ''),
-            'details': data.get('details', {}),
-            'error_message': error_message.strip() if error_message else '',
+            'process': data.get('process', None),
+            'status': data.get('status', None),
+            'exit_code': data.get('exit_code', None),
+            'error_message': error_message.strip() if error_message else None,
+            'timestamp': data.get('timestamp', None),
+            'details': data.get('details', None),
             'source_file': str(file_path)
         }
     except Exception as e:
@@ -113,12 +113,12 @@ def generate_individual_receipt(processes, analysis_info, output_file):
     # Create individual receipt structure
     receipt = {
         'submitter_analysis_id': analysis_info.get('submitter_analysis_id', processes[0]['submitter_analysis_id']),
-        'song_analysis_id': analysis_info.get('song_analysis_id', 'unknown'),
+        'file_manager_analysis_id': analysis_info.get('file_manager_analysis_id', None),
         'overall_status': overall_status,
-        'analysis_type': analysis_info.get('analysis_type', 'unknown'),
-        'study_id': analysis_info.get('study_id', 'unknown'),
-        'analysis_state': analysis_info.get('song_analysis_state', 'unknown'),
-        'published_at': analysis_info.get('song_analysis_publish_at', 'unknown'),
+        'analysis_type': analysis_info.get('analysis_type', None),
+        'study_id': analysis_info.get('study_id', None),
+        'analysis_state': analysis_info.get('file_manager_analysis_state', None),
+        'published_at': analysis_info.get('file_manager_analysis_publish_at', None),
         'generated_at': datetime.now().isoformat() + 'Z',
         'processes': clean_processes
     }
@@ -132,7 +132,7 @@ def main():
     parser.add_argument('--status-files', nargs='+', required=True,
                         help='List of status YAML files')
     parser.add_argument('--analysis-file', required=False,
-                        help='Analysis JSON file (optional, only for song_analysis_id, song_analysis_state, song_analysis_publish_at)')
+                        help='Analysis JSON file (optional, only for file_manager_analysis_id, song_analysis_state, song_analysis_publish_at)')
     parser.add_argument('--submitter-analysis-id', required=True, help='Submitter analysis id (from meta)')
     parser.add_argument('--study-id', required=True, help='Study id (from meta)')
     parser.add_argument('--analysis-type', required=True, help='Analysis type (from meta)')
@@ -142,26 +142,26 @@ def main():
     args = parser.parse_args()
 
     # Parse analysis file if provided, else use defaults for song fields
-    song_analysis_id = 'unknown'
-    song_analysis_state = 'unknown'
-    song_analysis_publish_at = 'unknown'
+    file_manager_analysis_id = 'unknown'
+    file_manager_analysis_state = 'unknown'
+    file_manager_analysis_publish_at = 'unknown'
     if args.analysis_file:
         try:
             with open(args.analysis_file, 'r') as f:
                 data = json.load(f)
-            song_analysis_id = data.get('analysisId', 'unknown')
-            song_analysis_state = data.get('analysisState', 'unknown')
-            song_analysis_publish_at = data.get('publishedAt', 'unknown')
+            file_manager_analysis_id = data.get('analysisId', None)
+            file_manager_analysis_state = data.get('analysisState', None)
+            file_manager_analysis_publish_at = data.get('publishedAt', None)
         except Exception as e:
             print(f"Error parsing analysis file {args.analysis_file}: {e}", file=sys.stderr)
     else:
-        print("No analysis file provided, using default values for song_analysis_id, song_analysis_state, song_analysis_publish_at.", file=sys.stderr)
+        print("No analysis file provided, using default values for file_manager_analysis_id, file_manager_analysis_state, file_manager_analysis_publish_at.", file=sys.stderr)
 
     # Build analysis_info dict for receipt
     analysis_info = {
-        'song_analysis_id': song_analysis_id,
-        'song_analysis_state': song_analysis_state,
-        'song_analysis_publish_at': song_analysis_publish_at,
+        'file_manager_analysis_id': file_manager_analysis_id,
+        'file_manager_analysis_state': file_manager_analysis_state,
+        'file_manager_analysis_publish_at': file_manager_analysis_publish_at,
         'submitter_analysis_id': args.submitter_analysis_id,
         'study_id': args.study_id,
         'analysis_type': args.analysis_type
@@ -178,7 +178,7 @@ def main():
             if submitter_analysis_id is None:
                 submitter_analysis_id = data['submitter_analysis_id']
             elif submitter_analysis_id != data['submitter_analysis_id']:
-                print(f"Warning: Mixed submitter_analysis_ids detected: {submitter_analysis_id} vs {data['submitter_analysis_id']}", file=sys.stderr)
+                print(f"Warning: Mismatched submitter_analysis_ids detected: {submitter_analysis_id} vs {data['submitter_analysis_id']}", file=sys.stderr)
             processes.append(data)
         else:
             print(f"Warning: Could not extract submitter_analysis_id from {status_file}", file=sys.stderr)
