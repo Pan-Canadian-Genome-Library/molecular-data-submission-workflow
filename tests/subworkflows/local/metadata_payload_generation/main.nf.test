@@ -19,11 +19,11 @@ nextflow_workflow {
                         study: 'TEST_STUDY',
                         status: 'pass'
                     ],
-                    file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_file_meta.tsv'),
-                    file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_analysis_meta.tsv'),
+                    file('${projectDir}/tests/test_data/analysis_meta/test_file_meta.tsv'),
+                    file('${projectDir}/tests/test_data/analysis_meta/test_analysis_meta.tsv'),
                     [],
                     [
-                        file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/sample2.bam')
+                        file('${projectDir}/tests/test_data/genomics/sample2.bam')
                     ]
                 ])
                 """
@@ -89,11 +89,11 @@ nextflow_workflow {
                         study: 'TEST_STUDY',
                         status: 'pass'
                     ],
-                    file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_file_meta_invalid.tsv'),
-                    file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_analysis_meta_invalid.tsv'),
-                    file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_workflow_meta.tsv'),
+                    file('${projectDir}/tests/test_data/analysis_meta/test_file_meta_invalid.tsv'),
+                    file('${projectDir}/tests/test_data/analysis_meta/test_analysis_meta_invalid.tsv'),
+                    file('${projectDir}/tests/test_data/analysis_meta/test_workflow_meta.tsv'),
                     [
-                        file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/sample2.bam')
+                        file('${projectDir}/tests/test_data/genomics/sample2.bam')
                     ]
                 ])
                 """
@@ -122,17 +122,17 @@ nextflow_workflow {
                 input[0] = Channel.of(
                     [
                         [id: 'SUCCESS_001', type: 'sequenceExperiment', study: 'TEST_STUDY', status: 'pass'],
-                        file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_file_meta.tsv'),
-                        file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_analysis_meta.tsv'),
-                        file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_workflow_meta.tsv'),
-                        [file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/sample2.bam')]
+                        file('${projectDir}/tests/test_data/analysis_meta/test_file_meta.tsv'),
+                        file('${projectDir}/tests/test_data/analysis_meta/test_analysis_meta.tsv'),
+                        file('${projectDir}/tests/test_data/analysis_meta/test_workflow_meta.tsv'),
+                        [file('${projectDir}/tests/test_data/genomics/sample2.bam')]
                     ],
                     [
                         [id: 'SUCCESS_002', type: 'sequenceAlignment', study: 'TEST_STUDY', status: 'pass'],
-                        file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_file_meta.tsv'),
-                        file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_analysis_meta.tsv'),
-                        file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/test_workflow_meta.tsv'),
-                        [file('${projectDir}/tests/subworkflows/local/metadata_payload_generation/test_data/sample2.bam')]
+                        file('${projectDir}/tests/test_data/analysis_meta/test_file_meta.tsv'),
+                        file('${projectDir}/tests/test_data/analysis_meta/test_analysis_meta.tsv'),
+                        file('${projectDir}/tests/test_data/analysis_meta/test_workflow_meta.tsv'),
+                        [file('${projectDir}/tests/test_data/genomics/sample2.bam')]
                     ],
                     [
                         [id: 'FAIL_TEST', type: 'invalid_type', study: 'TEST_STUDY', status: 'pass'],
