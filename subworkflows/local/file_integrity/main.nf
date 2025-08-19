@@ -102,19 +102,6 @@ workflow FILE_INTEGRITY {
         }
         .map { _meta_id, meta, payload, file -> [meta, payload, file] }
 
-    // Debug file type separation
-    ch_passthrough_files.view { meta, _payload, file ->
-        "Passthrough file (no validation): meta=${meta.id}, file=${file.name}"
-    }
-    
-    ch_bam_cram_files.view { meta, _payload, main_file, index_files ->
-        "BAM/CRAM for validation: meta=${meta.id}, main=${main_file.name}, indexes=[${index_files.collect{it.name}.join(', ')}] (${index_files.size()} total)"
-    }
-    
-    ch_vcf_files.view { meta, _payload, main_file, index_files ->
-        "VCF for validation: meta=${meta.id}, main=${main_file.name}, indexes=[${index_files.collect{it.name}.join(', ')}] (${index_files.size()} total)"
-    }
-
     // Run validation processes for individual files in parallel
     // Nextflow processes will handle empty channels gracefully
     // Use single samtools quickcheck process for both BAM and CRAM files
@@ -189,14 +176,6 @@ workflow FILE_INTEGRITY {
             def flatFiles = files instanceof List ? files.flatten() : [files]
             [meta, payload, flatFiles]
         }
-
-    // Debug final regrouped results
-    ch_grouped_files.view { meta, payload, files ->
-        "File_integrity: Final regrouped: meta=${meta.id}, payload=${payload.name}, files=[${files.collect{it.name}.join(', ')}] (${files.size()} total files)"
-    }
-    ch_status.view { meta, status ->
-        "File_integrity: Status for ${meta.id}: ${status}"
-    }
 
     emit:
     ch_payload_files = ch_grouped_files     // channel: [val(meta), payload, [files]]

@@ -111,11 +111,6 @@ workflow DATA_VALIDATION {
         .mix(VALIDATION_CROSSCHECK.out.status)
         .mix(FILE_INTEGRITY.out.status)
 
-    // Debug output: View the final validated payload files channel
-    ch_validated_payload_files.view { meta, payload, files ->
-        "DATA_VALIDATION OUTPUT: meta.id=${meta.id}, meta.status=${meta.status}, payload=${payload.name}, files=[${files.collect{it.name}.join(', ')}] (${files.size()} total)"
-    }
-
     emit:
     // Output channels as specified
     validated_payload_files = ch_validated_payload_files  // channel: [ val(meta), payload(json), [files] ]
