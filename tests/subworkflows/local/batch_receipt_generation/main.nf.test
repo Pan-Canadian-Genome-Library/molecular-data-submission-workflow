@@ -28,15 +28,15 @@ nextflow_workflow {
                 
                 // Create test status files using actual test data
                 def status_files1 = [
-                    file("${projectDir}/tests/subworkflows/local/batch_receipt_generation/test_data/test_status1.yml"),
-                    file("${projectDir}/tests/subworkflows/local/batch_receipt_generation/test_data/test_status2.yml")
+                    file("${projectDir}/tests/test_data/status/test_status1.yml"),
+                    file("${projectDir}/tests/test_data/status/test_status2.yml")
                 ]
                 def status_files2 = [
-                    file("${projectDir}/tests/subworkflows/local/batch_receipt_generation/test_data/test_status3.yml")
+                    file("${projectDir}/tests/test_data/status/test_status3.yml")
                 ]
                 
                 // Create test analysis files using actual test data
-                def analysis_file1 = file("${projectDir}/tests/subworkflows/local/batch_receipt_generation/test_data/analysis1.json")
+                def analysis_file1 = file("${projectDir}/tests/test_data/analysis/analysis1.json")
                 // For meta2, pass an empty list to simulate null analysis_file
                 def analysis_file2 = []
                 
