@@ -19,7 +19,7 @@ process SONG_GETANALYSIS {
     tag "$meta.id"
     label 'process_single'
 
-    container "${ params.file_manager_container ?: 'ghcr.io/pan-canadian-genome-library/file-manager-client' }:${ params.file_manager_container_tag ?: 'latest' }"
+    container "${ params.file_manager_container }:${ params.file_manager_container_tag }"
 
     // Container options must be set as a string, not a Groovy closure
     containerOptions "-v \$(pwd):/song-client/logs"
@@ -39,9 +39,9 @@ process SONG_GETANALYSIS {
     def args = task.ext.args ?: ''
     def exit_on_error = params.exit_on_error ?: task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
-    def file_manager_url = params.file_manager_url_upload ?: params.file_manager_url
+    def file_manager_url = params.file_manager_url
     def accessToken = params.token
-    def VERSION = params.file_manager_container_tag ?: 'edge'
+    def VERSION = params.file_manager_container_tag 
     def study_id = "${meta.study}"
     def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
     """

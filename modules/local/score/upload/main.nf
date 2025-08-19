@@ -3,7 +3,7 @@ process SCORE_UPLOAD {
     tag "$meta.id"
     label 'process_medium'
 
-    container "${ params.file_transfer_container ?: 'ghcr.io/pan-canadian-genome-library/file-transfer' }:${ params.file_transfer_container_tag }"
+    container "${params.file_transfer_container}:${params.file_transfer_container_tag}"
     containerOptions "-v \$(pwd):/score-client/logs"
 
     input:
@@ -21,12 +21,12 @@ process SCORE_UPLOAD {
     def args = task.ext.args ?: ''
     def exit_on_error = params.exit_on_error ?: task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
-    def file_manager_url = params.file_manager_url_upload ?: params.file_manager_url
-    def file_transfer_url = params.file_transfer_url_upload ?: params.file_transfer_url
+    def file_manager_url = params.file_manager_url
+    def file_transfer_url = params.file_transfer_url
     def transport_parallel = params.file_transfer_transport_parallel ?: task.cpus
     def transport_mem = params.file_transfer_transport_mem ?: "2"
     def accessToken = params.token
-    def VERSION = params.file_transfer_container_tag ?: 'edge'
+    def VERSION = params.file_transfer_container_tag
     def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
 
     """
