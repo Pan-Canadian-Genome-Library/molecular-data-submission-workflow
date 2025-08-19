@@ -10,10 +10,10 @@ process SONG_MANIFEST {
     tuple val(meta), path(analysis_id_file), path(payload), path(upload)
 
     output:
-    path "out/manifest.txt"       , emit: manifest
+    path "*_manifest.txt"       , emit: manifest
     tuple val(meta), path("*_status.yml"), emit: status
     path "versions.yml"           , emit: versions
-    tuple val(meta), path("out/analysis_id.txt"), path("out/manifest.txt"), path(upload),    emit: manifest_upload
+    tuple val(meta), path(analysis_id_file), path("*_manifest.txt"), path(upload),    emit: manifest_upload
 
     when:
     task.ext.when == null || task.ext.when
@@ -27,12 +27,10 @@ process SONG_MANIFEST {
     def VERSION = params.file_manager_container_tag ?: 'edge'
     def study_id = "${meta.study}"
     def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
+    def manifest_file = "${meta.id}_manifest.txt"
     """
     # Set error handling to continue on failure for resilient processing
     set +e
-    
-    # Create output directory first
-    mkdir -p out
     
     # Initialize variables
     MANIFEST_EXIT_CODE=0
@@ -51,7 +49,7 @@ process SONG_MANIFEST {
         ERROR_DETAILS="Skipped manifest generation due to upstream failure"
         
         # Create placeholder manifest file
-        echo "# Manifest generation skipped due to upstream failure" > out/manifest.txt
+        echo "# Manifest generation skipped due to upstream failure" > ${manifest_file}
     else
         echo "Upstream process successful, proceeding with manifest generation"
         
@@ -60,7 +58,7 @@ process SONG_MANIFEST {
         export CLIENT_ACCESS_TOKEN=${accessToken}
 
         # Execute SONG manifest generation
-        sing manifest -a \${ANALYSIS_ID} -d . -f out/manifest.txt $args
+        sing manifest -a \${ANALYSIS_ID} -d . -f ${manifest_file} $args
         MANIFEST_EXIT_CODE=\${?}
         
         if [ \${MANIFEST_EXIT_CODE} -ne 0 ]; then
@@ -71,12 +69,9 @@ process SONG_MANIFEST {
                 ERROR_DETAILS="Script execution failed - no error details available"
             fi
             # Create placeholder manifest file for failed generation
-            echo "# Manifest generation failed" > out/manifest.txt
+            echo "# Manifest generation failed" > ${manifest_file}
         fi
     fi
-
-    # Copy analysis_id file to output for downstream processes
-    cp ${analysis_id_file} ./out/analysis_id.txt
 
     # Create step-specific status file
     if [ \${MANIFEST_EXIT_CODE} -eq 0 ]; then
@@ -93,7 +88,7 @@ process SONG_MANIFEST {
     echo "    study_id: \\"${study_id}\\"" >> "${status_file_name}"
     echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${status_file_name}"
     echo "    file_manager_url: \\"${file_manager_url}\\"" >> "${status_file_name}"
-    echo "    manifest_file: \\"./out/manifest.txt\\"" >> "${status_file_name}"
+    echo "    manifest_file: \\"${manifest_file}\\"" >> "${status_file_name}"
     echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${status_file_name}"
 
     # Add error message to status file if manifest generation failed
@@ -123,16 +118,12 @@ process SONG_MANIFEST {
 
     stub:
     def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
+    def manifest_file = "${meta.id}_manifest.txt"
     """
-    # Create output directory first
-    mkdir -p out
-    # Create stub analysis_id file (copy input to output)
-    cp ${analysis_id_file} ./out/analysis_id.txt
-
     # Create stub manifest file
-    echo "objectId\tfileName\tfileSize\tfileMd5sum\tfileAccess" > out/manifest.txt
-    echo "stub-object-id\tstub-file.txt\t1000\tstub-md5sum\topen" >> out/manifest.txt
-    
+    echo "objectId\tfileName\tfileSize\tfileMd5sum\tfileAccess" > ${manifest_file}
+    echo "stub-object-id\tstub-file.txt\t1000\tstub-md5sum\topen" >> ${manifest_file}
+
     # Create stub status file
     echo "process: \\"${task.process}\\"" > "${status_file_name}"
     echo "status: \\"SUCCESS\\"" >> "${status_file_name}"
@@ -142,6 +133,7 @@ process SONG_MANIFEST {
     echo "    study_id: \\"${meta.study}\\"" >> "${status_file_name}"
     echo "    analysis_id: \\"${meta.analysis_id}\\"" >> "${status_file_name}"
     echo "    file_manager_url: \\"${params.file_manager_url_upload ?: params.file_manager_url}\\"" >> "${status_file_name}"
+    echo "    manifest_file: \\"${manifest_file}\\"" >> "${status_file_name}"
     echo "    exit_on_error_enabled: \\"false\\"" >> "${status_file_name}"
 
     # Create stub versions file

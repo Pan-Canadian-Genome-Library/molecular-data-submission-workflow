@@ -65,7 +65,7 @@ process SONG_GETANALYSIS {
         ERROR_DETAILS="Skipped analysis retrieval due to upstream failure"
         
         # Create placeholder analysis file with ANALYSIS_ID prefix
-        echo '{"error": "Analysis retrieval skipped due to upstream failure"}' > \${ANALYSIS_ID}.analysis.json
+        echo '{"error": "Analysis retrieval skipped due to upstream failure"}' > ${meta.id}_\${ANALYSIS_ID}.analysis.json
     else
         echo "Upstream process successful, proceeding with analysis retrieval"
         
@@ -74,7 +74,7 @@ process SONG_GETANALYSIS {
         export CLIENT_ACCESS_TOKEN=${accessToken}
 
         # Execute SONG get analysis with ANALYSIS_ID prefix
-        sing search -a \${ANALYSIS_ID} $args > \${ANALYSIS_ID}.analysis.json
+        sing search -a \${ANALYSIS_ID} $args > ${meta.id}_\${ANALYSIS_ID}.analysis.json
         GETANALYSIS_EXIT_CODE=\${?}
         
         if [ \${GETANALYSIS_EXIT_CODE} -ne 0 ]; then
@@ -86,7 +86,7 @@ process SONG_GETANALYSIS {
             fi
 
             # Create placeholder analysis file for failed retrieval with ANALYSIS_ID prefix
-            echo '{"error": "Analysis retrieval failed"}' > \${ANALYSIS_ID}.analysis.json
+            echo '{"error": "Analysis retrieval failed"}' > ${meta.id}_\${ANALYSIS_ID}.analysis.json
         fi
     fi
 

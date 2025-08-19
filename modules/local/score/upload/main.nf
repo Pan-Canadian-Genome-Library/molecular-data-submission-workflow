@@ -10,7 +10,7 @@ process SCORE_UPLOAD {
     tuple val(meta), path(analysis_id_file), path(manifest), path(upload)
 
     output:
-    tuple val(meta), path("out/analysis_id.txt"),    emit: ready_to_publish
+    tuple val(meta), path(analysis_id_file),    emit: ready_to_publish
     tuple val(meta), path("*_status.yml"), emit: status
     path "versions.yml"           , emit: versions
 
@@ -32,12 +32,6 @@ process SCORE_UPLOAD {
     """
     # Set error handling to continue on failure for resilient processing
     set +e
-    
-    # Create output directory first
-    mkdir -p out
-
-    # Copy analysis_id file to output for downstream processes  
-    cp ${analysis_id_file} ./out/analysis_id.txt
     
     # Initialize variables
     UPLOAD_EXIT_CODE=0
@@ -127,13 +121,7 @@ process SCORE_UPLOAD {
 
     stub:
     def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
-    """
-    # Create output directory
-    mkdir -p out
-    
-    # Create stub analysis_id file (copy input to output)
-    cp ${analysis_id_file} ./out/analysis_id.txt
-    
+    """    
     # Create stub status file
     echo "process: \\"${task.process}\\"" > "${status_file_name}"
     echo "status: \\"SUCCESS\\"" >> "${status_file_name}"
