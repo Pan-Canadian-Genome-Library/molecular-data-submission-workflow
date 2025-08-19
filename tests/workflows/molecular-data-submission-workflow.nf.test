@@ -14,21 +14,20 @@ nextflow_workflow {
                 exit_on_error = false
                 allow_duplicates = true
                 study_id = "TEST001"
-                token = "dummy_token_123"
                 skip_upload = false
             }
             workflow {
                 """
                 input[0] = params.study_id // study_id
                 input[1] = params.token // token
-                input[2] = file("${projectDir}/tests/workflows/test_data/file_metadata.csv") // file_metadata
-                input[3] = file("${projectDir}/tests/workflows/test_data/analysis_metadata.csv") // analysis_metadata
-                input[4] = file("${projectDir}/tests/workflows/test_data/workflow_metadata.csv") // workflow_metadata
-                input[5] = file("${projectDir}/tests/workflows/test_data/read_group_metadata.csv") // read_group_metadata
-                input[6] = file("${projectDir}/tests/workflows/test_data/experiment_metadata.csv") // experiment_metadata
-                input[7] = file("${projectDir}/tests/workflows/test_data/specimen_metadata.csv") // specimen_metadata
-                input[8] = file("${projectDir}/tests/workflows/test_data/sample_metadata.csv") // sample_metadata
-                input[9] = file("${projectDir}/tests/workflows/test_data/files") // path_to_files_directory
+                input[2] = file("${projectDir}/tests/test_data/analysis_meta/file_metadata.csv") // file_metadata
+                input[3] = file("${projectDir}/tests/test_data/analysis_meta/analysis_metadata.csv") // analysis_metadata
+                input[4] = file("${projectDir}/tests/test_data/analysis_meta/workflow_metadata.csv") // workflow_metadata
+                input[5] = file("${projectDir}/tests/test_data/biospecimen/read_group_metadata.csv") // read_group_metadata
+                input[6] = file("${projectDir}/tests/test_data/biospecimen/experiment_metadata.csv") // experiment_metadata
+                input[7] = file("${projectDir}/tests/test_data/biospecimen/specimen_metadata.csv") // specimen_metadata
+                input[8] = file("${projectDir}/tests/test_data/biospecimen/sample_metadata.csv") // sample_metadata
+                input[9] = file("${projectDir}/tests/test_data/genomics") // path_to_files_directory
                 input[10] = params.skip_duplicate_check // skip_duplicate_check
                 input[11] = params.skip_upload // skip_upload
                 """
@@ -56,21 +55,20 @@ nextflow_workflow {
                 exit_on_error = false
                 allow_duplicates = false
                 study_id = "TEST001"
-                token = "dummy_token_123"
                 skip_upload = true
             }
             workflow {
                 """
                 input[0] = params.study_id
                 input[1] = params.token
-                input[2] = file("${projectDir}/tests/workflows/test_data/file_metadata.csv") // file_metadata
-                input[3] = file("${projectDir}/tests/workflows/test_data/analysis_metadata.csv") // analysis_metadata
-                input[4] = file("${projectDir}/tests/workflows/test_data/workflow_metadata.csv") // workflow_metadata
-                input[5] = file("${projectDir}/tests/workflows/test_data/read_group_metadata.csv") // read_group_metadata
-                input[6] = file("${projectDir}/tests/workflows/test_data/experiment_metadata.csv") // experiment_metadata
-                input[7] = file("${projectDir}/tests/workflows/test_data/specimen_metadata.csv") // specimen_metadata
-                input[8] = file("${projectDir}/tests/workflows/test_data/sample_metadata.csv") // sample_metadata
-                input[9] = file("${projectDir}/tests/workflows/test_data/files") // path_to_files_directory
+                input[2] = file("${projectDir}/tests/test_data/analysis_meta/file_metadata.csv") // file_metadata
+                input[3] = file("${projectDir}/tests/test_data/analysis_meta/analysis_metadata.csv") // analysis_metadata
+                input[4] = file("${projectDir}/tests/test_data/analysis_meta/workflow_metadata.csv") // workflow_metadata
+                input[5] = file("${projectDir}/tests/test_data/biospecimen/read_group_metadata.csv") // read_group_metadata
+                input[6] = file("${projectDir}/tests/test_data/biospecimen/experiment_metadata.csv") // experiment_metadata
+                input[7] = file("${projectDir}/tests/test_data/biospecimen/specimen_metadata.csv") // specimen_metadata
+                input[8] = file("${projectDir}/tests/test_data/biospecimen/sample_metadata.csv") // sample_metadata
+                input[9] = file("${projectDir}/tests/test_data/genomics") // path_to_files_directory
                 input[10] = params.skip_duplicate_check // skip_duplicate_check
                 input[11] = params.skip_upload // skip_upload - THIS IS THE KEY DIFFERENCE
                 """
