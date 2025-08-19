@@ -2,26 +2,17 @@
   "analysisType": {
     "name": "sequenceExperiment"
   },
-  "data_category": "Sequencing Reads",
+  "studyId": "TEST_STUDY_002",
+  "data_category": "Genomics",
+  "submitter_analysis_id": "test_analysis_001",
+  "submitter_experiment_id": "test_experiment_001",
   "files": [
     {
-      "dataType": "Aligned Sequencing Reads",
-      "fileAccess": "controlled",
-      "fileMd5sum": "89d0bba15b2bada558bbfe7fb062d549",
-      "fileName": "test_file1.bam",
-      "fileSize": 311,
-      "fileType": "BAM"
-    },
-    {
-      "dataType": "Aligned Sequencing Reads",
-      "fileAccess": "controlled", 
-      "fileMd5sum": "3f103e74da76709d0ac1cc5307e04b9c",
-      "fileName": "test_file2.bam",
-      "fileSize": 312,
-      "fileType": "BAM"
+      "fileName": "test_file.fastq.gz",
+      "fileType": "FASTQ",
+      "fileSize": 25,
+      "fileMd5sum": "0d4dff58e1120c2984a779cc6b9ea3be",
+      "fileAccess": "controlled"
     }
-  ],
-  "studyId": "TEST-STUDY",
-  "submitter_analysis_id": "TEST001",
-  "submitter_experiment_id": "EXP001"
+  ]
 }
