@@ -11,8 +11,9 @@ process RECEIPT_AGGREGATE {
     tuple val(meta), path(individual_receipts)
 
     output:
-    path("*_batch_receipt.tsv"), emit: tsv_receipt
-    path("*_batch_receipt.json"), emit: json_receipt
+    tuple val(meta), path("*_batch_receipt.tsv"), emit: tsv_receipt
+    tuple val(meta), path("*_batch_receipt.json"), emit: json_receipt
+    tuple val(meta), path("*_batch_receipt.json"), path("*_batch_receipt.tsv"), emit: receipts
     path "versions.yml", emit: versions
 
     when:
