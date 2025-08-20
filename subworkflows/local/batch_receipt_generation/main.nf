@@ -47,6 +47,7 @@ workflow BATCH_RECEIPT_GENERATION {
     emit:
     batch_tsv_receipt   = RECEIPT_AGGREGATE.out.tsv_receipt    // tuple val(meta), path(batch_receipt.tsv)
     batch_json_receipt  = RECEIPT_AGGREGATE.out.json_receipt   // tuple val(meta), path(batch_receipt.json)
+    batch_receipts      = RECEIPT_AGGREGATE.out.receipts       // tuple val(meta), path(batch_receipt.json), path(batch_receipt.tsv)
     versions            = RECEIPT_GENERATE.out.versions.mix(RECEIPT_AGGREGATE.out.versions)
     
 }

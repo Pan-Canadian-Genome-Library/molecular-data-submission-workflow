@@ -32,32 +32,31 @@ def generate_batch_tsv(receipts, batch_id, output_file):
         
         # Header
         writer.writerow([
-            'submitter_analysis_id', 'song_analysis_id', 'overall_status', 'process', 'status', 'exit_code', 
-            'timestamp', 'error_message', 'details',
-            'analysis_type', 'study_id', 'analysis_state', 'published_at'
+            'submitter_analysis_id', 'overall_status', 'process', 'status', 'exit_code', 
+            'timestamp', 'error_message', 
+            'file_manager_analysis_id', 'analysis_type', 'study_id', 'analysis_state', 'published_at'
         ])
         
         # Data rows
         for receipt in receipts:
-            submitter_analysis_id = receipt.get('submitter_analysis_id', 'unknown')
-            song_analysis_id = receipt.get('song_analysis_id', 'unknown')
-            overall_status = receipt.get('overall_status', 'UNKNOWN')
-            analysis_type = receipt.get('analysis_type', 'unknown')
-            study_id = receipt.get('study_id', 'unknown')
-            analysis_state = receipt.get('analysis_state', 'unknown')
-            published_at = receipt.get('published_at', 'unknown')
-            
+            submitter_analysis_id = receipt.get('submitter_analysis_id', None)
+            file_manager_analysis_id = receipt.get('file_manager_analysis_id', None)
+            overall_status = receipt.get('overall_status', None)
+            analysis_type = receipt.get('analysis_type', None)
+            study_id = receipt.get('study_id', None)
+            analysis_state = receipt.get('analysis_state', None)
+            published_at = receipt.get('published_at', None)
+
             for process in receipt.get('processes', []):
                 writer.writerow([
                     submitter_analysis_id,
-                    song_analysis_id,
                     overall_status,
                     process.get('process', None),
                     process.get('status', None),
                     process.get('exit_code', None),
                     process.get('timestamp', None),
                     process.get('error_message', None),
-                    json.dumps(process.get('details')) if process.get('details') else None,
+                    file_manager_analysis_id,
                     analysis_type,
                     study_id,
                     analysis_state,
