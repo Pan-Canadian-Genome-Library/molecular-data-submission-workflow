@@ -13,7 +13,7 @@ process RECEIPT_AGGREGATE {
     output:
     tuple val(meta), path("*_batch_receipt.tsv"), emit: tsv_receipt
     tuple val(meta), path("*_batch_receipt.json"), emit: json_receipt
-    tuple val(meta), path("*_batch_receipt.json"), path("*_batch_receipt.tsv"), emit: receipts
+    tuple val(meta), path("*_batch_receipt.json"), path("*_batch_receipt.tsv"), path("total.txt"), path("success.txt"), path("failed.txt"), emit: receipts
     path "versions.yml", emit: versions
 
     when:
@@ -39,7 +39,7 @@ process RECEIPT_AGGREGATE {
     # Set PYTHONPATH to include our temporary package directory
     export PYTHONPATH="\$TEMP_PYTHON_LIB:\${PYTHONPATH:-}"
 
-    # Generate batch receipt files using the external script
+    # Generate batch receipt files using the external script (creates total.txt, success.txt, failed.txt)
     main.py \\
         --individual-receipts ${individual_receipts.join(' ')} \\
         --batch-id "${timestamp}" \\
@@ -119,6 +119,11 @@ SAMPLE002	3ba5e603-007f-6c0d-b471-48209f30d0fd	PAYLOAD_GENERATE	FAILED	1	2025-07
   ]
 }
     END_JSON
+
+    # Create summary files for testing
+    echo "2" > total.txt
+    echo "1" > success.txt
+    echo "1" > failed.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

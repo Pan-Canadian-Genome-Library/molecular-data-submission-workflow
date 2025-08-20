@@ -26,17 +26,17 @@ workflow BATCH_RECEIPT_GENERATION {
     
     // Option 1: Collect all receipts into a single batch (current implementation)
     all_receipts = RECEIPT_GENERATE.out.json_receipt
-        .map { _meta, receipt_file -> receipt_file }
-        .collect()
-        .map { receipt_files ->
-            // Create batch meta with timestamp-based batch_id
-            def timestamp = new Date().format('yyyyMMdd_HHmmss')
-            def batch_meta = [
-                id: "batch_${timestamp}",
-                batch_id: "batch_${timestamp}"
-            ]
-            return [batch_meta, receipt_files]
-        }
+            .map { _meta, receipt_file -> receipt_file }
+            .collect()
+            .map { receipt_files ->
+                // Create batch meta with timestamp-based batch_id
+                def timestamp = new Date().format('yyyyMMdd_HHmmss')
+                def batch_meta = [
+                    id: "batch_${timestamp}",
+                    batch_id: "batch_${timestamp}"
+                ]
+                return [batch_meta, receipt_files]
+            }
     
     
     // Aggregate individual receipts into batch receipts
@@ -47,7 +47,7 @@ workflow BATCH_RECEIPT_GENERATION {
     emit:
     batch_tsv_receipt   = RECEIPT_AGGREGATE.out.tsv_receipt    // tuple val(meta), path(batch_receipt.tsv)
     batch_json_receipt  = RECEIPT_AGGREGATE.out.json_receipt   // tuple val(meta), path(batch_receipt.json)
-    batch_receipts      = RECEIPT_AGGREGATE.out.receipts       // tuple val(meta), path(batch_receipt.json), path(batch_receipt.tsv)
+    batch_receipts      = RECEIPT_AGGREGATE.out.receipts       // tuple val(meta), path(batch_receipt.json), path(batch_receipt.tsv), path(total.txt), path(success.txt), path(failed.txt)
     versions            = RECEIPT_GENERATE.out.versions.mix(RECEIPT_AGGREGATE.out.versions)
     
 }

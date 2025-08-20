@@ -39,22 +39,19 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     ch_versions = Channel.empty()
     ch_all_status = Channel.empty()  // Collect all [val(meta), *_status.yml] tuples from all processes
 
-    // Debug: Log pipeline parameters if debug mode is enabled
-    if (params.debug_channels) {
-        log.info "🐛 DEBUG MODE ENABLED - Channel debugging active"
-        log.info "🔧 Input parameters:"
-        log.info "   - study_id: ${params.study_id}"
-        log.info "   - analysis_metadata: ${analysis_metadata}"
-        log.info "   - file_metadata: ${file_metadata}"
-        log.info "   - workflow_metadata: ${workflow_metadata}"
-        log.info "   - read_group_metadata: ${read_group_metadata}"
-        log.info "   - experiment_metadata: ${experiment_metadata}"
-        log.info "   - specimen_metadata: ${specimen_metadata}"
-        log.info "   - sample_metadata: ${sample_metadata}"
-        log.info "   - path_to_files_directory: ${path_to_files_directory}"
-        log.info "   - skip_upload: ${params.skip_upload}"
-        log.info "   - allow_duplicates: ${params.allow_duplicates}"
-    }
+    // Log pipeline parameters
+    log.info "🔧 Input parameters:"
+    log.info "   - study_id: ${params.study_id}"
+    log.info "   - analysis_metadata: ${analysis_metadata}"
+    log.info "   - file_metadata: ${file_metadata}"
+    log.info "   - workflow_metadata: ${workflow_metadata}"
+    log.info "   - read_group_metadata: ${read_group_metadata}"
+    log.info "   - experiment_metadata: ${experiment_metadata}"
+    log.info "   - specimen_metadata: ${specimen_metadata}"
+    log.info "   - sample_metadata: ${sample_metadata}"
+    log.info "   - path_to_files_directory: ${path_to_files_directory}"
+    log.info "   - skip_upload: ${params.skip_upload}"
+    log.info "   - allow_duplicates: ${params.allow_duplicates}"
 
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/58
     CHECK_SUBMISSION_DEPENDENCIES(
@@ -215,8 +212,8 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
 
     // Debug: Receipt generation output channels
     if (params.debug_channels) {
-        BATCH_RECEIPT_GENERATION.out.batch_receipts.view { meta, batch_receipt_file_json, batch_receipt_file_tsv ->
-            "🔍 BATCH_RECEIPT_GENERATION outputs: - 📦 batch_receipt_file - ID: ${meta.id}, batch_receipt_file_json: ${batch_receipt_file_json}, batch_receipt_file_tsv: ${batch_receipt_file_tsv}"
+        BATCH_RECEIPT_GENERATION.out.batch_receipts.view { meta, batch_receipt_file_json, batch_receipt_file_tsv, total_analyses, successful_analyses, failed_analyses ->
+            "🔍 BATCH_RECEIPT_GENERATION outputs: - 📦 batch_receipt_file - ID: ${meta.id}, batch_receipt_file_json: ${batch_receipt_file_json}, batch_receipt_file_tsv: ${batch_receipt_file_tsv}, total: ${total_analyses}, success: ${successful_analyses}, failed: ${failed_analyses}"
         }
     }
 
@@ -224,16 +221,24 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     // Workflow completion notifications and messaging
     //
     BATCH_RECEIPT_GENERATION.out.batch_receipts
-        .subscribe { meta, batch_receipt_file_json, batch_receipt_file_tsv ->
+        .subscribe { meta, batch_receipt_file_json, batch_receipt_file_tsv, total_analyses, successful_analyses, failed_analyses ->
+
             // Print completion message with batch receipt location
             def receipt_path_json = batch_receipt_file_json.toAbsolutePath()
             def receipt_path_tsv = batch_receipt_file_tsv.toAbsolutePath()
+            def total_count = total_analyses.text
+            def success_count = successful_analyses.text
+            def failed_count = failed_analyses.text
             log.info """
             ╔══════════════════════════════════════════════════════════════════════════════════╗
-            ║                       🎉 WORKFLOW COMPLETED SUCCESSFULLY! 🎉                      
+            ║                       🎉 WORKFLOW COMPLETED! 🎉                      
             ╠══════════════════════════════════════════════════════════════════════════════════╣
+            ║  Study: ${params.study_id}
             ║  Batch ID: ${meta.batch_id ?: meta.id}                                           
-            ║                                                                                  
+            ║  Total in this batch:    ${total_count}                                           
+            ║  ✅ Successful submissions: ${success_count}                                   
+            ║  ❌ Failed submissions:     ${failed_count}  
+            ║                                      
             ║  📋 BATCH RECEIPT GENERATED:                                                     
             ║  📁 JSON RECEIPT Location: ${receipt_path_json}                                  
             ║  📁 TSV RECEIPT Location: ${receipt_path_tsv}                                   
@@ -246,6 +251,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
             ║     • Error details for any failed analyses                                      
             ╚══════════════════════════════════════════════════════════════════════════════════╝
             """.stripIndent()
+            
         }
 
     //

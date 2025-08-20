@@ -87,6 +87,16 @@ def generate_batch_json(receipts, batch_id, output_file):
     
     with open(output_file, 'w') as f:
         json.dump(batch_receipt, f, indent=2)
+    
+    # Generate summary files for easy parsing by Nextflow
+    with open('total.txt', 'w') as f:
+        f.write(str(batch_receipt['total_analyses']))
+    
+    with open('success.txt', 'w') as f:
+        f.write(str(batch_receipt['successful_analyses']))
+        
+    with open('failed.txt', 'w') as f:
+        f.write(str(batch_receipt['failed_analyses']))
 
 
 def main():
