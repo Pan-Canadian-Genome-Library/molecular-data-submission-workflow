@@ -38,7 +38,6 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
             ]
             [meta, file(file_metadata), file(analysis_metadata), file(workflow_metadata), file(read_group_metadata), file(experiment_metadata), file(specimen_metadata), file(sample_metadata), file(path_to_files_directory)]
         }
-        .view { "ch_input_data: $it" }  // Add this line to view channel content
 
 
     // Use PREPROCESS_SUBMISSION module to process and reorganize the input files

@@ -11,12 +11,10 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 //include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_molecular-data-submission-workflow_pipeline'
 
 include {CHECK_SUBMISSION_DEPENDENCIES} from '../subworkflows/local/check_submission_dependencies/main.nf'
-// include {CLINICAL_SERVICE_DATA_SUBMISSION} from '../subworkflows/local/clinical_service_data_submission.nf'
 include {DATA_VALIDATION} from '../subworkflows/local/data_validation/main.nf'
 include {DATA_UPLOAD} from '../subworkflows/local/data_upload/main.nf'
 include {METADATA_PAYLOAD_GENERATION} from '../subworkflows/local/metadata_payload_generation/main.nf'
 include {BATCH_RECEIPT_GENERATION} from '../subworkflows/local/batch_receipt_generation/main.nf'
-//include {SKIP_DUPLICATE_SONG_SCORE_UPLOAD} from '../subworkflows/local/skip_duplicate_song_score_upload.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,8 +25,6 @@ include {BATCH_RECEIPT_GENERATION} from '../subworkflows/local/batch_receipt_gen
 workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
 
     take:
-    study_id
-    token
     file_metadata // Spreadsheet from --file_metadata
     analysis_metadata // Spreadsheet from --analysis_metadata
     workflow_metadata // Spreadsheet from --workflow_metadata
@@ -37,13 +33,29 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     specimen_metadata // Spreadsheet from --specimen_metadata
     sample_metadata // Spreadsheet from --sample_metadata
     path_to_files_directory // file path to directory containing target files
-    skip_duplicate_check // pipeline flag from --skip_duplicate_check
-    skip_upload // pipeline flag from --skip_upload
+
     main:
 
     ch_versions = Channel.empty()
     ch_all_status = Channel.empty()  // Collect all [val(meta), *_status.yml] tuples from all processes
-    
+
+    // Debug: Log pipeline parameters if debug mode is enabled
+    if (params.debug_channels) {
+        log.info "🐛 DEBUG MODE ENABLED - Channel debugging active"
+        log.info "🔧 Input parameters:"
+        log.info "   - study_id: ${params.study_id}"
+        log.info "   - analysis_metadata: ${analysis_metadata}"
+        log.info "   - file_metadata: ${file_metadata}"
+        log.info "   - workflow_metadata: ${workflow_metadata}"
+        log.info "   - read_group_metadata: ${read_group_metadata}"
+        log.info "   - experiment_metadata: ${experiment_metadata}"
+        log.info "   - specimen_metadata: ${specimen_metadata}"
+        log.info "   - sample_metadata: ${sample_metadata}"
+        log.info "   - path_to_files_directory: ${path_to_files_directory}"
+        log.info "   - skip_upload: ${params.skip_upload}"
+        log.info "   - allow_duplicates: ${params.allow_duplicates}"
+    }
+
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/58
     CHECK_SUBMISSION_DEPENDENCIES(
         file_metadata, // Spreadsheet
@@ -58,6 +70,18 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     ch_versions = ch_versions.mix(CHECK_SUBMISSION_DEPENDENCIES.out.versions)
     ch_all_status = ch_all_status.mix(CHECK_SUBMISSION_DEPENDENCIES.out.status)
 
+    // Debug: Check submission dependencies output channels
+    if (params.debug_channels) {
+        // log.info "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs:"
+        CHECK_SUBMISSION_DEPENDENCIES.out.molecular_files_to_upload.view { meta, file_meta, analysis_meta, workflow_meta, data_files ->
+            "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs: - molecular_files_to_upload - ID: ${meta.id}, status: ${meta.status}, files: [${data_files}]"
+        }
+        CHECK_SUBMISSION_DEPENDENCIES.out.biospecimen_entity.view { meta, entity_files ->
+            "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs: - biospecimen_entity - ID: ${meta.id}, status: ${meta.status}, entities: [${entity_files}]"
+        }
+    }
+
+
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/63
     METADATA_PAYLOAD_GENERATION(
         CHECK_SUBMISSION_DEPENDENCIES.out.molecular_files_to_upload
@@ -68,7 +92,15 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     ch_versions = ch_versions.mix(METADATA_PAYLOAD_GENERATION.out.versions)
     ch_all_status = ch_all_status.mix(METADATA_PAYLOAD_GENERATION.out.status)
 
-    METADATA_PAYLOAD_GENERATION.out.all_analyses.subscribe{println "payload-generation: $it"}
+    // METADATA_PAYLOAD_GENERATION.out.all_analyses.subscribe{println "payload-generation: $it"}
+
+    // Debug: Metadata payload generation output channels
+    if (params.debug_channels) {
+        // log.info "🔍 METADATA_PAYLOAD_GENERATION outputs:"
+        METADATA_PAYLOAD_GENERATION.out.all_analyses.view { meta, payload, payload_files ->
+            "🔍 METADATA_PAYLOAD_GENERATION outputs: - 📦 all_analyses - ID: ${meta.id}, status: ${meta.status}, payload: ${payload}, files: [${payload_files}]"
+        }
+    }
 
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/60
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/61
@@ -115,12 +147,20 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     ch_versions = ch_versions.mix(DATA_VALIDATION.out.versions)
     ch_all_status = ch_all_status.mix(DATA_VALIDATION.out.status)
 
-    DATA_VALIDATION.out.validated_payload_files.subscribe{println "data-validated: $it"}
+    // Debug: Data validation output channels
+    if (params.debug_channels) {
+        // log.info "🔍 DATA_VALIDATION outputs:"
+        DATA_VALIDATION.out.validated_payload_files.view { meta, payload, payload_files ->
+            "🔍 DATA_VALIDATION outputs: - 📦 validated_payload_files - ID: ${meta.id}, status: ${meta.status}, payload: ${payload}, files: [${payload_files}]"
+        }
+    }
+
+    // DATA_VALIDATION.out.validated_payload_files.subscribe{println "data-validated: $it"}
 
 
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/64
     ch_analysis = Channel.empty()
-    if (!skip_upload) {
+    if (!params.skip_upload) {
         DATA_UPLOAD(
             DATA_VALIDATION.out.validated_payload_files
                 .filter { meta, _payload, _files -> meta.status == 'pass' }
@@ -128,6 +168,14 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
         ch_analysis = ch_analysis.mix(DATA_UPLOAD.out.analysis_json)
         ch_versions = ch_versions.mix(DATA_UPLOAD.out.versions)
         ch_all_status = ch_all_status.mix(DATA_UPLOAD.out.status)
+
+        // Debug: Data upload output channels
+        if (params.debug_channels) {
+            // log.info "🔍 DATA_UPLOAD outputs:"
+            DATA_UPLOAD.out.analysis_json.view { meta, analysis_json ->
+                "🔍 DATA_UPLOAD outputs: - 📦 analysis_json - ID: ${meta.id}, status: ${meta.status}, analysis_json: ${analysis_json}"
+            }
+        }
     }   
 
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/67
@@ -142,7 +190,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
         }
         .groupTuple(by: 0) // Group by clean_meta (first element)
         
-    ch_grouped_status.subscribe { println "Grouped status: $it" }
+    // ch_grouped_status.subscribe { println "Grouped status: $it" }
     
     // Left join the grouped status with analysis JSON - keep all grouped status records
     // When skip_upload is true, ch_analysis will be empty, so all records will have null analysis_json
@@ -161,9 +209,44 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
             // analysis_json will be null for records that don't have matches in ch_analysis
             [meta, status_files, analysis_json ?: []]
         }
-    ch_status_analysis.subscribe{println "status_analysis: $it"}
+    // ch_status_analysis.subscribe{println "status_analysis: $it"}
     BATCH_RECEIPT_GENERATION(ch_status_analysis)
     ch_versions = ch_versions.mix(BATCH_RECEIPT_GENERATION.out.versions)
+
+    // Debug: Receipt generation output channels
+    if (params.debug_channels) {
+        BATCH_RECEIPT_GENERATION.out.batch_receipts.view { meta, batch_receipt_file_json, batch_receipt_file_tsv ->
+            "🔍 BATCH_RECEIPT_GENERATION outputs: - 📦 batch_receipt_file - ID: ${meta.id}, batch_receipt_file_json: ${batch_receipt_file_json}, batch_receipt_file_tsv: ${batch_receipt_file_tsv}"
+        }
+    }
+
+    //
+    // Workflow completion notifications and messaging
+    //
+    BATCH_RECEIPT_GENERATION.out.batch_receipts
+        .subscribe { meta, batch_receipt_file_json, batch_receipt_file_tsv ->
+            // Print completion message with batch receipt location
+            def receipt_path_json = batch_receipt_file_json.toAbsolutePath()
+            def receipt_path_tsv = batch_receipt_file_tsv.toAbsolutePath()
+            log.info """
+            ╔══════════════════════════════════════════════════════════════════════════════════╗
+            ║                       🎉 WORKFLOW COMPLETED SUCCESSFULLY! 🎉                      
+            ╠══════════════════════════════════════════════════════════════════════════════════╣
+            ║  Batch ID: ${meta.batch_id ?: meta.id}                                           
+            ║                                                                                  
+            ║  📋 BATCH RECEIPT GENERATED:                                                     
+            ║  📁 JSON RECEIPT Location: ${receipt_path_json}                                  
+            ║  📁 TSV RECEIPT Location: ${receipt_path_tsv}                                   
+            ║                                                                                  
+            ║                                                                                  
+            ║  ℹ️  The batch receipt contains:                                                 
+            ║     • Summary of all processed analyses                                          
+            ║     • Status of each submission step                                             
+            ║     • Upload results and analysis IDs                                            
+            ║     • Error details for any failed analyses                                      
+            ╚══════════════════════════════════════════════════════════════════════════════════╝
+            """.stripIndent()
+        }
 
     //
     // Collate and save software versions
