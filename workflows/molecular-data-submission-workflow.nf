@@ -74,10 +74,10 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     if (params.debug_channels) {
         // log.info "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs:"
         CHECK_SUBMISSION_DEPENDENCIES.out.molecular_files_to_upload.view { meta, file_meta, analysis_meta, workflow_meta, data_files ->
-            "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs: - molecular_files_to_upload - ID: ${meta.id}, status: ${meta.status}, files: [${data_files}]"
+            "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs: - molecular_files_to_upload - ID: ${meta.id}, status: ${meta.status}, files: ${data_files}"
         }
         CHECK_SUBMISSION_DEPENDENCIES.out.biospecimen_entity.view { meta, entity_files ->
-            "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs: - biospecimen_entity - ID: ${meta.id}, status: ${meta.status}, entities: [${entity_files}]"
+            "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs: - biospecimen_entity - ID: ${meta.id}, status: ${meta.status}, entities: ${entity_files}"
         }
     }
 
@@ -98,7 +98,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     if (params.debug_channels) {
         // log.info "🔍 METADATA_PAYLOAD_GENERATION outputs:"
         METADATA_PAYLOAD_GENERATION.out.all_analyses.view { meta, payload, payload_files ->
-            "🔍 METADATA_PAYLOAD_GENERATION outputs: - 📦 all_analyses - ID: ${meta.id}, status: ${meta.status}, payload: ${payload}, files: [${payload_files}]"
+            "🔍 METADATA_PAYLOAD_GENERATION outputs: - 📦 all_analyses - ID: ${meta.id}, status: ${meta.status}, payload: ${payload}, files: ${payload_files}"
         }
     }
 
@@ -151,7 +151,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     if (params.debug_channels) {
         // log.info "🔍 DATA_VALIDATION outputs:"
         DATA_VALIDATION.out.validated_payload_files.view { meta, payload, payload_files ->
-            "🔍 DATA_VALIDATION outputs: - 📦 validated_payload_files - ID: ${meta.id}, status: ${meta.status}, payload: ${payload}, files: [${payload_files}]"
+            "🔍 DATA_VALIDATION outputs: - 📦 validated_payload_files - ID: ${meta.id}, status: ${meta.status}, payload: ${payload}, files: ${payload_files}"
         }
     }
 
