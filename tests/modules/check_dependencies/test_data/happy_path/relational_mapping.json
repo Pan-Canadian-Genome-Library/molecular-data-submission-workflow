@@ -1,0 +1,95 @@
+{
+  "experiment": {
+    "primary": [
+      "submitter_experiment_id"
+    ],
+    "foreign": [
+      {
+        "entity": "sample",
+        "foreign": "submitter_sample_id"
+      }
+    ]
+  },
+  "read_group": {
+    "primary": [
+      "submitter_read_group_id"
+    ],
+    "foreign": [
+      {
+        "entity": "experiment",
+        "foreign": "submitter_experiment_id"
+      }
+    ]
+  },
+  "sample": {
+    "primary": [
+      "submitter_sample_id"
+    ],
+    "foreign": [
+      {
+        "entity": "specimen",
+        "foreign": "submitter_specimen_id"
+      }
+    ]
+  },
+  "specimen": {
+    "primary": [
+      "submitter_specimen_id"
+    ],
+    "foreign": [
+      {
+        "entity": "participant",
+        "foreign": "submitter_participant_id"
+      }
+    ]
+  },
+  "files": {
+    "primary": [
+      "fileName"
+    ],
+    "foreign": [
+      {
+        "foreign": "submitter_analysis_id",
+        "entity": "analysis"
+      }
+    ]
+  },
+  "analysis": {
+    "analysisTypes": {
+      "sequenceExperiment": {
+        "primary": [
+          "submitter_analysis_id"
+        ],
+        "foreign": {
+          "foreign": "submitter_experiment_id",
+          "entity": "experiment"
+        }
+      },
+      "sequenceAlignment": {
+        "primary": [
+          "submitter_analysis_id"
+        ],
+        "foreign": {
+          "foreign": "submitter_experiment_id",
+          "entity": "experiment"
+        }
+      },
+      "variantCall": {
+        "primary": [
+          "submitter_analysis_id"
+        ],
+        "foreign": {
+          "foreign": "submitter_experiment_id",
+          "entity": "experiment"
+        }
+      }
+    }
+  },
+  "workflow": {
+    "analysisTypes": {
+      "sequenceAlignment": {},
+      "MyNewSchemaVersion": {},
+      "variantCall": {}
+    }
+  }
+}

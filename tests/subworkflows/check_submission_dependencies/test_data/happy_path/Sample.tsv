@@ -1,0 +1,3 @@
+submitter_sample_id	submitter_specimen_id	molecule_type_code	molecule_type_term	sample_status
+NEW_SAMPLE_01	NEW_SPECIMEN_01	NCIT:C449	DNA	Case
+NEW_SAMPLE_02	NEW_SPECIMEN_02	NCIT:C449	DNA	Case
