@@ -174,4 +174,4 @@ cython_debug/
 out/
 work/
 .nextflow*
-.nf-test*
+.nf-test/*

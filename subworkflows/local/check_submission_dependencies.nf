@@ -15,19 +15,22 @@ include {CLINICAL_SUBMISSION} from '../../modules/local/submit_clinical'
 workflow CHECK_SUBMISSION_DEPENDENCIES {
 
     take:
-        file_metadata // Spreadsheet
-        analysis_metadata // Spreadsheet
-        workflow_metadata // Spreadsheet
-        read_group_metadata // Spreadsheet
-        experiment_metadata // Spreadsheet
-        specimen_metadata // Spreadsheet
-        sample_metadata // Spreadsheet
+    study_id // tuple (val:study_id)
+    file_metadata // Spreadsheet
+    analysis_metadata // Spreadsheet
+    workflow_metadata // Spreadsheet
+    read_group_metadata // Spreadsheet
+    experiment_metadata // Spreadsheet
+    specimen_metadata // Spreadsheet
+    sample_metadata // Spreadsheet
+    path_to_files_directory // file path
 
     main:
+    
         ch_versions = Channel.empty()
         // Check analysis and clinical files to ensure dependencies are met. Hard stop 
         CHECK_DEPENDENCIES(
-            study_id, // tuple(val : Study ID)
+            study_id, // tuple (val:study_id)
             file_metadata, // tuple(val : Spreadsheet)
             analysis_metadata, // tuple(val : Spreadsheet)
             workflow_metadata, // tuple(val : Spreadsheet)
@@ -39,28 +42,9 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
         )
         ch_versions = ch_versions.mix(CHECK_DEPENDENCIES.out.versions)
 
-
-    ch_versions = Channel.empty()
-
-    // TODO nf-core: substitute modules here for the modules of your subworkflow
-    Channel.value(1).subscribe{println "CHECK_SUBMISSION_DEPENDENCIES helloA"}
-
-    clinical_upload = [[{},null]]
-    entity_mapping = [[],{}]
-    unsuccessful_dependency = [[],{}]
-    molecular_files_to_upload = [[],{}]
-
-    emit:
-    // TODO nf-core: edit emitted channels
-    clinical_upload  // channel: [ val(meta), [csv] ] multiple CSVs per entity
-    molecular_files_to_upload // channel [ val(meta) [files] ] per analysis
-    entity_mapping         // channel: [ val(meta), [ csv ] ] relational mapping
-    unsuccessful_dependency // [val(meta),[csv]]
-    versions = ch_versions                     // channel: [ versions.yml ]
-
         //Split files (analysis and clinical) per analysis. Soft stop.
         ANALYSIS_SPLIT(
-            study_id, // tuple(val : Study ID)
+            study_id,
             file_metadata, // tuple(val : Spreadsheet)
             analysis_metadata, // tuple(val : Spreadsheet)
             workflow_metadata, // tuple(val : Spreadsheet)
