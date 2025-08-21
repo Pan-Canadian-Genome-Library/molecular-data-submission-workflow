@@ -5,13 +5,12 @@
 // TODO nf-core: A subworkflow SHOULD import at least two modules
 
 //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/58
-<<<<<<< Updated upstream
-=======
+
 include {CHECK_DEPENDENCIES} from '../../modules/local/check_dependencies'
 include {ANALYSIS_SPLIT} from '../../modules/local/analysis_split'
 include {VALIDATE_CLINICAL} from '../../modules/local/validate_clinical'
 include {CLINICAL_SUBMISSION} from '../../modules/local/submit_clinical'
->>>>>>> Stashed changes
+
 
 workflow CHECK_SUBMISSION_DEPENDENCIES {
 
@@ -40,7 +39,7 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
         )
         ch_versions = ch_versions.mix(CHECK_DEPENDENCIES.out.versions)
 
-<<<<<<< Updated upstream
+
     ch_versions = Channel.empty()
 
     // TODO nf-core: substitute modules here for the modules of your subworkflow
@@ -58,7 +57,7 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
     entity_mapping         // channel: [ val(meta), [ csv ] ] relational mapping
     unsuccessful_dependency // [val(meta),[csv]]
     versions = ch_versions                     // channel: [ versions.yml ]
-=======
+
         //Split files (analysis and clinical) per analysis. Soft stop.
         ANALYSIS_SPLIT(
             study_id, // tuple(val : Study ID)
@@ -166,6 +165,6 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
         analysis_channels = analysis_channels//format checked
         validated_analysis_channels = validated_analysis_channels //format checked and validated
         submitted_analysis_channels = submitted_analysis_channels//format checked, validated and submitted to clinical service
->>>>>>> Stashed changes
+
 }
 
