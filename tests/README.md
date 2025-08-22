@@ -15,7 +15,7 @@
 - the following shoould be the results for bulk submission
   - `NEW_ANALYSIS_01` succeeds
   - `NEW_ANALYSIS_02` fails b/c of inconsistent records
-  - `DONOR_01_EXPERIMENT_02` fails b/c of missing dependency
+  - `DONOR_01_EXPERIMENT_02` fails b/c of missing foreign key
 2. check check_submission_dependencies stub
  
 ### Modules
