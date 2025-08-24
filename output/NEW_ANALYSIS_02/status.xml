@@ -1,0 +1,9 @@
+
+process: "ANALYSIS_SPLIT"
+status: "PASS"
+exit_code: 0
+details:
+    analysis_id: "NEW_ANALYSIS_02"
+    error_message: ""
+
+            
