@@ -62,7 +62,7 @@ process ANALYSIS_SPLIT {
     touch ${study_id}/EXAMPLE_02/{analysis.tsv,files.tsv,specimen.tsv,sample.tsv,experiment.tsv}
     touch ${study_id}/EXAMPLE_03/{analysis.tsv,files.tsv}
 
-    cat <<-END_STATUS > "${study_id}/EXAMPLE_01/${study_id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
+    cat <<-END_STATUS > "${study_id}/EXAMPLE_01/EXAMPLE_01_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     process: "${task.process}"
     status: "SUCCESS"
     exit_code: 0
@@ -76,7 +76,7 @@ process ANALYSIS_SPLIT {
         read_group_meta : "${read_group_metadata}"
     END_STATUS
 
-    cat <<-END_STATUS > "${study_id}/EXAMPLE_02/${study_id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
+    cat <<-END_STATUS > "${study_id}/EXAMPLE_02/EXAMPLE_02_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     process: "${task.process}"
     status: "SUCCESS"
     exit_code: 0
@@ -90,7 +90,7 @@ process ANALYSIS_SPLIT {
         read_group_meta : "${read_group_metadata}"
     END_STATUS
 
-    cat <<-END_STATUS > "${study_id}/EXAMPLE_03/${study_id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
+    cat <<-END_STATUS > "${study_id}/EXAMPLE_03/EXAMPLE_03_${task.process.toLowerCase().replace(':', '_')}_status.yml"
     process: "${task.process}"
     status: "SUCCESS"
     exit_code: 0

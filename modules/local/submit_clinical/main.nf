@@ -10,7 +10,7 @@ container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity
         'biocontainers/ampcombi:2.0.1--pyhdfd78af_0' }"
 
     input:
-    tuple val(meta), val(analysis), val(clinical), val(files)
+    tuple val(meta), val(analysis), val(clinical), val(files), path(status_file), path(relational_mapping), path(analysis_types), path(data_directory)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
@@ -31,15 +31,12 @@ container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity
     """
     # Set error handling to continue on failure for resilient processing
     set +e
-    ls main.py
     # Check if upstream process was successful by checking meta.status
     if [ "${meta.status ?: 'pass' }" != "pass" ]; then
         echo "Upstream process failed (meta.status: ${meta.status ?: 'pass'}), skipping payload generation"
         GENERATION_EXIT_CODE=1
-        ERROR_DETAILS="Skipped payload generation due to upstream failure"
-        
-        # Create placeholder payload file to satisfy Nextflow output requirements
-        echo '{"error": "payload_generation_failed", "message": "Placeholder file created due to upstream failure"}' > "${prefix}_payload.json"
+        ERROR_DETAILS="Submit clinical generation due to upstream failure"
+
     else
         echo "Upstream process successful, proceeding with payload generation"
         
@@ -50,6 +47,7 @@ container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity
         ${experiment_file} \
         ${read_group_file} \
         --clinical_url ${params.clinical_url} \
+        --relational_mapping ${relational_mapping} \
         --token ${params.token} \
         --study_id ${meta.study} 2>generation_errors.tmp
 
@@ -84,8 +82,10 @@ container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity
     
     # Add error message to status file if generation failed
     if [ \$GENERATION_EXIT_CODE -ne 0 ] && [ -n "\$ERROR_DETAILS" ]; then
-        echo "    error_message:" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
-        cat generation_errors.tmp >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
+        echo "    error_details: |" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
+        echo "\$ERROR_DETAILS" | while IFS= read -r line; do
+            echo "        \$line" >> "${meta.id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
+        done
     fi
     
     # Always create versions.yml before any exit
