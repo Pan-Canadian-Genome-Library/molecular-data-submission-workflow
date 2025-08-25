@@ -113,7 +113,7 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
 
         //Update channel status based on VALIDATE_CLINICAL outcome
         VALIDATE_CLINICAL.out.status.map{
-            meta, analysis, clinical , files, status_file ->
+            meta, analysis, clinical , files, status_file, relational_mapping, analysis_types, data_directory ->
             def status_value = status_file.text.contains('status: "FAILED"') ? 'failed' : 'pass'
             def updated_meta = meta.clone()
 
@@ -122,7 +122,11 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
                 meta : updated_meta,
                 analysis : analysis,
                 clinical : clinical,
-                files : files
+                files : files,
+                status_file : status_file , 
+                relational_mapping : relational_mapping, 
+                analysis_types : analysis_types,
+                data_directory : data_directory
             ]
         }.set{validated_analysis_channels}
 

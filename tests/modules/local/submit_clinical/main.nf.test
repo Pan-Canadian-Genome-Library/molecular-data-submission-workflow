@@ -1,0 +1,157 @@
+nextflow_process {
+    name "Test module CLINICAL_SUBMISSION"
+    script "modules/local/submit_clinical/main.nf"
+    process "CLINICAL_SUBMISSION"
+    
+    tag "modules"
+    tag "modules_local"
+    tag "modules/clinical_submission"
+
+    test("clinical service data submission happy path") {
+
+        when {
+            process {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    [study:"EXAMPLE-CA9",status:"pass",id:"NEW_ANALYSIS_02",type:[]],
+                    [analysis:[],files:[],process:[]],
+                    [specimen:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/specimen.tsv'),sample:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/sample.tsv'),experiment:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/experiment.tsv'),read_group:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/read_group.tsv')],
+                    [[],[],[]],
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/dummy_status.yml'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/relational_mapping.json'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/analysis_types.json'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path')
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.out.versions},
+                { assert process.out.status}
+            )
+        }
+    }
+
+    test("clinical service data submission happy path - redundant") {
+
+        when {
+            process {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    [study:"EXAMPLE-CA9",status:"pass",id:"NEW_ANALYSIS_02",type:[]],
+                    [analysis:[],files:[],process:[]],
+                    [specimen:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/redundant_specimen.tsv'),sample:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/nonredundant_sample.tsv'),experiment:null,read_group:null],
+                    [[],[],[]],
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/dummy_status.yml'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/relational_mapping.json'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/analysis_types.json'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path')
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.out.versions},
+                { assert process.out.status}
+            )
+        }
+    }
+
+    test("clinical service data submission bad path - fail dependency") {
+        when {
+            process {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    [study:"EXAMPLE-CA",status:"fail",id:"NEW_ANALYSIS_02",type:"sequenceExperiment"],
+                    [analysis:'${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_analysis.tsv',files:'${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_files.tsv',workflow:null],
+                    [specimen:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_specimen.tsv'),sample:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_sample.tsv'),experiment:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_experiment.tsv'),read_group:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_read_group.tsv')],
+                    [[]],
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/dummy_status.yml'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/relational_mapping.json'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/analysis_types.json'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path')
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.out.versions},
+                { assert process.out.status}
+            )
+        }
+    }
+
+    test("clinical service data submission bad path - fail submission") {
+        when {
+            process {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    [study:"EXAMPLE-CA999",status:"pass",id:"NEW_ANALYSIS_02",type:"sequenceExperiment"],
+                    [analysis:'${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_analysis.tsv',files:'${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_files.tsv',workflow:null],
+                    [specimen:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/specimen.tsv'),sample:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/sample.tsv'),experiment:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/experiment.tsv'),read_group:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/read_group.tsv')],
+                    [[]],
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/dummy_status.yml'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/relational_mapping.json'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/analysis_types.json'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path')
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.out.versions},
+                { assert process.out.status}
+            )
+        }
+    }
+
+    test("clinical service data submission stub") {
+        options "-stub-run"
+        when {
+            process {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    [study:"EXAMPLE-CA",status:"pass",id:"NEW_ANALYSIS_02",type:"sequenceExperiment"],
+                    [analysis:'${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_analysis.tsv',files:'${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_files.tsv',workflow:null],
+                    [specimen:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_specimen.tsv'),sample:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_sample.tsv'),experiment:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_experiment.tsv'),read_group:file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/registerable_read_group.tsv')],
+                    [[]],
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/dummy_status.yml'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/relational_mapping.json'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/analysis_types.json'),
+                    file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path')
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.out.versions},
+                { assert process.out.status}
+            )
+        }
+    }
+}

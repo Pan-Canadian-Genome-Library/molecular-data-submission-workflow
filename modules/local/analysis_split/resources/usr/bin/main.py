@@ -28,6 +28,7 @@ import jsonschema
 import json
 import argparse
 import os
+import datetime
 
 def split_analyses(analysis_df):
     print("Creating dictionary based off of available analyses")
@@ -147,13 +148,13 @@ def save_outputs(analyses,output_directory):
                 if analyses.get(analysis).get(entity).get('submitted'):
                     if len(analyses.get(analysis).get(entity).get('data'))>0:
                         analyses.get(analysis).get(entity).get('data').to_csv("%s/%s/%s.tsv" % (output_directory,analysis,entity),sep='\t',index=False)
-
-        with open("%s/%s/status.yml" % (output_directory,analysis), 'w') as file:
+        with open("%s/%s/%s_check_submission_dependencies_analysis_split_status.yml" % (output_directory,analysis,analysis), 'w') as file:
             file.write(
             """
-process: "ANALYSIS_SPLIT"
+process: "CHECK_SUBMISSION_DEPENDENCIES:ANALYSIS_SPLIT"
 status: "%s"
 exit_code: %s
+timestamp: "%s"
 details:
     analysis_id: "%s"
     error_message: "%s"
@@ -161,6 +162,7 @@ details:
             """ % (
                     "PASS" if analyses.get(analysis).get("status") else "FAILED",
                     "0" if analyses.get(analysis).get("status") else "1",
+                    datetime.datetime.now(),
                     analysis,
                     "\n".join(analyses.get(analysis).get("comments") )
                 )

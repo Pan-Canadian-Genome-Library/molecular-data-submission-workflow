@@ -8,7 +8,7 @@
 #### 1. Test Subworkflow CHECK_SUBMISSION_DEPENDENCIES
 1. check check_submission_dependencies happy path
 - > [!IMPORTANT]<Br>Before running tests, ensure that the correct API token is provided through `tests/nextflow.config`. Otherwise `happy path` tests will fail at earlier
-- > Before testing, ensure only the entity present is participant. Otherwise the system will detect previously submtited non-participant entities and block the test from successful completion.<Br>
+- > Before testing, ensure only the entity present is participant. Otherwise the system will detect previously submtited non-participant entities and submission will be bypassed.<Br>
   - > To do so, the example study used is `EXAMPLE-CA9`. Query `specimen` data for `NEW_SPECIMEN_02` in study `EXAMPLE-CA9` using the `/data/category/{categoryId}/organization/{organization}`. Use the retrieve `specimen` `systemId` as the arguements for the DELETE endpoint `/submission/category/{categoryId}/data/{systemId}`.<Br>
   - > This should generate a `submissionId` to be used in the commit POST endpoint `/submission/category/{categoryId}/commit/{submissionId}`. Recheck data to ensure only donors exist.<Br>
   - > Note for `categoryId`: unless a category is named after the organization, defaults to using `prod_pcgl_schema`
@@ -50,15 +50,22 @@
 #### 4. Test module CLINICAL_SUBMISSION
 1. clinical service data submission happy path
 - > [!IMPORTANT]<Br>Before running tests, ensure that the correct API token is provided through `tests/nextflow.config`. Otherwise `happy path` tests will fail at earlier
-- > Before testing, ensure only the entity present is participant. Otherwise the system will detect previously submtited non-participant entities and block the test from successful completion.<Br>
+- > Before testing, ensure only the entity present is participant. Otherwise the system will detect previously submtited non-participant entities and submission will be bypassed.<Br>
   - > To do so, the example study used is `EXAMPLE-CA9`. Query `specimen` data for `NEW_SPECIMEN_02` in study `EXAMPLE-CA9` using the `/data/category/{categoryId}/organization/{organization}`. Use the retrieve `specimen` `systemId` as the arguements for the DELETE endpoint `/submission/category/{categoryId}/data/{systemId}`.<Br>
   - > This should generate a `submissionId` to be used in the commit POST endpoint `/submission/category/{categoryId}/commit/{submissionId}`. Recheck data to ensure only donors exist.<Br>
   - > Note for `categoryId`: unless a category is named after the organization, defaults to using `prod_pcgl_schema`
-2. clinical service data submission bad path - fail dependency
-3. clinical service data submission bad path - fail submission
+2. clinical service data submission happy path - redundant
+- > [!IMPORTANT]<Br>Before running tests, ensure that the correct API token is provided through `tests/nextflow.config`. Otherwise `happy path` tests will fail at earlier
+- > Before testing, ensure only the entity present is participant. Otherwise the system will detect previously submtited non-participant entities and submission will be bypassed.<Br>
+  - > To do so, the example study used is `EXAMPLE-CA9`. Query `specimen` data for `NONREDUNDANT_SAMPLE_02` in study `EXAMPLE-CA9` using the `/data/category/{categoryId}/organization/{organization}`. Use the retrieve `specimen` `systemId` as the arguements for the DELETE endpoint `/submission/category/{categoryId}/data/{systemId}`.<Br>
+  - > This should generate a `submissionId` to be used in the commit POST endpoint `/submission/category/{categoryId}/commit/{submissionId}`. Recheck data to ensure only donors exist.<Br>
+  - > Note for `categoryId`: unless a category is named after the organization, defaults to using `prod_pcgl_schema`
+- two records are submitted `NONREDUNDANT_SAMPLE_02` and `REDUNDANT_SPECIMEN_02`. Only `NONREDUNDANT_SAMPLE_02` is accepted b/c `REDUNDANT_SPECIMEN_02` was previously submitted
+3. clinical service data submission bad path - fail dependency
+4. clinical service data submission bad path - fail submission
 - > [!IMPORTANT]<Br>Before running tests, ensure that the correct API token is provided through `tests/nextflow.config`. Otherwise `happy path` tests will fail at earlier∂
 - fails for the following reasons:
   - invalid foreignKey: participants do not exist
   - results in downstream invalid foreign keys
   - duplicate read group records
-4. clinical service data submission stub
+5. clinical service data submission stub

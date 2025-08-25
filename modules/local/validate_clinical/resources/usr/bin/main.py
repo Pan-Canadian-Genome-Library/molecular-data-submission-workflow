@@ -161,80 +161,6 @@ def check_read_group_exists(analysis,analysisTypes,token,clinical_url,category_i
          analysis['status']=False
          analysis['comments'].append("check_read_group_exists - No read_groups related to submitter_experiment_id %s found for analysisType %s" % (experiment_id,analysisType))
 
-def query_clinical_validator(url,token):
-        headers={
-                "Authorization" : "Bearer %s" % token
-        }
-
-
-        #https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/category/1/entity/participant/exists?organization=EXAMPLE-CA&value=DONOR_01
-        try:
-                response=requests.get(url,headers=headers)
-        except:
-                raise ValueError('ERROR REACHING %s' % (url))
-
-        if response.status_code!=200 and response.status_code!=404:
-                raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
-                exit(1)
-
-        if response.json()['message']=='Record found':
-            return(True)
-        else:
-            return(False)
-def query_registered_data(token,clinical_url,category_id,entity,study_id,primary_key,ind,analysis):
-   print("Verifying if submitted data is consistent")
-   headers={
-            "Authorization" : "Bearer %s" % token
-   }
-   url="%s/data/category/%s/organization/%s/query?entityName=%s" % (clinical_url,category_id,study_id,entity)
-   payload={
-            "op": "and",
-            "content": [
-                  {
-                           "op": "in",
-                           "content": {
-                                    "fieldName": primary_key,
-                                    "value": [analysis[entity].loc[ind,primary_key]]
-                                    }
-                           }
-                  ]
-            }
-
-   try:
-            response=requests.post(url,json=payload,headers=headers)
-   except:
-            raise ValueError('ERROR REACHING %s' % (url))
-
-   if response.status_code!=200 and response.status_code!=404:
-            raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
-            exit(1)
-
-   for col in analysis[entity].columns.values.tolist():
-      if not pd.isna(analysis[entity].loc[ind,col]):
-         if response.json()['records'][0]['data'].get(col):
-            valA=response.json()['records'][0]['data'][col]
-
-            valB=analysis[entity].loc[ind,col]
-
-            if valA!=valB:
-               analysis["comments"].append("Field '%s' is not consistent for record %s in entity %s. Specified - %s vs Comitted - %s" % (col,analysis[entity].loc[ind,primary_key],entity,valA,valB))
-               analysis['status']=False
-         else:
-            analysis["comments"].append("New Field '%s' detected for existing record %s in entity %s. Contact PCGL Admin to perform this update seperately" % (col,analysis[entity].loc[ind,primary_key],entity))
-            analysis['status']=False
-
-def check_registered_entities(analysis,clinical_url,category_id,study_id,relational_mapping,token):
-   for entity in ["read_group","specimen","sample","experiment"]:
-      if entity in analysis:
-         for primary_key in relational_mapping[entity]['primary']:
-            for ind in analysis[entity].index.values.tolist():
-               url="%s/validator/category/%s/entity/%s/exists?organization=%s&value=%s" % (clinical_url,category_id,entity,study_id,analysis[entity].loc[ind,primary_key])
-
-               if query_clinical_validator(url,token):
-                  print(url)
-                  query_registered_data(token,clinical_url,category_id,entity,study_id,primary_key,ind,analysis)
-
-
 def main(args):
    if args.file_metadata: print("input:",args.file_metadata)
    if args.analysis_metadata: print("input:",args.analysis_metadata)
@@ -294,8 +220,7 @@ def main(args):
    check_workflow_datatypes(analysis,analysis_types)
 
    #check_read_group_exists(analysis,analysis_types,args.token,args.clinical_url,category_id,args.study_id)
-   ###If entity pre-registered check values
-   check_registered_entities(analysis,args.clinical_url,category_id,args.study_id,relational_mapping,args.token)
+   ###If entity pre-registered check values - moved into submit clinical
 
    if len(analysis['comments'])>1:
       raise ValueError(".\n".join(analysis['comments']))
