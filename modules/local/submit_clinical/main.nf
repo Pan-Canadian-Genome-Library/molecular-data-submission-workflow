@@ -14,7 +14,7 @@ container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), val(analysis), val(clinical), val(files) , path("*status.yml") , emit : status
+    tuple val(meta), val(analysis), val(clinical), val(files) , path("*clinical_submission_status.yml") , emit : status
     path "versions.yml", emit: versions
 
     when:
