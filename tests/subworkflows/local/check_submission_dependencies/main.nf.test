@@ -86,7 +86,7 @@ nextflow_workflow {
                 input[5] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Experiment.tsv')]
                 input[6] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Specimen.tsv')]
                 input[7] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Sample.tsv')]
-                input[8] = ['${projectDir}/tests/modules/local/checkclinical/test_data/happy_path']
+                input[8] = ['${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path']
                 """
             }
         }

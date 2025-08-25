@@ -18,7 +18,7 @@ process CHECK_DEPENDENCIES {
         tuple path(data_directory) // file path
     output:
         path "relational_mapping.json", emit: relational_mapping
-        tuple (path("analysis_types.json")), emit : analysis_types
+        path "analysis_types.json", emit : analysis_types
         path "versions.yml" , emit: versions
 
     when:

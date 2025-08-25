@@ -12,7 +12,7 @@ process VALIDATE_CLINICAL {
         tuple val(meta), val(analysis), val(clinical), val(files), path(status_file), path(relational_mapping), path(analysis_types), path(data_directory)
 
     output:
-        tuple val(meta), val(analysis), val(clinical), val(files), path("*_status.yml"), path(relational_mapping), path(analysis_types), path(data_directory), emit: status
+        tuple val(meta), val(analysis), val(clinical), val(files), path("*_validate_clinical_status.yml"), path(relational_mapping), path(analysis_types), path(data_directory), emit: status
         path "versions.yml", emit: versions
 
 
