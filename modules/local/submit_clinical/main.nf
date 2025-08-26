@@ -58,7 +58,7 @@ container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity
         if [ \$GENERATION_EXIT_CODE -ne 0 ]; then
             # Read all error details from captured stderr
             if [ -f "generation_errors.tmp" ] && [ -s "generation_errors.tmp" ]; then
-                ERROR_DETAILS=\$(cat "generation_errors.tmp" | tr '\\n' ' | ' | sed 's/ | \$//' || echo "Script execution failed")
+                ERROR_DETAILS=\$(cat "generation_errors.tmp")
             else
                 ERROR_DETAILS="Script execution failed"
             fi
