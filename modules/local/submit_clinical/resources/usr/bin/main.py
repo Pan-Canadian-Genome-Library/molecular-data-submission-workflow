@@ -194,15 +194,14 @@ def query_registered_data(token,clinical_url,category_id,entity,study_id,primary
             exit(1)
 
     for col in analysis[entity].columns.values.tolist():
-        if not pd.isna(analysis[entity].loc[ind,col]):
-            if response.json()['records'][0]['data'].get(col):
-                valA=response.json()['records'][0]['data'][col]
+        if not pd.isna(analysis[entity].loc[ind,col]) and response.json()['records'][0]['data'].get(col):
+            valA=response.json()['records'][0]['data'][col]
 
-                valB=analysis[entity].loc[ind,col]
+            valB=analysis[entity].loc[ind,col]
 
-                if valA!=valB:
-                    comments.append("Field '%s' is not consistent for record %s in entity %s. Specified - %s vs Comitted - %s" % (col,analysis[entity].loc[ind,primary_key],entity,valA,valB))
-                    status.append(False)
+            if valA!=valB:
+                comments.append("Field '%s' is not consistent for record %s in entity %s. Specified - %s vs Comitted - %s" % (col,analysis[entity].loc[ind,primary_key],entity,valA,valB))
+                status.append(False)
         else:
             comments.append("New Field '%s' detected for existing record %s in entity %s. Contact PCGL Admin to perform this update seperately" % (col,analysis[entity].loc[ind,primary_key],entity))
             status.append(False)

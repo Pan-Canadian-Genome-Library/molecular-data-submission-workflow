@@ -144,15 +144,45 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
                 meta : updated_meta,
                 analysis : analysis,
                 clinical : clinical,
-                files : files
+                files : files,
+                status_file : status_file
             ]
         }.set{submitted_analysis_channels}
+
+        analysis_channels.map{
+            it ->
+            [
+                meta : it.meta,
+                status_file : it.status_file
+            ]
+        }.collect().combine(
+            validated_analysis_channels.map{
+            it ->
+                [
+                meta : it.meta,
+                status_file : it.status_file
+                ]
+
+            }.collect()
+        ).combine(
+            submitted_analysis_channels.map{
+            it ->
+                [
+                meta : it.meta,
+                status_file : it.status_file
+                ]
+
+            }.collect()
+        ).set{status_files}
+
+        status_files.subscribe{println "${it}"}
 
     emit:
         versions = ch_versions
         analysis_channels = analysis_channels//format checked
         validated_analysis_channels = validated_analysis_channels //format checked and validated
         submitted_analysis_channels = submitted_analysis_channels//format checked, validated and submitted to clinical service
+        status_files = status_files //format checked, validated and submitted to clinical service
 
 }
 
