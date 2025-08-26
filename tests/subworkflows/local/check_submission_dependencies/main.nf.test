@@ -30,6 +30,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.out.versions},
+                { assert workflow.out.status_files},
                 { assert workflow.out.analysis_channels},
                 { assert workflow.out.analysis_channels.meta},
                 { assert workflow.out.analysis_channels.analysis},
@@ -94,6 +95,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.out.versions},
+                { assert workflow.out.status_files},
                 { assert workflow.out.analysis_channels},
                 { assert workflow.out.analysis_channels.meta},
                 { assert workflow.out.analysis_channels.analysis},
