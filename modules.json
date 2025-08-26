@@ -2,41 +2,6 @@
   "name": "Pan-Canadian-Genome-Library/molecular-data-submission-workflow",
   "homePage": "https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow",
   "repos": {
-    "https://github.com/icgc-argo-workflows/argo-modules": {
-      "modules": {
-        "icgc-argo-workflows": {
-          "score/upload": {
-            "branch": "main",
-            "git_sha": "9790430f3f71990b5a5fadcb7cf169d11b8c93c7",
-            "installed_by": ["song_score_upload"]
-          },
-          "song/manifest": {
-            "branch": "main",
-            "git_sha": "19ee48fdf1672ef9723e3093531be7ddea3e27ec",
-            "installed_by": ["song_score_upload"]
-          },
-          "song/publish": {
-            "branch": "main",
-            "git_sha": "19ee48fdf1672ef9723e3093531be7ddea3e27ec",
-            "installed_by": ["song_score_upload"]
-          },
-          "song/submit": {
-            "branch": "main",
-            "git_sha": "19ee48fdf1672ef9723e3093531be7ddea3e27ec",
-            "installed_by": ["song_score_upload"]
-          }
-        }
-      },
-      "subworkflows": {
-        "icgc-argo-workflows": {
-          "song_score_upload": {
-            "branch": "main",
-            "git_sha": "92aa620385099e94401c22b8633cc55ed34ca10e",
-            "installed_by": ["subworkflows"]
-          }
-        }
-      }
-    },
     "https://github.com/nf-core/modules.git": {
       "modules": {
         "nf-core": {}
