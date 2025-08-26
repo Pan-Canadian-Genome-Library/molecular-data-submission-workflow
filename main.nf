@@ -74,18 +74,33 @@ workflow {
     //     params.input
     // )
 
+    // Log pipeline parameters
+    log.info "🔧 Input parameters:"
+    log.info "   - study_id: ${params.study_id}"
+    log.info "   - analysis_metadata: ${params.analysis_metadata}"
+    log.info "   - file_metadata: ${params.file_metadata}"
+    log.info "   - workflow_metadata: ${params.workflow_metadata}"
+    log.info "   - read_group_metadata: ${params.read_group_metadata}"
+    log.info "   - experiment_metadata: ${params.experiment_metadata}"
+    log.info "   - specimen_metadata: ${params.specimen_metadata}"
+    log.info "   - sample_metadata: ${params.sample_metadata}"
+    log.info "   - path_to_files_directory: ${params.path_to_files_directory}"
+    log.info "   - skip_upload: ${params.skip_upload}"
+    log.info "   - allow_duplicates: ${params.allow_duplicates}"
+
+
     //
     // WORKFLOW: Run main workflow
     //
     PANCANADIANGENOMELIBRARY_MOLECULAR_DATA_SUBMISSION_WORKFLOW (
-        params.file_metadata,
-        params.analysis_metadata,
-        params.workflow_metadata,
-        params.read_group_metadata,
-        params.experiment_metadata,
-        params.specimen_metadata,
-        params.sample_metadata,
-        params.path_to_files_directory
+        channel.fromPath(params.file_metadata),
+        channel.fromPath(params.analysis_metadata),
+        channel.fromPath(params.workflow_metadata),
+        channel.fromPath(params.read_group_metadata),
+        channel.fromPath(params.experiment_metadata),
+        channel.fromPath(params.specimen_metadata),
+        channel.fromPath(params.sample_metadata),
+        channel.fromPath(params.path_to_files_directory)
     )
     //
     // SUBWORKFLOW: Run completion tasks

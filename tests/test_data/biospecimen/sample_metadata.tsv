@@ -1,0 +1,6 @@
+submitter_sample_id	submitter_specimen_id	molecule_type_code	molecule_type_term	sample_status
+SAMPLE_001	SPEC_001	NCIT:C449	Genomic DNA	Case
+SAMPLE_002	SPEC_002	NCIT:C449	Genomic DNA	Case
+SAMPLE_003	SPEC_003	NCIT:C449	Genomic DNA	Case
+SAMPLE_004	SPEC_004	NCIT:C449	Genomic DNA	Case
+

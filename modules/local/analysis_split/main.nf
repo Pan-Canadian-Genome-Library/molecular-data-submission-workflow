@@ -7,15 +7,15 @@ process ANALYSIS_SPLIT {
         'biocontainers/ampcombi:2.0.1--pyhdfd78af_0' }"
 
     input:
-        tuple val(study_id)
-        tuple path(file_metadata) // Spreadsheet
-        tuple path(analysis_metadata) // Spreadsheet
-        tuple path(workflow_metadata) // Spreadsheet
-        tuple path(read_group_metadata) // Spreadsheet
-        tuple path(experiment_metadata) // Spreadsheet
-        tuple path(specimen_metadata) // Spreadsheet
-        tuple path(sample_metadata) // Spreadsheet
-        tuple path(relational_mapping) //Json
+        val(study_id)
+        path(file_metadata) // Spreadsheet
+        path(analysis_metadata) // Spreadsheet
+        path(workflow_metadata) // Spreadsheet
+        path(read_group_metadata) // Spreadsheet
+        path(experiment_metadata) // Spreadsheet
+        path(specimen_metadata) // Spreadsheet
+        path(sample_metadata) // Spreadsheet
+        path(relational_mapping) //Json
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels

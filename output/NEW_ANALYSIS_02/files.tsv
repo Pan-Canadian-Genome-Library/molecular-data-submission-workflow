@@ -1,5 +1,0 @@
-fileName	fileSize	fileMd5sum	fileType	fileAccess	dataType	submitter_analysis_id
-D0RE2.1_r1.fq.gz	2309	44bea7aa32a1afb68eec24496b608545	FASTQ	controlled	Raw Sequencing Reads	NEW_ANALYSIS_02
-D0RE2.1_r2.fq.gz	2365	d73b37eca9375258ab42905f7943b1b6	FASTQ	controlled	Raw Sequencing Reads	NEW_ANALYSIS_02
-D0RH0.2_r1.fq.gz	1872	b90a3c9750db29406f31e9488d5b7e2b	FASTQ	controlled	Raw Sequencing Reads	NEW_ANALYSIS_02
-D0RH0.2_r2.fq.gz	1894	a407247b584daa078114ab05e6e489be	FASTQ	controlled	Raw Sequencing Reads	NEW_ANALYSIS_02

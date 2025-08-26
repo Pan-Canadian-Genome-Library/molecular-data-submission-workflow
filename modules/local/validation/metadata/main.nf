@@ -21,7 +21,8 @@ process VALIDATION_METADATA {
     script:
     def exit_on_error = params.exit_on_error ?: task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
-    def read_group_arg = read_group && !read_group.name.contains('NO_FILE') ? "--read-group-file ${read_group}" : ""
+    def read_group_arg = (read_group && read_group != [] && read_group.toString() != '[]') ? "--read-group-file ${read_group}" : ""
+    
     """
     # Set error handling to continue on failure for resilient processing
     set +e

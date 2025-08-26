@@ -39,22 +39,9 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     ch_versions = Channel.empty()
     ch_all_status = Channel.empty()  // Collect all [val(meta), *_status.yml] tuples from all processes
 
-    // Log pipeline parameters
-    log.info "🔧 Input parameters:"
-    log.info "   - study_id: ${params.study_id}"
-    log.info "   - analysis_metadata: ${analysis_metadata}"
-    log.info "   - file_metadata: ${file_metadata}"
-    log.info "   - workflow_metadata: ${workflow_metadata}"
-    log.info "   - read_group_metadata: ${read_group_metadata}"
-    log.info "   - experiment_metadata: ${experiment_metadata}"
-    log.info "   - specimen_metadata: ${specimen_metadata}"
-    log.info "   - sample_metadata: ${sample_metadata}"
-    log.info "   - path_to_files_directory: ${path_to_files_directory}"
-    log.info "   - skip_upload: ${params.skip_upload}"
-    log.info "   - allow_duplicates: ${params.allow_duplicates}"
-
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/58
     CHECK_SUBMISSION_DEPENDENCIES(
+        params.study_id, // string
         file_metadata, // Spreadsheet
         analysis_metadata, // Spreadsheet
         workflow_metadata, // Spreadsheet
@@ -65,23 +52,53 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
         path_to_files_directory // file path to directory containing target files
     )
     ch_versions = ch_versions.mix(CHECK_SUBMISSION_DEPENDENCIES.out.versions)
-    ch_all_status = ch_all_status.mix(CHECK_SUBMISSION_DEPENDENCIES.out.status)
+
+    CHECK_SUBMISSION_DEPENDENCIES.out.status
+    .flatten() // Flatten the collection into individual items
+    .map { item ->
+        // Extract meta and status_file from each item
+        [item.meta, item.status_file]
+    }
+    .set { ch_status_tuples }
+
+    ch_all_status = ch_all_status.mix(ch_status_tuples)
 
     // Debug: Check submission dependencies output channels
     if (params.debug_channels) {
         // log.info "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs:"
-        CHECK_SUBMISSION_DEPENDENCIES.out.molecular_files_to_upload.view { meta, file_meta, analysis_meta, workflow_meta, data_files ->
-            "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs: - molecular_files_to_upload - ID: ${meta.id}, status: ${meta.status}, files: ${data_files}"
-        }
-        CHECK_SUBMISSION_DEPENDENCIES.out.biospecimen_entity.view { meta, entity_files ->
-            "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs: - biospecimen_entity - ID: ${meta.id}, status: ${meta.status}, entities: ${entity_files}"
-        }
+        CHECK_SUBMISSION_DEPENDENCIES.out.submitted_analysis_channels.view { item ->
+    "🔍 CHECK_SUBMISSION_DEPENDENCIES outputs: - submitted_analysis_channels - ID: ${item.meta.id}, status: ${item.meta.status}, analysis: ${item.analysis}, clinical: ${item.clinical}, files: ${item.files}"
+}
     }
 
+    // Manipulate the output channel from CHECK_SUBMISSION_DEPENDENCIES
+    CHECK_SUBMISSION_DEPENDENCIES.out.submitted_analysis_channels
+    .map { item ->
+        def meta = item.meta
+        def file_meta = item.analysis.files
+        def analysis_meta = item.analysis.analysis
+        def workflow_meta = item.analysis.workflow ?: []
+        def data_files = item.files
+
+        // Return the tuple in the required format
+        [meta, file_meta, analysis_meta, workflow_meta, data_files]
+    }.set{ ch_metadata_payload_input}
+
+    CHECK_SUBMISSION_DEPENDENCIES.out.submitted_analysis_channels
+    .map { item ->
+        def meta = item.meta
+        def specimen_meta = item.clinical.specimen
+        def sample_meta = item.clinical.sample
+        def experiment_meta = item.clinical.experiment
+        def read_group_meta = item.clinical.read_group ?: []
+
+        // Return the tuple in the required format
+        [meta, [specimen_meta, sample_meta, experiment_meta, read_group_meta]]
+    }.set{ ch_biospecimen_entity_input}
 
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/63
     METADATA_PAYLOAD_GENERATION(
-        CHECK_SUBMISSION_DEPENDENCIES.out.molecular_files_to_upload
+        ch_metadata_payload_input
             .filter { meta, _file_meta, _analysis_meta, _workflow_meta, _data_files -> 
                 (meta.status ?: 'pass') == 'pass' 
             } //channel: [val(meta), path(file_meta.tsv), path(analysis_meta.tsv), path(workflow_meta.tsv), [data_files]] per analysis
@@ -108,7 +125,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     ch_joined_validation_input = METADATA_PAYLOAD_GENERATION.out.all_analyses
         .map { meta, payload, payload_files -> [meta.id, meta, payload, payload_files] } // Extract meta.id as join key
         .join(
-            CHECK_SUBMISSION_DEPENDENCIES.out.biospecimen_entity
+            ch_biospecimen_entity_input
                 .map { meta, entity_files -> [meta.id, meta, entity_files] }, // Extract meta.id as join key
             by: 0 // Join by meta.id (first element)
         )

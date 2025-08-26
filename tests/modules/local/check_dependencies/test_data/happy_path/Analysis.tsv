@@ -1,4 +1,4 @@
 analysisType	studyId	submitter_analysis_id	submitter_experiment_id	data_category	genome_build	submitter_workflow_id
-sequenceExperiment	EXAMPLE-CA	NEW_ANALYSIS_01	NEW_EXPERIMENT_01	Genomic		
+sequenceExperiment	EXAMPLE-CA	NEW_ANALYSIS_01	NEW_EXPERIMENT_01	Genomics		
 sequenceExperiment	EXAMPLE-CA	NEW_ANALYSIS_02	NEW_EXPERIMENT_02	Genomic		
 sequenceAlignment	EXAMPLE-CA	DONOR_01_EXPERIMENT_02	DONOR_01_EXPERIMENT_02	Genomics	GRCh37	workflow_001
