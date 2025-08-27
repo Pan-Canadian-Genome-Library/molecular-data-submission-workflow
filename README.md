@@ -2,52 +2,138 @@
 
 ## Introduction
 
-**Pan-Canadian-Genome-Library/molecular-data-submission-workflow** is a bioinformatics pipeline that ...
+**Pan-Canadian-Genome-Library/molecular-data-submission-workflow** is a Nextflow pipeline that automates the validation, packaging, and submission of molecular genomics data and associated metadata to the Pan-Canadian Genome Library (PCGL) data repository. The pipeline ensures data integrity, validates metadata compliance, handles file uploads, and generates comprehensive submission receipts for tracking and audit purposes.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+## Pipeline Overview
 
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
+The workflow consists of five main stages:
+
+1. **Dependency Checking** - Validates input files, metadata completeness, and submission prerequisites
+2. **Metadata Payload Generation** - Creates standardized JSON payloads from input metadata
+3. **Data Validation** - Validates data files and metadata against PCGL schemas and requirements  
+4. **Data Upload** - Handles secure file transfer and metadata submission to PCGL repositories
+5. **Receipt Generation** - Creates detailed batch receipts and summary reports for submission tracking
+
+## Prerequisites
+
+### System Requirements
+
+- **Nextflow**: Version 22.04.0 or newer with DSL2 support
+- **Container Engine**: One of the following:
+  - Docker (recommended)
+  - Singularity/Apptainer 
+  - Conda (alternative, but containers preferred)
+- **Java**: Java 8 or later (required by Nextflow)
+- **Memory**: Minimum 8GB RAM recommended
+- **Storage**: Sufficient disk space for input data, intermediate files, and outputs
+
+### Access Requirements
+
+- **PCGL Access Token**: Valid authentication token with submission permissions for your study
+- **Study Registration**: Your study must be registered in the PCGL system
+- **Participant Registration**: The participants in your study must be registered in the PCGL system
+- **Network Access**: Connectivity to PCGL submission endpoints:
+  - File Manager service
+  - File Transfer service  
+  - Clinical submission service 
+
+### Input Data Requirements
+
+- **Molecular Data Files**: 
+  - Supported formats: CRAM, BAM, VCF, BCF
+  - Files must include appropriate index files (e.g., .crai, .bai, .tbi)
+  - Files must be accessible from the specified `path_to_files_directory`
+
+- **Metadata Files**: 
+  - **Required**: `file_metadata.tsv`, `analysis_metadata.tsv`
+  - **Optional**: `workflow_metadata.tsv`, `read_group_metadata.tsv`, `experiment_metadata.tsv`, `specimen_metadata.tsv`, `sample_metadata.tsv`
+  - All metadata files must be in tab-separated (TSV) format
+  - Files must comply with the your study cumstom data model, which is the combination of PCGL Base and Extentions Data Model. For the latest version of the PCGL Base Data Model, please see the [latest release folder](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB).
+
+### Environment Setup
+
+1. **Install Nextflow**:
+   ```bash
+   curl -s https://get.nextflow.io | bash
+   mv nextflow ~/bin/ # or add to your PATH
+   ```
+
+2. **Install Container Engine**:
+   - **Docker**: Follow [Docker installation guide](https://docs.docker.com/get-docker/)
+   - **Singularity**: Follow [Singularity installation guide](https://sylabs.io/guides/3.0/user-guide/installation.html)
+
+3. **Verify Installation**:
+   ```bash
+   nextflow info
+   docker --version  # or singularity --version
+   ```
+
+4. **Obtain PCGL Access Token**:
+   - Contact your PCGL administrator or data coordinator
+   - Ensure the token has appropriate permissions for your study
 
 ## Usage
 
 > [!NOTE]
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
+> If you are new to Nextflow, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to test your setup before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
+First, prepare your metadata files and data directory structure, e.g:
 
-First, prepare a samplesheet with your input data that looks as follows:
-
-`samplesheet.csv`:
-
-```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+```
+input/
+├── metadata/
+│   ├── file_metadata.tsv          # Required: File information  
+│   ├── analysis_metadata.tsv      # Required: Analysis details
+│   ├── workflow_metadata.tsv      # Optional: Workflow information
+│   ├── read_group_metadata.tsv    # Optional: Read group details
+│   ├── experiment_metadata.tsv    # Optional: Experiment information
+│   ├── specimen_metadata.tsv      # Optional: Specimen details
+│   └── sample_metadata.tsv        # Optional: Sample information
+└── data/
+    └── [your data files - CRAM, BAM, etc.]
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
-
-Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
+### Basic Usage with Required Metadata
 
 ```bash
 nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
-   -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
-   --outdir <OUTDIR>
+    --study_id "YOUR_STUDY_ID" \
+    --token "YOUR_ACCESS_TOKEN" \
+    --path_to_files_directory "/path/to/data" \
+    --file_metadata "/path/to/file_metadata.tsv" \
+    --analysis_metadata "/path/to/analysis_metadata.tsv" \
+    --outdir results \
+    -profile docker
 ```
 
-> [!WARNING]
-> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
+### Advanced Usage with Additional Metadata
+
+```bash
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    --study_id "YOUR_STUDY_ID" \
+    --token "YOUR_ACCESS_TOKEN" \
+    --path_to_files_directory "/path/to/data" \
+    --file_metadata "metadata/file_metadata.tsv" \
+    --analysis_metadata "metadata/analysis_metadata.tsv" \
+    --workflow_metadata "metadata/workflow_metadata.tsv" \
+    --read_group_metadata "metadata/read_group_metadata.tsv" \
+    --experiment_metadata "metadata/experiment_metadata.tsv" \
+    --specimen_metadata "metadata/specimen_metadata.tsv" \
+    --sample_metadata "metadata/sample_metadata.tsv" \
+    --outdir results \
+    -profile docker
+```
+
+For more detailed usage instructions, see [docs/usage.md](docs/usage.md).
+
+## Testing
+
+Before running the pipeline on your data, we recommend testing it with the provided test datasets:
+
+- **[Testing Guide](docs/Testing.md)** - Comprehensive instructions on how to test the workflow using `nextflow run` with the included test datasets
+- Test datasets are provided in the `tests/test_data/` directory
+- Both minimal and comprehensive testing scenarios are covered
+
 
 ## Credits
 
