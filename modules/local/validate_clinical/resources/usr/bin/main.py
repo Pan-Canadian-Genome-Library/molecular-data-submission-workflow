@@ -200,14 +200,6 @@ def main(args):
    ):
       if metadata:
          analysis[key]=pd.read_csv(metadata,sep='\t')
-         
-         for col in analysis[key].columns.values.tolist():
-            if len(analysis[key])>1:
-               if False not in pd.isna(analysis[key][col].values.tolist()):
-                  analysis[key].drop(col,axis=1,inplace=True)
-            else:
-               if pd.isna(analysis[key].loc[0,col]):
-                  analysis[key].drop(col,axis=1,inplace=True)
 
    ###Flag duplicate analyses
    check_analysis_duplicates(analysis)

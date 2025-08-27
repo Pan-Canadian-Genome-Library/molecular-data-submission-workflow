@@ -128,7 +128,7 @@ Please fix the above issues and re-run the workflow.
         ANALYSIS_SPLIT.out.status.flatten()
         .combine(CHECK_DEPENDENCIES.out.relational_mapping)
         .combine(CHECK_DEPENDENCIES.out.analysis_types)
-        .combine(Channel.of(path_to_files_directory))
+        .combine(path_to_files_directory)
         .map{
             it,relational_mapping,analysis_types,data_directory ->
             [

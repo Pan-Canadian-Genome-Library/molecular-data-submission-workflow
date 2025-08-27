@@ -140,6 +140,14 @@ def read_data(sample_metadata,specimen_metadata,experiment_metadata,read_group_m
         if metadata:
             tmp=pd.read_csv(metadata,sep='\t')
             analysis[entity]=tmp.copy()
+
+            for col in analysis[entity].columns.values.tolist():
+                if len(analysis[entity])>1:
+                    if False not in pd.isna(analysis[entity][col].values.tolist()):
+                        analysis[entity].drop(col,axis=1,inplace=True)
+                else:
+                    if pd.isna(analysis[entity].loc[0,col]):
+                        analysis[entity].drop(col,axis=1,inplace=True)
     return(analysis)
 
 def query_clinical_validator(url,token):
@@ -194,7 +202,7 @@ def query_registered_data(token,clinical_url,category_id,entity,study_id,primary
             exit(1)
 
     for col in analysis[entity].columns.values.tolist():
-        if not pd.isna(analysis[entity].loc[ind,col]) and response.json()['records'][0]['data'].get(col):
+        if response.json()['records'][0]['data'].get(col):
             valA=response.json()['records'][0]['data'][col]
 
             valB=analysis[entity].loc[ind,col]
@@ -244,7 +252,7 @@ def rename_input(output_directory,sample_metadata,specimen_metadata,experiment_m
         if metadata and usability[entity]:
             tmp=pd.read_csv(metadata,sep='\t')
             rename=os.path.basename(entity).lower().capitalize()
-            print(rename)
+            print("Renaming %s to %s" % (metadata,rename))
             tmp.to_csv("%s/%s.tsv" % (output_directory,rename),sep='\t',index=False)
     return(True)
 

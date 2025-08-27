@@ -175,14 +175,13 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
             }.collect()
         ).set{status_files}
 
-        status_files.subscribe{println "${it}"}
 
     emit:
         versions = ch_versions
         analysis_channels = analysis_channels//format checked
         validated_analysis_channels = validated_analysis_channels //format checked and validated
         submitted_analysis_channels = submitted_analysis_channels//format checked, validated and submitted to clinical service
-        status_files = status_files //format checked, validated and submitted to clinical service
+        status_files = status_files //list of status files per analysis per process 
 
 }
 
