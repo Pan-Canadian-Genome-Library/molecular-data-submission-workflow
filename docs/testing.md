@@ -1,4 +1,51 @@
-## Testing the Workflow
+# Testing Guide
+
+## Prerequisites
+
+Before testing the workflow, you can download the repository and its test data available locally.
+
+## Getting the Repository
+
+### Option 1: Clone the Repository (Recommended)
+
+To get the full repository with all test data:
+
+```bash
+# Clone the repository
+git clone https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow.git
+
+# Navigate to the repository directory
+cd molecular-data-submission-workflow
+
+# Verify test data is available
+ls tests/test_data/
+```
+
+### Option 2: Download Specific Release
+
+If you prefer to work with a specific version:
+
+```bash
+# Download and extract a specific release (replace v1.0.0 with desired version)
+wget https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/archive/refs/tags/v1.0.0.tar.gz
+tar -xzf v1.0.0.tar.gz
+cd molecular-data-submission-workflow-1.0.0/
+```
+
+### Option 3: Fork for Development
+
+If you plan to contribute or make modifications:
+
+```bash
+# Fork the repository on GitHub first, then clone your fork
+git clone https://github.com/YOUR_USERNAME/molecular-data-submission-workflow.git
+cd molecular-data-submission-workflow
+
+# Add upstream remote for keeping your fork updated
+git remote add upstream https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow.git
+```
+
+## Running Tests
 
 The repository includes comprehensive test datasets that you can use to verify the workflow functionality:
 
@@ -6,7 +53,6 @@ The repository includes comprehensive test datasets that you can use to verify t
 ```bash
 nextflow run . \
     --study_id "TEST-CA" \
-    --token "test_token_here" \
     --path_to_files_directory "tests/test_data/genomics" \
     --file_metadata "tests/test_data/analysis_meta/file_metadata.tsv" \
     --analysis_metadata "tests/test_data/analysis_meta/analysis_metadata.tsv" \
@@ -15,36 +61,34 @@ nextflow run . \
     --experiment_metadata "tests/test_data/biospecimen/experiment_metadata.tsv" \
     --specimen_metadata "tests/test_data/biospecimen/specimen_metadata.tsv" \
     --sample_metadata "tests/test_data/biospecimen/sample_metadata.tsv" \
-    --skip_upload true \
     --outdir test_results \
-    -profile test,docker,cumulus_dev
+    -profile test,docker,cumulus_dev \
+    --token "test_token_here"
 ```
 
 **Test with minimal required files only:**
 ```bash
 nextflow run . \
     --study_id "TEST-CA" \
-    --token "test_token_here" \
     --path_to_files_directory "tests/test_data/genomics" \
     --file_metadata "tests/test_data/analysis_meta/file_metadata.tsv" \
     --analysis_metadata "tests/test_data/analysis_meta/analysis_metadata.tsv" \
-    --skip_upload true \
     --outdir test_minimal \
-    -profile test,docker,cumulus_dev
+    -profile test,docker,cumulus_dev \
+    --token "test_token_here"
 ```
 
 **Test with partial optional metadata:**
 ```bash
 nextflow run . \
     --study_id "TEST-CA" \
-    --token "test_token_here" \
     --path_to_files_directory "tests/test_data/genomics" \
     --file_metadata "tests/test_data/analysis_meta/file_metadata.tsv" \
     --analysis_metadata "tests/test_data/analysis_meta/analysis_metadata.tsv" \
     --experiment_metadata "tests/test_data/biospecimen/experiment_metadata.tsv" \
     --sample_metadata "tests/test_data/biospecimen/sample_metadata.tsv" \
-    --skip_upload true \
     --outdir test_partial \
-    -profile test,docker,cumulus_dev
+    -profile test,docker,cumulus_dev \
+    --token "test_token_here"
     # workflow_metadata, read_group_metadata, specimen_metadata omitted
 ```

@@ -2,9 +2,12 @@
 
 ## Introduction
 
-**Pan-Canadian-Genome-Library/molecular-data-submission-workflow** is a Nextflow pipeline that automates the validation, packaging, and submission of molecular genomics data and associated metadata to the Pan-Canadian Genome Library (PCGL) data repository. The pipeline ensures data integrity, validates metadata compliance, handles file uploads, and generates comprehensive submission receipts for tracking and audit purposes.
+**Pan-Canadian-Genome-Library/molecular-data-submission-workflow** is a Nextflow pipeline that automates the validation, packaging, and submission of molecular genomics data and associated metadata to the Pan-Canadian Genome Library (PCGL) data repository. The pipeline ensures data integrity, validates metadata compliance, handles file uploads, and generates comprehensive submission receipts for tracking and audit purposes. The workflow has adopted [nf-core](https://nf-co.re/) framework and best practice guidelines to ensure reproducibility, portability and scalability.
+
+For detailed information about workflow components, prerequisites, and system architecture, see **[Complete Introduction Guide](docs/Introduction.md)**  with comprehensive workflow overview, subworkflows, modules and technical details.
 
 ## Pipeline Overview
+[TODO] - add a workflow diagram
 
 The workflow consists of five main stages:
 
@@ -31,13 +34,14 @@ The workflow consists of five main stages:
 
 - **PCGL Access Token**: Valid authentication token with submission permissions for your study
 - **Study Registration**: Your study must be registered in the PCGL system
-- **Participant Registration**: The participants in your study must be registered in the PCGL system
+- **Participant Registration**: The participants in your submission batch must be registered in the PCGL system
 - **Network Access**: Connectivity to PCGL submission endpoints:
   - File Manager service
   - File Transfer service  
   - Clinical submission service 
 
 ### Input Data Requirements
+Please refer to **[Input Documentation](docs/input.md)** for the comprehensive parameter descriptions and file format specifications.
 
 - **Molecular Data Files**: 
   - Supported formats: CRAM, BAM, VCF, BCF
@@ -48,15 +52,18 @@ The workflow consists of five main stages:
   - **Required**: `file_metadata.tsv`, `analysis_metadata.tsv`
   - **Optional**: `workflow_metadata.tsv`, `read_group_metadata.tsv`, `experiment_metadata.tsv`, `specimen_metadata.tsv`, `sample_metadata.tsv`
   - All metadata files must be in tab-separated (TSV) format
-  - Files must comply with the your study cumstom data model, which is the combination of PCGL Base and Extentions Data Model. For the latest version of the PCGL Base Data Model, please see the [latest release folder](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB).
+  - Files must comply with the Custom data model of your study, which is the combination of PCGL Base and Extentions Data Model. For the latest version of the PCGL Base Data Model, please see the [latest release folder](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB).
 
 ### Environment Setup
 
 1. **Install Nextflow**:
+
    ```bash
    curl -s https://get.nextflow.io | bash
    mv nextflow ~/bin/ # or add to your PATH
    ```
+> [!NOTE]
+> If you are new to Nextflow, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to test your setup before running the workflow on actual data.
 
 2. **Install Container Engine**:
    - **Docker**: Follow [Docker installation guide](https://docs.docker.com/get-docker/)
@@ -74,10 +81,9 @@ The workflow consists of five main stages:
 
 ## Usage
 
-> [!NOTE]
-> If you are new to Nextflow, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to test your setup before running the workflow on actual data.
+For more detailed usage instructions, including additional examples and configuration options, see **[Complete Usage Guide](docs/usage.md)** which contains detailed command-line examples, instructions, and advanced configurations.
 
-First, prepare your metadata files and data directory structure, e.g:
+First, prepare your data and metadata files into a data directory structure, e.g:
 
 ```
 input/
@@ -93,6 +99,7 @@ input/
     └── [your data files - CRAM, BAM, etc.]
 ```
 
+
 ### Basic Usage with Required Metadata
 
 ```bash
@@ -103,7 +110,7 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     --file_metadata "/path/to/file_metadata.tsv" \
     --analysis_metadata "/path/to/analysis_metadata.tsv" \
     --outdir results \
-    -profile docker
+    -profile docker,sd4h_prod
 ```
 
 ### Advanced Usage with Additional Metadata
@@ -121,23 +128,40 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     --specimen_metadata "metadata/specimen_metadata.tsv" \
     --sample_metadata "metadata/sample_metadata.tsv" \
     --outdir results \
-    -profile docker
+    -profile docker,sd4h_prod
 ```
 
-For more detailed usage instructions, see [docs/usage.md](docs/usage.md).
+## Output
+
+The workflow generates comprehensive outputs to track and verify your data submission. For detailed information about output files and how to interpret results, see:
+- **[Output Documentation](docs/output.md)** - Complete output structure and file descriptions
+- **[Receipt Guide](docs/receipt.md)** - How to understand and interprete batch receipts
+
+### Primary Output Files
+
+- **Batch Receipt Files** (`<outdir>/receipt_aggregate/`):
+  - `<batch_id>_batch_receipt.json` - Submission summary in JSON format
+  - `<batch_id>_batch_receipt.tsv` - Submission summary in tabular format
+  
+### Understanding Your Results
+
+- **Successful submissions** receive unique PCGL analysis IDs for tracking
+- **Failed submissions** include detailed error messages for troubleshooting
+- **Batch receipts** contain complete submission history and metadata for audit purposes
+
 
 ## Testing
 
 Before running the pipeline on your data, we recommend testing it with the provided test datasets:
 
-- **[Testing Guide](docs/Testing.md)** - Comprehensive instructions on how to test the workflow using `nextflow run` with the included test datasets
+- **[Testing Guide](docs/testing.md)** - Comprehensive instructions on how to test the workflow with the included test datasets
 - Test datasets are provided in the `tests/test_data/` directory
 - Both minimal and comprehensive testing scenarios are covered
 
 
 ## Credits
 
-Pan-Canadian-Genome-Library/molecular-data-submission-workflow was originally written by edsu7,lxiang.
+Pan-Canadian-Genome-Library/molecular-data-submission-workflow was originally written by [Edmund Su](https://www.github.com/esu7) and [Linda Xiang](https://www.github.com/lindaxiang).
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
@@ -146,6 +170,14 @@ We thank the following people for their extensive assistance in the development 
 ## Contributions and Support
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
+
+For troubleshooting common issues, error resolution, and getting help:
+- **[Troubleshooting Guide](docs/troubleshooting.md)** - Common problems, solutions, and debugging tips
+
+If you encounter issues not covered in the troubleshooting guide, please:
+1. Check the [GitHub Issues](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/issues) for existing solutions
+2. Create a new issue with detailed error messages and system information
+3. Contact the PCGL administrator or data coordinator
 
 ## Citations
 
