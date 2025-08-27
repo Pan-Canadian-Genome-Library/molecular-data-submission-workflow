@@ -70,6 +70,7 @@ process CHECK_DEPENDENCIES {
     status: "\$(if [ \$CHECKDEPENDENCIES_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$CHECKDEPENDENCIES_EXIT_CODE
     timestamp: "\$(date -Iseconds)"
+    work_directory: "\$PWD"
     details:
         study_id: "${study_id}"
         file_metadata: "${file_metadata}"

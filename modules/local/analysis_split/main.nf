@@ -67,7 +67,7 @@ process ANALYSIS_SPLIT {
     status: "SUCCESS"
     exit_code: 0
     timestamp: "2025-01-22T10:30:00+00:00"
-    details:
+    work_directory: "\$PWD"
     details:
         analysis_id: "${study_id}}" 
         sample_meta : "${sample_metadata}"
@@ -81,7 +81,7 @@ process ANALYSIS_SPLIT {
     status: "SUCCESS"
     exit_code: 0
     timestamp: "2025-01-22T10:30:00+00:00"
-    details:
+    work_directory: "\$PWD"
     details:
         analysis_id: "${study_id}}" 
         sample_meta : "${sample_metadata}"
@@ -95,7 +95,7 @@ process ANALYSIS_SPLIT {
     status: "SUCCESS"
     exit_code: 0
     timestamp: "2025-01-22T10:30:00+00:00"
-    details:
+    work_directory: "\$PWD"
     details:
         analysis_id: "${study_id}}" 
         sample_meta : "${sample_metadata}"
