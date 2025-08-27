@@ -28,8 +28,6 @@ include { MOLECULAR_DATA_SUBMISSION_WORKFLOW  } from './workflows/molecular-data
 workflow PANCANADIANGENOMELIBRARY_MOLECULAR_DATA_SUBMISSION_WORKFLOW {
 
     take:
-    study_id
-    token
     file_metadata // Spreadsheet from --file_metadata
     analysis_metadata // Spreadsheet from --analysis_metadata
     workflow_metadata // Spreadsheet from --workflow_metadata
@@ -38,8 +36,6 @@ workflow PANCANADIANGENOMELIBRARY_MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     specimen_metadata // Spreadsheet from --specimen_metadata
     sample_metadata // Spreadsheet from --sample_metadata
     path_to_files_directory // file path to directory containing target files
-    skip_duplicate_check // pipeline flag from --skip_duplicate_check
-    skip_upload // pipeline flag from --skip_duplicate_check
 
     main:
 
@@ -47,8 +43,6 @@ workflow PANCANADIANGENOMELIBRARY_MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     // WORKFLOW: Run pipeline
     //
     MOLECULAR_DATA_SUBMISSION_WORKFLOW (
-        study_id,
-        token,
         file_metadata,
         analysis_metadata,
         workflow_metadata,
@@ -56,9 +50,7 @@ workflow PANCANADIANGENOMELIBRARY_MOLECULAR_DATA_SUBMISSION_WORKFLOW {
         experiment_metadata,
         specimen_metadata,
         sample_metadata,
-        path_to_files_directory,
-        skip_duplicate_check,
-        skip_upload
+        path_to_files_directory
     )
 }
 /*
@@ -82,22 +74,33 @@ workflow {
     //     params.input
     // )
 
+    // Log pipeline parameters
+    log.info "🔧 Input parameters:"
+    log.info "   - study_id: ${params.study_id}"
+    log.info "   - analysis_metadata: ${params.analysis_metadata}"
+    log.info "   - file_metadata: ${params.file_metadata}"
+    log.info "   - workflow_metadata: ${params.workflow_metadata}"
+    log.info "   - read_group_metadata: ${params.read_group_metadata}"
+    log.info "   - experiment_metadata: ${params.experiment_metadata}"
+    log.info "   - specimen_metadata: ${params.specimen_metadata}"
+    log.info "   - sample_metadata: ${params.sample_metadata}"
+    log.info "   - path_to_files_directory: ${params.path_to_files_directory}"
+    log.info "   - skip_upload: ${params.skip_upload}"
+    log.info "   - allow_duplicates: ${params.allow_duplicates}"
+
+
     //
     // WORKFLOW: Run main workflow
     //
     PANCANADIANGENOMELIBRARY_MOLECULAR_DATA_SUBMISSION_WORKFLOW (
-        params.study_id,
-        params.token,
-        params.file_metadata,
-        params.analysis_metadata,
-        params.workflow_metadata,
-        params.read_group_metadata,
-        params.experiment_metadata,
-        params.specimen_metadata,
-        params.sample_metadata,
-        params.path_to_files_directory,
-        params.skip_duplicate_check,
-        params.skip_upload
+        channel.fromPath(params.file_metadata),
+        channel.fromPath(params.analysis_metadata),
+        channel.fromPath(params.workflow_metadata),
+        channel.fromPath(params.read_group_metadata),
+        channel.fromPath(params.experiment_metadata),
+        channel.fromPath(params.specimen_metadata),
+        channel.fromPath(params.sample_metadata),
+        channel.fromPath(params.path_to_files_directory)
     )
     //
     // SUBWORKFLOW: Run completion tasks

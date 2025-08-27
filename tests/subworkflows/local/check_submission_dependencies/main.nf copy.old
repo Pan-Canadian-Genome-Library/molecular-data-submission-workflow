@@ -1,0 +1,98 @@
+nextflow_workflow {
+    name "Test Subworkflow CHECK_SUBMISSION_DEPENDENCIES"
+    script "subworkflows/local/check_submission_dependencies.nf"
+    workflow "CHECK_SUBMISSION_DEPENDENCIES"
+    
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/check_submission_dependencies"
+
+    test("check check_submission_dependencies happy path") {
+        when {
+            workflow {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = ["EXAMPLE-CA"]
+                input[1] = [file('${projectDir}/tests/modules/checkclinical/test_data/happy_path/Files.tsv')]
+                input[2] = [file('${projectDir}/tests/modules/checkclinical/test_data/happy_path/Analysis.tsv')]
+                input[3] = [file('${projectDir}/tests/modules/checkclinical/test_data/happy_path/Workflow.tsv')]
+                input[4] = [file('${projectDir}/tests/modules/checkclinical/test_data/happy_path/Read_Group.tsv')]
+                input[5] = [file('${projectDir}/tests/modules/checkclinical/test_data/happy_path/Experiment.tsv')]
+                input[6] = [file('${projectDir}/tests/modules/checkclinical/test_data/happy_path/Specimen.tsv')]
+                input[7] = [file('${projectDir}/tests/modules/checkclinical/test_data/happy_path/Sample.tsv')]
+                input[8] = ['${projectDir}/tests/modules/checkclinical/test_data/happy_path']
+                """
+            }
+        }
+
+        then {
+            assertAll(
+
+                { assert workflow.out.versions},
+                { assert workflow.out.analysis_channels},
+                { assert workflow.out.analysis_channels.meta},
+                { assert workflow.out.analysis_channels.meta.id},
+                { assert workflow.out.analysis_channels.meta.study},
+                { assert workflow.out.analysis_channels.meta.type},
+                { assert workflow.out.analysis_channels.meta.status},
+                { assert workflow.out.analysis_channels.analysis},
+                { assert workflow.out.analysis_channels.analysis.analysis},
+                { assert workflow.out.analysis_channels.analysis.workflow},
+                { assert workflow.out.analysis_channels.analysis.files},
+                { assert workflow.out.analysis_channels.clinical},
+                { assert workflow.out.analysis_channels.clinical.specimen},
+                { assert workflow.out.analysis_channels.clinical.sample},
+                { assert workflow.out.analysis_channels.clinical.experiment},
+                { assert workflow.out.analysis_channels.clinical.read_group},
+                { assert workflow.out.analysis_channels.files},
+                { assert workflow.out.analysis_channels.status_file}
+            )
+        }
+    }
+    test("check check_submission_dependencies bad path") {
+        when {
+            workflow {
+                """
+                params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
+                params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = ["EXAMPLE-CA"]
+                input[1] = [file('${projectDir}/tests/modules/checkclinical/test_data/bad_path/Files.tsv')]
+                input[2] = [file('${projectDir}/tests/modules/checkclinical/test_data/bad_path/Analysis.tsv')]
+                input[3] = [[]]
+                input[4] = [[]]
+                input[5] = [file('${projectDir}/tests/modules/checkclinical/test_data/bad_path/Experiment.tsv')]
+                input[6] = [[]]
+                input[7] = [[]]
+                input[8] = ['${projectDir}/tests/modules/checkclinical/test_data/happy_path']
+                """
+            }
+        }
+
+        then {
+            assertAll(
+
+                { assert workflow.out.versions},
+                { assert workflow.out.analysis_channels},
+                { assert workflow.out.analysis_channels.meta},
+                { assert workflow.out.analysis_channels.meta.id},
+                { assert workflow.out.analysis_channels.meta.study},
+                { assert workflow.out.analysis_channels.meta.type},
+                { assert workflow.out.analysis_channels.meta.status},
+                { assert workflow.out.analysis_channels.analysis},
+                { assert workflow.out.analysis_channels.analysis.analysis},
+                { assert workflow.out.analysis_channels.analysis.workflow},
+                { assert workflow.out.analysis_channels.analysis.files},
+                { assert workflow.out.analysis_channels.clinical},
+                { assert workflow.out.analysis_channels.clinical.specimen},
+                { assert workflow.out.analysis_channels.clinical.sample},
+                { assert workflow.out.analysis_channels.clinical.experiment},
+                { assert workflow.out.analysis_channels.clinical.read_group},
+                { assert workflow.out.analysis_channels.files},
+                { assert workflow.out.analysis_channels.status_file}
+            )
+        }
+    }
+}

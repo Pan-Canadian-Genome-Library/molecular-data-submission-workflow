@@ -1,0 +1,82 @@
+nextflow_workflow {
+
+    name "Test Workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW"
+    script "workflows/molecular-data-submission-workflow.nf"
+    workflow "MOLECULAR_DATA_SUBMISSION_WORKFLOW"
+
+    test("Should run complete workflow with upload enabled") {
+
+        when {
+            params {
+                file_manager_container = "ghcr.io/overture-stack/song-client"
+                file_manager_container_tag = "822055be"
+                token = "test_token"
+                exit_on_error = false
+                allow_duplicates = true
+                study_id = "TEST-CA"
+                skip_upload = false
+            }
+            workflow {
+                """
+                input[0] = file("${projectDir}/tests/test_data/analysis_meta/file_metadata.csv") // file_metadata
+                input[1] = file("${projectDir}/tests/test_data/analysis_meta/analysis_metadata.csv") // analysis_metadata
+                input[2] = file("${projectDir}/tests/test_data/analysis_meta/workflow_metadata.csv") // workflow_metadata
+                input[3] = file("${projectDir}/tests/test_data/biospecimen/read_group_metadata.csv") // read_group_metadata
+                input[4] = file("${projectDir}/tests/test_data/biospecimen/experiment_metadata.csv") // experiment_metadata
+                input[5] = file("${projectDir}/tests/test_data/biospecimen/specimen_metadata.csv") // specimen_metadata
+                input[6] = file("${projectDir}/tests/test_data/biospecimen/sample_metadata.csv") // sample_metadata
+                input[7] = file("${projectDir}/tests/test_data/genomics") // path_to_files_directory
+
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            // Check that versions channel is not empty
+            assert workflow.out.versions
+            // Check that status channel contains expected analyses
+            assert workflow.out.all_status
+            // Verify the workflow completes without errors
+            assert workflow.trace.tasks().size() > 0
+        }
+    }
+
+    test("Should run workflow with upload skipped") {
+
+        when {
+            params {
+                file_manager_container = "ghcr.io/overture-stack/song-client"
+                file_manager_container_tag = "822055be"
+                token = "test_token"
+                exit_on_error = false
+                allow_duplicates = false
+                study_id = "TEST-CA"
+                skip_upload = true
+            }
+            workflow {
+                """
+                input[0] = file("${projectDir}/tests/test_data/analysis_meta/file_metadata.csv") // file_metadata
+                input[1] = file("${projectDir}/tests/test_data/analysis_meta/analysis_metadata.csv") // analysis_metadata
+                input[2] = file("${projectDir}/tests/test_data/analysis_meta/workflow_metadata.csv") // workflow_metadata
+                input[3] = file("${projectDir}/tests/test_data/biospecimen/read_group_metadata.csv") // read_group_metadata
+                input[4] = file("${projectDir}/tests/test_data/biospecimen/experiment_metadata.csv") // experiment_metadata
+                input[5] = file("${projectDir}/tests/test_data/biospecimen/specimen_metadata.csv") // specimen_metadata
+                input[6] = file("${projectDir}/tests/test_data/biospecimen/sample_metadata.csv") // sample_metadata
+                input[7] = file("${projectDir}/tests/test_data/genomics") // path_to_files_directory
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            // Check that versions channel is not empty
+            assert workflow.out.versions
+            // Check that status channel contains expected analyses
+            assert workflow.out.all_status
+            // Verify workflow runs successfully even when upload is skipped
+            assert workflow.trace.tasks().size() > 0
+        }
+    }
+
+}

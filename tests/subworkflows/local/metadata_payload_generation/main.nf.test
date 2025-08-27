@@ -1,0 +1,199 @@
+
+// nf-test for METADATA_PAYLOAD_GENERATION subworkflow
+nextflow_workflow {
+
+    name "Test Subworkflow METADATA_PAYLOAD_GENERATION"
+    script "subworkflows/local/metadata_payload_generation/main.nf"
+    workflow "METADATA_PAYLOAD_GENERATION"
+    
+    test("Test successful payload generation and validation") {
+
+        when {
+            workflow {
+                """
+                // Test input with molecular metadata files (all TSV format)
+                input[0] = Channel.of([
+                    [
+                        id: 'TEST_002',
+                        type: 'sequenceExperiment', 
+                        study: 'TEST_STUDY',
+                        status: 'pass'
+                    ],
+                    file('${projectDir}/tests/test_data/analysis_meta/test_file_meta.tsv'),
+                    file('${projectDir}/tests/test_data/analysis_meta/test_analysis_meta.tsv'),
+                    [],
+                    [
+                        file('${projectDir}/tests/test_data/genomics/sample2.bam')
+                    ]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.all_analyses },
+                { assert workflow.out.successful != null},
+                { assert workflow.out.failed != null },
+                { assert workflow.out.status },
+                { assert workflow.out.versions }
+            )
+        }
+    }
+
+    test("Test with failed payload generation") {
+
+        when {
+            workflow {
+                """
+                // Test input that will cause payload generation to fail
+                input[0] = Channel.of([
+                    [
+                        id: 'FAIL_TEST',
+                        type: 'invalid_type',
+                        study: 'TEST_STUDY',
+                        status: 'pass'
+                    ],
+                    file('nonexistent_file_meta.tsv'),
+                    file('nonexistent_analysis.tsv'),
+                    file('nonexistent_workflow.tsv'),
+                    []   // Empty files list
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                // Workflow should still succeed even with failed processes
+                { assert workflow.success },
+                // Should have failed analyses in the output
+                { assert workflow.out.failed },
+                { assert workflow.out.all_analyses }
+            )
+        }
+    }
+
+    test("Test with failed payload validation") {
+
+        when {
+            workflow {
+                """
+                // Test input that will generate payload but fail validation
+                // This uses valid input files but with data that violates schema constraints
+                input[0] = Channel.of([
+                    [
+                        id: 'VALIDATION_FAIL_TEST',
+                        type: 'sequenceExperiment', 
+                        study: 'TEST_STUDY',
+                        status: 'pass'
+                    ],
+                    file('${projectDir}/tests/test_data/analysis_meta/test_file_meta_invalid.tsv'),
+                    file('${projectDir}/tests/test_data/analysis_meta/test_analysis_meta_invalid.tsv'),
+                    file('${projectDir}/tests/test_data/analysis_meta/test_workflow_meta.tsv'),
+                    [
+                        file('${projectDir}/tests/test_data/genomics/sample2.bam')
+                    ]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                // Workflow should still succeed even with failed validation
+                { assert workflow.success },
+                // Should have failed analyses in the output due to validation failure
+                { assert workflow.out.failed },
+                { assert workflow.out.all_analyses },
+                // Status should contain validation failure information
+                { assert workflow.out.status }
+            )
+        }
+    }
+
+    test("Test status filtering functionality") {
+
+        when {
+            workflow {
+                """
+                // Create mixed success/failure input (all TSV files)
+                input[0] = Channel.of(
+                    [
+                        [id: 'SUCCESS_001', type: 'sequenceExperiment', study: 'TEST_STUDY', status: 'pass'],
+                        file('${projectDir}/tests/test_data/analysis_meta/test_file_meta.tsv'),
+                        file('${projectDir}/tests/test_data/analysis_meta/test_analysis_meta.tsv'),
+                        file('${projectDir}/tests/test_data/analysis_meta/test_workflow_meta.tsv'),
+                        [file('${projectDir}/tests/test_data/genomics/sample2.bam')]
+                    ],
+                    [
+                        [id: 'SUCCESS_002', type: 'sequenceAlignment', study: 'TEST_STUDY', status: 'pass'],
+                        file('${projectDir}/tests/test_data/analysis_meta/test_file_meta.tsv'),
+                        file('${projectDir}/tests/test_data/analysis_meta/test_analysis_meta.tsv'),
+                        file('${projectDir}/tests/test_data/analysis_meta/test_workflow_meta.tsv'),
+                        [file('${projectDir}/tests/test_data/genomics/sample2.bam')]
+                    ],
+                    [
+                        [id: 'FAIL_TEST', type: 'invalid_type', study: 'TEST_STUDY', status: 'pass'],
+                        file('nonexistent_file_meta.tsv'),
+                        file('nonexistent_analysis.tsv'),
+                        file('nonexistent_workflow.tsv'),
+                        []   // Empty files list
+                    ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.successful != null },
+                { assert workflow.out.failed != null},
+                { assert workflow.out.all_analyses }
+            )
+        }
+    }
+
+    test("Test stub mode") {
+        
+        options "-stub"
+
+        when {
+            params {
+                // Stub-specific parameters
+                outdir = "test_results/stub_test"
+                max_memory = "500.MB"
+                max_cpus = 1
+            }
+            
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [
+                        id: 'STUB_TEST',
+                        type: 'sequenceExperiment',
+                        study: 'TEST_STUDY',
+                        status: 'pass'
+                    ],
+                    file('stub_file_meta.tsv'),
+                    file('stub_analysis_meta.tsv'),
+                    file('stub_workflow_meta.tsv'),
+                    []  // Empty data files list for stub mode
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.all_analyses },
+                { assert workflow.out.status },
+                { assert workflow.out.versions }
+            )
+        }
+    }
+}
+

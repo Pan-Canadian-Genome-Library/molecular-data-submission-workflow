@@ -1,192 +1,278 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/master/nextflow_schema.json",
-  "title": "Pan-Canadian-Genome-Library/molecular-data-submission-workflow pipeline parameters",
-  "description": "The PCGL workflow for submitting molecular data ",
-  "type": "object",
-  "$defs": {
-    "institutional_config_options": {
-      "title": "Institutional config options",
-      "type": "object",
-      "fa_icon": "fas fa-university",
-      "description": "Parameters used to describe centralised config profiles. These should not be edited.",
-      "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
-      "properties": {
-        "custom_config_version": {
-          "type": "string",
-          "description": "Git commit id for Institutional configs.",
-          "default": "master",
-          "hidden": true,
-          "fa_icon": "fas fa-users-cog"
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/master/nextflow_schema.json",
+    "title": "Pan-Canadian-Genome-Library/molecular-data-submission-workflow pipeline parameters",
+    "description": "The PCGL workflow for submitting molecular data ",
+    "type": "object",
+    "$defs": {
+        "institutional_config_options": {
+            "title": "Institutional config options",
+            "type": "object",
+            "fa_icon": "fas fa-university",
+            "description": "Parameters used to describe centralised config profiles. These should not be edited.",
+            "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
+            "properties": {
+                "config_profile_name": {
+                    "type": "string",
+                    "description": "Institutional config name.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_description": {
+                    "type": "string",
+                    "description": "Institutional config description.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                }
+            }
         },
-        "custom_config_base": {
-          "type": "string",
-          "description": "Base directory for Institutional configs.",
-          "default": "https://raw.githubusercontent.com/nf-core/configs/master",
-          "hidden": true,
-          "help_text": "If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.",
-          "fa_icon": "fas fa-users-cog"
+        "generic_options": {
+            "title": "Generic options",
+            "type": "object",
+            "fa_icon": "fas fa-file-import",
+            "description": "Less common options for the pipeline, typically set in a config file.",
+            "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
+            "properties": {
+                "version": {
+                    "type": "boolean",
+                    "description": "Display version and exit.",
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "Method used to save pipeline results to output directory.",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": [
+                        "symlink",
+                        "rellink",
+                        "link",
+                        "copy",
+                        "copyNoFollow",
+                        "move"
+                    ],
+                    "hidden": true
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "description": "Do not use coloured log outputs.",
+                    "fa_icon": "fas fa-palette",
+                    "hidden": true
+                },
+                "validate_params": {
+                    "type": "boolean",
+                    "description": "Boolean whether to validate parameters against the schema at runtime",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "pipelines_testdata_base_path": {
+                    "type": "string",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Base URL or local path to location of pipeline test dataset files",
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
+                    "hidden": true
+                }
+            }
         },
-        "config_profile_name": {
-          "type": "string",
-          "description": "Institutional config name.",
-          "hidden": true,
-          "fa_icon": "fas fa-users-cog"
-        },
-        "config_profile_description": {
-          "type": "string",
-          "description": "Institutional config description.",
-          "hidden": true,
-          "fa_icon": "fas fa-users-cog"
-        },
-        "config_profile_contact": {
-          "type": "string",
-          "description": "Institutional config contact information.",
-          "hidden": true,
-          "fa_icon": "fas fa-users-cog"
-        },
-        "config_profile_url": {
-          "type": "string",
-          "description": "Institutional config URL link.",
-          "hidden": true,
-          "fa_icon": "fas fa-users-cog"
+        "input_output_options": {
+            "title": "Input/output options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "required": [
+                "study_id",
+                "token",
+                "path_to_files_directory",
+                "file_metadata",
+                "analysis_metadata"
+            ],
+            "properties": {
+                "study_id": {
+                    "type": "string",
+                    "description": "Indicate the PCGL study ID"
+                },
+                "token": {
+                    "type": "string",
+                    "description": "Provide the token having the scope for PCGL data submission"
+                },
+                "path_to_files_directory": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Path to the directory containing the files to be uploaded"
+                },
+                "file_metadata": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "schema": "assets/schema_input.json",
+                    "description": "Path to tab-separated file containing information about the files generated from a sequencing experiment or data analysis.",
+                    "fa_icon": "fas fa-file-csv"
+                },
+                "analysis_metadata": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-csv",
+                    "pattern": "^\\S+\\.(tsv|csv)$",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "description": "Path to tab-separated file containing information about the data analysis."
+                },
+                "workflow_metadata": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-csv",
+                    "format": "file-path",
+                    "description": "Path to tab-separated file containing information about the analysis workflow generating the files"
+                },
+                "read_group_metadata": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-csv",
+                    "format": "file-path",
+                    "description": "Path to tab-separated file containing readgroup information about the raw reads generated in a run of sequencing"
+                },
+                "experiment_metadata": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-csv",
+                    "format": "file-path",
+                    "description": "Path to tab-separated file containing information about the experimental design of the sequencing"
+                },
+                "specimen_metadata": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-csv",
+                    "format": "file-path",
+                    "description": "Path to tab-separated file containing information about the specimen taken from a biological entity, living or dead, from physical object or the environment"
+                },
+                "sample_metadata": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-csv",
+                    "format": "file-path",
+                    "description": "Path to tab-separated file containing information about the molecular material (e.g., DNA, RNA, protein) extracted from the specimen and used for experiments or analysis."
+                }
+            }
         }
-      }
     },
-    "generic_options": {
-      "title": "Generic options",
-      "type": "object",
-      "fa_icon": "fas fa-file-import",
-      "description": "Less common options for the pipeline, typically set in a config file.",
-      "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
-      "properties": {
-        "version": {
-          "type": "boolean",
-          "description": "Display version and exit.",
-          "fa_icon": "fas fa-question-circle",
-          "hidden": true
+    "allOf": [
+        {
+            "$ref": "#/$defs/institutional_config_options"
         },
-        "publish_dir_mode": {
-          "type": "string",
-          "default": "copy",
-          "description": "Method used to save pipeline results to output directory.",
-          "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
-          "fa_icon": "fas fa-copy",
-          "enum": [
-            "symlink",
-            "rellink",
-            "link",
-            "copy",
-            "copyNoFollow",
-            "move"
-          ],
-          "hidden": true
+        {
+            "$ref": "#/$defs/generic_options"
         },
-        "monochrome_logs": {
-          "type": "boolean",
-          "description": "Do not use coloured log outputs.",
-          "fa_icon": "fas fa-palette",
-          "hidden": true
-        },
-        "validate_params": {
-          "type": "boolean",
-          "description": "Boolean whether to validate parameters against the schema at runtime",
-          "default": true,
-          "fa_icon": "fas fa-check-square",
-          "hidden": true
-        },
-        "pipelines_testdata_base_path": {
-          "type": "string",
-          "fa_icon": "far fa-check-circle",
-          "description": "Base URL or local path to location of pipeline test dataset files",
-          "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
-          "hidden": true
+        {
+            "$ref": "#/$defs/input_output_options"
         }
-      }
-    },
-    "input_output_options": {
-      "title": "Input/output options",
-      "type": "object",
-      "fa_icon": "fas fa-terminal",
-      "description": "Define where the pipeline should find input data and save output data.",
-      "required": [
-        "file_metadata",
-        "analysis_metadata",
-        "workflow_metadata",
-        "outdir",
-        "token",
-        "study_id"
-      ],
-      "properties": {
-        "file_metadata": {
-          "type": "string",
-          "format": "file-path",
-          "exists": true,
-          "schema": "assets/schema_input.json",
-          "mimetype": "text/csv",
-          "pattern": "^\\S+\\.csv$",
-          "description": "Path to comma-separated file containing information about the samples in the experiment.",
-          "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
-          "fa_icon": "fas fa-file-csv"
-        },
-        "analysis_metadata": {
-          "type": "string",
-          "fa_icon": "fas fa-file-csv"
-        },
-        "workflow_metadata": {
-          "type": "string",
-          "fa_icon": "fas fa-file-csv"
-        },
-        "read_group_metadata": {
-          "type": "string",
-          "fa_icon": "fas fa-file-csv"
-        },
-        "experiment_metadata": {
-          "type": "string",
-          "fa_icon": "fas fa-file-csv"
-        },
-        "specimen_metadata": {
-          "type": "string",
-          "fa_icon": "fas fa-file-csv"
-        },
-        "sample_metadata": {
-          "type": "string",
-          "fa_icon": "fas fa-file-csv"
-        },
-        "token": {
-          "type": "string"
-        },
-        "study_id": {
-          "type": "string"
-        },
+    ],
+    "properties": {
         "skip_upload": {
-          "type": "boolean",
-          "fa_icon": "fas fa-toilet-paper-slash",
-          "hidden": true
+            "type": "boolean",
+            "fa_icon": "fas fa-toilet-paper-slash",
+            "hidden": true,
+            "description": "Flag to indicate whether to skip data uploading or not"
         },
         "skip_duplicate_check": {
-          "type": "boolean",
-          "fa_icon": "fas fa-toilet-paper-slash",
-          "hidden": true
+            "type": "boolean",
+            "fa_icon": "fas fa-toilet-paper-slash",
+            "hidden": true,
+            "description": "Flag to indicate whether to skip duplicate data submission or not"
         },
         "outdir": {
-          "type": "string",
-          "format": "directory-path",
-          "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
-          "fa_icon": "fas fa-folder-open"
+            "type": "string",
+            "format": "directory-path",
+            "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
+            "fa_icon": "fas fa-folder-open",
+            "default": "out"
+        },
+        "exit_on_error": {
+            "type": "boolean",
+            "description": "Flag to indicate whether exit the pipeline running or not if there are errors"
+        },
+        "file_manager_url": {
+            "type": "string",
+            "description": "Indicate the file manager server URL"
+        },
+        "file_transfer_url": {
+            "type": "string",
+            "description": "Indicate the file transfer server URL"
+        },
+        "clinical_submission_url": {
+            "type": "string",
+            "description": "Indicate the clinical submission URL"
+        },
+        "file_manager_container": {
+            "type": "string",
+            "default": "ghcr.io/overture-stack/song-client",
+            "description": "Indicate the file manager docker container"
+        },
+        "file_manager_container_tag": {
+            "type": "string",
+            "default": "822055be",
+            "description": "Indicate the file manager docker container tag"
+        },
+        "file_transfer_container": {
+            "type": "string",
+            "default": "ghcr.io/pan-canadian-genome-library/file-transfer",
+            "description": "Indicate the file transfer docker container"
+        },
+        "file_transfer_container_tag": {
+            "type": "string",
+            "default": "edge",
+            "description": "Indicate the file transfer docker container tag"
+        },
+        "file_transfer_transport_parallel": {
+            "type": "string",
+            "description": "Indicate the number of concurrent threads for multi-part data transfers."
+        },
+        "file_transfer_transport_mem": {
+            "type": "string",
+            "description": "Indicate the amount of non-heap memory to use per thread, in gigabytes."
+        },
+        "allow_duplicates": {
+            "type": "boolean",
+            "description": "Flag to indicate whether duplicated file submissions are allowed or not"
+        },
+        "debug_channels": {
+            "type": "boolean",
+            "description": "Enable debug mode to show detailed channel information and data flow",
+            "default": false,
+            "fa_icon": "fas fa-bug"
+        },
+        "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address to send completion notification with batch receipt attached",
+            "fa_icon": "fas fa-envelope",
+            "help_text": "Provide an email address to receive completion notifications with the batch receipt as an attachment. Requires system 'mail' command to be configured."
+        },
+        "smtp_server": {
+            "type": "string",
+            "description": "SMTP server hostname for email notifications (e.g., smtp.gmail.com)",
+            "fa_icon": "fas fa-server",
+            "help_text": "Required when using email notifications. Provide the SMTP server hostname for sending emails."
+        },
+        "smtp_port": {
+            "type": "integer",
+            "description": "SMTP server port number",
+            "default": 587,
+            "fa_icon": "fas fa-network-wired",
+            "help_text": "SMTP port number. Common values: 587 (TLS), 465 (SSL), 25 (unencrypted)"
+        },
+        "smtp_username": {
+            "type": "string",
+            "description": "SMTP authentication username",
+            "fa_icon": "fas fa-user",
+            "help_text": "Username for SMTP authentication. Usually your email address."
+        },
+        "smtp_password": {
+            "type": "string",
+            "description": "SMTP authentication password",
+            "fa_icon": "fas fa-key",
+            "help_text": "Password for SMTP authentication. Consider using app-specific passwords for security."
         }
-      }
-    }
-  },
-  "allOf": [
-    {
-      "$ref": "#/$defs/institutional_config_options"
     },
-    {
-      "$ref": "#/$defs/generic_options"
-    },
-    {
-      "$ref": "#/$defs/input_output_options"
-    }
-  ]
+    "required": [
+        "file_manager_url",
+        "file_transfer_url",
+        "clinical_submission_url"
+    ]
 }

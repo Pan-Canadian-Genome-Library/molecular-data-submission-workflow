@@ -1,0 +1,6 @@
+submitter_experiment_id	submitter_sample_id	experiment_type	experiment_design	assay_type_code	assay_type_term	platform	instrument	instrument_metadata	sequencing_protocol
+EXP_001	SAMPLE_001	NCIT:C84343 (Genomics)		OBI:0002117	Whole genome sequencing	ILLUMINA	OBI:0000759 (Illumina)	HiSeq 2500 v4	TruSeq DNA PCR-Free
+EXP_002	SAMPLE_002	NCIT:C84343 (Genomics)		OBI:0002117	Whole genome sequencing	ILLUMINA	OBI:0000759 (Illumina)	HiSeq 2500 v4	TruSeq DNA PCR-Free
+EXP_003	SAMPLE_003	NCIT:C84343 (Genomics)		OBI:0002117	Whole genome sequencing	ILLUMINA	OBI:0002630 (Illumina NovaSeq 6000)	NovaSeq 6000 S4	TruSeq DNA PCR-Free
+EXP_004	SAMPLE_004	NCIT:C84343 (Genomics)		OBI:0002117	Whole genome sequencing	ILLUMINA	OBI:0002630 (Illumina NovaSeq 6000)	NovaSeq 6000 S4	TruSeq DNA PCR-Free
+EXP_005	SAMPLE_004	NCIT:C84343 (Genomics)		OBI:0002117	Whole genome sequencing	ILLUMINA	OBI:0002630 (Illumina NovaSeq 6000)	NovaSeq 6000 S4	TruSeq DNA PCR-Free

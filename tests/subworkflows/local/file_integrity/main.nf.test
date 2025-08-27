@@ -1,0 +1,486 @@
+nextflow_workflow {
+
+    name "Test Subworkflow FILE_INTEGRITY"
+    script "subworkflows/local/file_integrity/main.nf"
+    workflow "FILE_INTEGRITY"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "file_integrity"
+    tag "samtools"
+    tag "bcftools"
+    tag "seqkit"
+
+    test("BAM + BAI files validation") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "TEST_BAM_001",
+                    type: "sequenceAlignment",
+                    study: "TEST-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_bam.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"), 
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam.bai")
+                ]
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() == 1
+            assert workflow.out.versions.size() == 1
+
+            // Check that both BAM and BAI files are present in output
+            def output_files = workflow.out.ch_payload_files[0][2]
+            assert output_files.size() == 2
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bam') 
+            }  
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bai') 
+            } 
+        }
+    }
+
+    test("CRAM + CRAI files validation should fail the validation") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "TEST_CRAM_001",
+                    type: "sequenceAlignment",
+                    study: "TEST-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and files using test data - skip CRAM test as files don't exist
+                def payload = file("${projectDir}/tests/test_data/payload/payload_cram.json")  // Use BAM payload instead
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_sample.cram"), 
+                    file("${projectDir}/tests/test_data/genomics/test_sample.cram.crai")
+                ]
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() == 1
+            assert workflow.out.versions.size() == 1
+
+            // Check that both CRAM and CRAI files are present in output (using BAM files for now)
+            def output_files = workflow.out.ch_payload_files[0][2]
+            assert output_files.size() == 2
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.cram') 
+            } 
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.crai') 
+            } 
+
+        }
+    }
+
+    test("VCF + TBI files validation") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "TEST_VCF_001",
+                    type: "variantCall",
+                    study: "TEST-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_vcf.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz"), 
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz.tbi")
+                ]
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() == 1
+            assert workflow.out.versions.size() == 1
+
+            // Check that both VCF and TBI files are present in output
+            def output_files = workflow.out.ch_payload_files[0][2]
+            assert output_files.size() == 2
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.vcf.gz') 
+            }
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.tbi') 
+            }
+        }
+    }
+
+    test("FASTQ files validation") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "TEST_FASTQ_001",
+                    type: "sequenceExperiment",
+                    study: "TEST-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_fastq.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz"), 
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R2.fastq.gz")
+                ]
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() >= 2  // Two FASTQ files = two status files
+            assert workflow.out.versions.size() == 2
+
+            // Check that both FASTQ files are present in output
+            def output_files = workflow.out.ch_payload_files[0][2]
+            assert output_files.size() == 2
+            assert output_files.findAll { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.fastq.gz') 
+            }.size() == 2
+        }
+    }
+
+    test("Mixed file types with indexes") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "TEST_MIXED_001",
+                    type: "mixed",
+                    study: "TEST-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and mixed files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_mixed.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam.bai"),
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz"),
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz.tbi"),
+                    file("${projectDir}/tests/test_data/genomics/test_sample_R1.fastq.gz")
+                ]
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() >= 3  // BAM, VCF, FASTQ = at least 3 status files
+            assert workflow.out.versions.size() >= 1
+
+            // Check that all files are present in output
+            def output_files = workflow.out.ch_payload_files[0][2]
+            assert output_files.size() == 5
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bam') 
+            }
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bai') 
+            }
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.vcf.gz') 
+            }
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.tbi') 
+            }
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.fastq.gz') 
+            }
+        }
+    }
+
+    test("Files without indexes") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "TEST_NO_INDEX_001",
+                    type: "mixed",
+                    study: "TEST-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and files without index files
+                def payload = file("${projectDir}/tests/test_data/payload/payload_bam.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"),
+                    file("${projectDir}/tests/test_data/genomics/test_variants.vcf.gz")
+                ]
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() >= 2  // BAM and VCF validation
+            assert workflow.out.versions.size() >= 1
+
+            // Check that files are present in output (no index files)
+            def output_files = workflow.out.ch_payload_files[0][2]
+            assert output_files.size() == 2
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bam') 
+            }
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.vcf.gz') 
+            }
+        }
+    }
+
+    test("Upstream failure propagation") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta with upstream failure
+                def meta = [
+                    id: "TEST_FAILED_001",
+                    type: "sequenceAlignment",
+                    study: "TEST-CA",
+                    status: "failed"  // Upstream failure
+                ]
+
+                // Create payload and files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_bam.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"), 
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam.bai")
+                ]
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success  // Workflow should continue but mark as failed
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() == 1
+
+            // Check that files are passed through even with upstream failure
+            def output_files = workflow.out.ch_payload_files[0][2]
+            assert output_files.size() == 2
+        }
+    }
+
+    test("Validation failures") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta with potentially problematic data
+                def meta = [
+                    id: "FAIL001",
+                    type: "invalidType",
+                    study: "FAIL-STUDY",
+                    status: "pass"
+                ]
+
+                // Create payload and invalid files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_bam.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/simple_R1.fastq"),  // Wrong file type
+                    file("${projectDir}/tests/test_data/genomics/corrupt_file.vcf.gz"),  // Corrupted file to test failure handling
+                    file("${projectDir}/tests/test_data/genomics/corrupt_file.bam"),  // Corrupted BAM file to test failure handling
+                    file("${projectDir}/tests/test_data/genomics/corrupt_file.fastq.gz")  // Corrupted FASTQ file to test failure handling
+                ] 
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success  // Should not fail due to exit_on_error=false
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() >= 1
+            assert workflow.out.versions.size() >= 1
+        }
+    }
+
+    test("Should handle validation failures gracefully") {
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta with potentially problematic data
+                def meta = [
+                    id: "FAIL001",
+                    type: "invalidType",
+                    study: "FAIL-STUDY",
+                    status: "pass"
+                ]
+
+                // Create payload and invalid files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_bam.json")
+                def files = [file("${projectDir}/tests/test_data/genomics/simple_R1.fastq")]  // Wrong file type
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success  // Should not fail due to exit_on_error=false
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() >= 1
+            assert workflow.out.versions.size() == 1
+        }
+    }
+
+    test("Stub test for file_integrity") {
+
+        options "-stub"
+
+        when {
+            params {
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test meta
+                def meta = [
+                    id: "STUB_TEST_001",
+                    type: "sequenceAlignment",
+                    study: "STUB-CA",
+                    status: "pass"
+                ]
+
+                // Create payload and files using test data
+                def payload = file("${projectDir}/tests/test_data/payload/payload_bam.json")
+                def files = [
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam"), 
+                    file("${projectDir}/tests/test_data/genomics/test_sample.sorted.bam.bai")
+                ]
+
+                // Define input channels
+                input[0] = Channel.of([meta, payload, files])
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.ch_payload_files.size() == 1
+            assert workflow.out.status.size() == 1
+            assert workflow.out.versions.size() == 1
+
+            // Check that files are passed through in stub mode
+            def output_files = workflow.out.ch_payload_files[0][2]
+            assert output_files.size() == 2
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bam') 
+            }
+            assert output_files.find { 
+                def fileName = it instanceof File ? it.name : it.toString()
+                fileName.endsWith('.bai') 
+            }
+
+            // In stub mode, status files should contain SUCCESS status
+            def status_files = workflow.out.status
+            assert status_files.size() == 1
+        }
+    }
+}

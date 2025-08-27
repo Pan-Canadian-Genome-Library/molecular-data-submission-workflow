@@ -1,0 +1,27 @@
+{
+  "analysisType": {
+    "name": "sequenceExperiment"
+  },
+  "data_category": "Sequencing Reads",
+  "files": [
+    {
+      "dataType": "Submitted Unaligned Reads",
+      "fileAccess": "controlled",
+      "fileMd5sum": "a1505aad2f04bd9594f43745ee5ee4a5",
+      "fileName": "test_sample_R1.fastq.gz",
+      "fileSize": 1024,
+      "fileType": "FASTQ"
+    },
+    {
+      "dataType": "Submitted Unaligned Reads",
+      "fileAccess": "controlled",
+      "fileMd5sum": "38a41f5dbf5f1e1e09fb3024555ede4e",
+      "fileName": "test_sample_R2.fastq.gz",
+      "fileSize": 1024,
+      "fileType": "FASTQ"
+    }
+  ],
+  "studyId": "TEST-CA",
+  "submitter_analysis_id": "TEST_FASTQ_ANALYSIS_001",
+  "submitter_experiment_id": "TEST_EXPERIMENT_001"
+}

@@ -1,0 +1,66 @@
+nextflow_workflow {
+
+    name "Test Workflow BATCH_RECEIPT_GENERATION"
+    script "subworkflows/local/batch_receipt_generation/main.nf"
+    workflow "BATCH_RECEIPT_GENERATION"
+
+    test("Should run without failures") {
+
+        when {
+            params {
+                // define parameters here if needed
+            }
+            workflow {
+                """
+                // Create test meta and input files
+                def meta1 = [
+                    id: 'test_analysis_001',
+                    analysis_id: 'test_analysis_001',
+                    type: 'testType',
+                    study: 'testStudy'
+                ]
+                def meta2 = [
+                    id: 'test_analysis_002',
+                    analysis_id: 'test_analysis_002',
+                    type: 'testType',
+                    study: 'testStudy'
+                ]
+                
+                // Create test status files using actual test data
+                def status_files1 = [
+                    file("${projectDir}/tests/test_data/status/test_status1.yml"),
+                    file("${projectDir}/tests/test_data/status/test_status2.yml")
+                ]
+                def status_files2 = [
+                    file("${projectDir}/tests/test_data/status/test_status3.yml")
+                ]
+                
+                // Create test analysis files using actual test data
+                def analysis_file1 = file("${projectDir}/tests/test_data/analysis/analysis1.json")
+                // For meta2, pass an empty list to simulate null analysis_file
+                def analysis_file2 = []
+                
+                // Create input channel
+                input[0] = Channel.of(
+                    [meta1, status_files1, analysis_file1],
+                    [meta2, status_files2, analysis_file2]
+                )
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+                        
+            // Check that batch receipts are generated
+            assert workflow.out.batch_tsv_receipt
+            assert workflow.out.batch_json_receipt
+            
+            // Check that versions are provided
+            assert workflow.out.versions
+
+        }
+
+    }
+
+}

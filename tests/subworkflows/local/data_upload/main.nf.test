@@ -1,0 +1,124 @@
+nextflow_workflow {
+
+    name "Test Workflow DATA_UPLOAD"
+    script "subworkflows/local/data_upload/main.nf"
+    workflow "DATA_UPLOAD"
+
+    test("Should run data upload workflow with allow_duplicates true") {
+
+        when {
+            params {
+                file_manager_container = "ghcr.io/overture-stack/song-client"
+                file_manager_container_tag = "822055be"
+                token = "test_token"
+                exit_on_error = false
+                allow_duplicates = true
+            }
+            workflow {
+                """
+                // Create test payload files channel
+                def payload_meta = [
+                    id: 'test_analysis_001',
+                    type: 'sequenceExperiment',
+                    study: 'TEST_STUDY_002',
+                    status: 'pass'
+                ]
+                def payload_file = file('${projectDir}/tests/test_data/payload/test_payload.json', checkIfExists: true)
+                def data_files = [
+                    file('${projectDir}/tests/test_data/genomics/test_file.fastq.gz', checkIfExists: true)
+                ]
+
+                input[0] = Channel.of([payload_meta, payload_file, data_files])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.analysis_json },
+                { assert workflow.out.status },
+                { assert workflow.out.versions }
+            )
+        }
+    }
+
+    test("Should handle workflow with stub") {
+
+        options "-stub"
+
+        when {
+            params {
+                file_manager_container = "ghcr.io/overture-stack/song-client"
+                file_manager_container_tag = "822055be"
+                token = "test_token"
+                exit_on_error = false
+            }
+            workflow {
+                """
+                // Create test payload files channel
+                def payload_meta = [
+                    id: 'test_analysis_stub',
+                    type: 'sequenceExperiment',
+                    study: 'TEST_STUDY_STUB',
+                    status: 'pass'
+                ]
+                def payload_file = file('${projectDir}/tests/test_data/payload/test_payload.json', checkIfExists: true)
+                def data_files = [
+                    file('${projectDir}/tests/test_data/genomics/test_file.fastq.gz', checkIfExists: true)
+                ]
+
+                input[0] = Channel.of([payload_meta, payload_file, data_files])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.analysis_json },
+                { assert workflow.out.status },
+                { assert workflow.out.versions }
+            )
+        }
+    }
+
+    test("Should handle resilient processing with allow_duplicates false") {
+
+        when {
+            params {
+                file_manager_container = "ghcr.io/overture-stack/song-client"
+                file_manager_container_tag = "822055be"
+                token = "test_token"
+                exit_on_error = false
+                allow_duplicates = false
+            }
+            workflow {
+                """
+                // Create test payload files channel
+                def payload_meta = [
+                    id: 'test_analysis_001',
+                    type: 'sequenceExperiment',
+                    study: 'TEST_STUDY_002',
+                    status: 'pass'
+                ]
+                def payload_file = file('${projectDir}/tests/test_data/payload/test_payload.json', checkIfExists: true)
+                def data_files = [
+                    file('${projectDir}/tests/test_data/genomics/test_file.fastq.gz', checkIfExists: true)
+                ]
+
+                input[0] = Channel.of([payload_meta, payload_file, data_files])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.analysis_json },
+                { assert workflow.out.status },
+                { assert workflow.out.versions }
+            )
+        }
+    }
+}

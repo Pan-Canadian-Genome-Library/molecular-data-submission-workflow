@@ -1,0 +1,15 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth">
+##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths for the ref and alt alleles">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##contig=<ID=chr1,length=248956422>
+##contig=<ID=chr2,length=242193529>
+##reference=GRCh38
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMPLE_001
+chr1	100000	.	C	T	60	PASS	AC=1;AF=0.5;AN=2	GT:DP:AD	0/1:30:15,15
+chr1	200000	.	G	A	80	PASS	AC=2;AF=1.0;AN=2	GT:DP:AD	1/1:25:0,25
+chr2	300000	.	A	G	70	PASS	AC=1;AF=0.5;AN=2	GT:DP:AD	0/1:35:18,17

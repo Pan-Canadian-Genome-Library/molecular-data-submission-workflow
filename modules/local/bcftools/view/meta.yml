@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "bcftools_view"
+description: Validate VCF/BCF files using bcftools view
+keywords:
+  - variant calling
+  - vcf
+  - bcf
+  - validation
+  - bcftools
+tools:
+  - bcftools:
+      description: |
+        BCFtools is a set of utilities that manipulate variant calls in the Variant
+        Call Format (VCF) and its binary counterpart BCF. All commands work
+        transparently with both VCFs and BCFs, both uncompressed and BGZF-compressed.
+      homepage: http://samtools.github.io/bcftools/bcftools.html
+      documentation: https://samtools.github.io/bcftools/bcftools.html
+      doi: "10.1093/bioinformatics/btp352"
+      licence: ["MIT"]
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
+  - payload:
+      type: file
+      description: Payload file containing metadata
+      pattern: "*.{json,yml,yaml}"
+  - vcf_file:
+      type: file
+      description: VCF/BCF file to validate
+      pattern: "*.{vcf,vcf.gz,bcf}"
+  - index_files:
+      type: file
+      description: Index files for the VCF/BCF file (optional)
+      pattern: "*.{tbi,csi}"
+
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+  - ch_validated_file:
+      type: tuple
+      description: Tuple containing meta, payload, validated VCF file, and index files
+      pattern: "[meta, payload, vcf_file, index_files]"
+  - status:
+      type: tuple
+      description: Tuple containing meta and validation status file
+      pattern: "[meta, *_status.yml]"
+
+authors:
+  - "@lindaxiang"
+
+maintainers:
+  - "@lindaxiang"

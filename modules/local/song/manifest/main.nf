@@ -1,0 +1,145 @@
+process SONG_MANIFEST {
+    tag "$meta.id"
+    label 'process_single'
+
+    container "${ params.file_manager_container }:${ params.file_manager_container_tag }"
+    containerOptions "-v \$(pwd):/song-client/logs"
+
+
+    input:
+    tuple val(meta), path(analysis_id_file), path(payload), path(upload)
+
+    output:
+    path "*_manifest.txt"       , emit: manifest
+    tuple val(meta), path("*_status.yml"), emit: status
+    path "versions.yml"           , emit: versions
+    tuple val(meta), path(analysis_id_file), path("*_manifest.txt"), path(upload),    emit: manifest_upload
+
+    when:
+    task.ext.when == null || task.ext.when
+
+    script:
+    def args = task.ext.args ?: ''
+    def exit_on_error = params.exit_on_error ?: task.ext.exit_on_error ?: false
+    def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
+    def file_manager_url = params.file_manager_url
+    def accessToken = params.token
+    def VERSION = params.file_manager_container_tag
+    def study_id = "${meta.study}"
+    def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
+    def manifest_file = "${meta.id}_manifest.txt"
+    """
+    # Set error handling to continue on failure for resilient processing
+    set +e
+    
+    # Initialize variables
+    MANIFEST_EXIT_CODE=0
+    ERROR_DETAILS=""
+    ANALYSIS_ID=""
+    
+    # Read analysis ID from file first (needed for both success and failure cases)
+    if [ -f "${analysis_id_file}" ]; then
+        ANALYSIS_ID=\$(cat ${analysis_id_file} | tr -d '\\n')
+    fi
+    
+    # Check if upstream process was successful by checking meta.status
+    if [ "${meta.status ?: 'pass'}" != "pass" ]; then
+        echo "Upstream process failed (meta.status: ${meta.status ?: 'pass'}), skipping manifest generation"
+        MANIFEST_EXIT_CODE=1
+        ERROR_DETAILS="Skipped manifest generation due to upstream failure"
+        
+        # Create placeholder manifest file
+        echo "# Manifest generation skipped due to upstream failure" > ${manifest_file}
+    else
+        echo "Upstream process successful, proceeding with manifest generation"
+        
+        export CLIENT_SERVER_URL=${file_manager_url}
+        export CLIENT_STUDY_ID=${study_id}
+        export CLIENT_ACCESS_TOKEN=${accessToken}
+
+        # Execute SONG manifest generation
+        sing manifest -a \${ANALYSIS_ID} -d . -f ${manifest_file} $args
+        MANIFEST_EXIT_CODE=\${?}
+        
+        if [ \${MANIFEST_EXIT_CODE} -ne 0 ]; then
+            # Capture error details preserving original formatting
+            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
+                ERROR_DETAILS=\$(cat ".command.err")
+            else
+                ERROR_DETAILS="Script execution failed - no error details available"
+            fi
+            # Create placeholder manifest file for failed generation
+            echo "# Manifest generation failed" > ${manifest_file}
+        fi
+    fi
+
+    # Create step-specific status file
+    if [ \${MANIFEST_EXIT_CODE} -eq 0 ]; then
+        STATUS_RESULT="SUCCESS"
+    else
+        STATUS_RESULT="FAILED"
+    fi
+    
+    echo "process: \\"${task.process}\\"" > "${status_file_name}"
+    echo "status: \\"\${STATUS_RESULT}\\"" >> "${status_file_name}"
+    echo "exit_code: \${MANIFEST_EXIT_CODE}" >> "${status_file_name}"
+    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${status_file_name}"
+    echo "details:" >> "${status_file_name}"
+    echo "    study_id: \\"${study_id}\\"" >> "${status_file_name}"
+    echo "    analysis_id: \\"\${ANALYSIS_ID}\\"" >> "${status_file_name}"
+    echo "    file_manager_url: \\"${file_manager_url}\\"" >> "${status_file_name}"
+    echo "    manifest_file: \\"${manifest_file}\\"" >> "${status_file_name}"
+    echo "    exit_on_error_enabled: \\"${exit_on_error_str}\\"" >> "${status_file_name}"
+
+    # Add error message to status file if manifest generation failed
+    if [ \${MANIFEST_EXIT_CODE} -ne 0 ] && [ -n "\${ERROR_DETAILS:-}" ]; then
+        echo "    error_details: |" >> "${status_file_name}"
+        # Use printf to properly handle special characters and preserve formatting
+        printf '%s\\n' "\$ERROR_DETAILS" | sed 's/^/        /' >> "${status_file_name}"
+    elif [ \${MANIFEST_EXIT_CODE} -ne 0 ]; then
+        echo "    error_details: \\"Manifest generation failed\\"" >> "${status_file_name}"
+    fi
+
+    # Always create versions.yml before any exit
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        song-client: ${VERSION}
+    END_VERSIONS
+
+    # Only exit with error if exit_on_error is explicitly true
+    if [ "${exit_on_error_str}" = "true" ] && [ \${MANIFEST_EXIT_CODE} -ne 0 ]; then
+        echo "Manifest generation failed and exit_on_error is true, exiting with error"
+        exit \${MANIFEST_EXIT_CODE}
+    else
+        echo "Continuing workflow regardless of manifest result (exit_on_error=${exit_on_error_str})"
+        exit 0
+    fi
+    """
+
+    stub:
+    def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
+    def manifest_file = "${meta.id}_manifest.txt"
+    """
+    # Create stub manifest file
+    echo "objectId\tfileName\tfileSize\tfileMd5sum\tfileAccess" > ${manifest_file}
+    echo "stub-object-id\tstub-file.txt\t1000\tstub-md5sum\topen" >> ${manifest_file}
+
+    # Create stub status file
+    echo "process: \\"${task.process}\\"" > "${status_file_name}"
+    echo "status: \\"SUCCESS\\"" >> "${status_file_name}"
+    echo "exit_code: 0" >> "${status_file_name}"
+    echo "timestamp: \\"\$(date -Iseconds)\\"" >> "${status_file_name}"
+    echo "details:" >> "${status_file_name}"
+    echo "    study_id: \\"${meta.study}\\"" >> "${status_file_name}"
+    echo "    analysis_id: \\"${meta.analysis_id}\\"" >> "${status_file_name}"
+    echo "    file_manager_url: \\"${params.file_manager_url_upload ?: params.file_manager_url}\\"" >> "${status_file_name}"
+    echo "    manifest_file: \\"${manifest_file}\\"" >> "${status_file_name}"
+    echo "    exit_on_error_enabled: \\"false\\"" >> "${status_file_name}"
+
+    # Create stub versions file
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        song-client: stub
+    END_VERSIONS
+    """
+}

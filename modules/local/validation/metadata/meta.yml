@@ -1,0 +1,77 @@
+name: "validation_metadata"
+description: Validate metadata consistency and cross-check with analysis payload using dedicated Python validation script
+keywords:
+  - validation
+  - metadata
+  - payload
+  - analysis
+  - consistency
+  - genomics
+  - clinical data
+  - specimen
+  - sample
+  - experiment
+  - read groups
+tools:
+  - python:
+      description: Python programming language
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      tool_dev_url: https://github.com/python/cpython
+      licence: ["Python Software Foundation License"]
+
+files:
+  - resources/usr/bin/main.py:
+      description: Python script for comprehensive metadata validation including specimen, sample, experiment, and read group file consistency checking
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  - payload:
+      type: file
+      description: JSON analysis payload containing metadata for cross-validation
+      pattern: "*.json"
+  - payload_files:
+      type: file
+      description: Input genomic data files to cross-check with payload metadata
+      pattern: "*.{bam,cram,vcf,vcf.gz,fastq,fq,fastq.gz,fq.gz}"
+  - specimen:
+      type: file
+      description: TSV file containing specimen-level metadata
+      pattern: "*_specimen.tsv"
+  - sample:
+      type: file
+      description: TSV file containing sample-level metadata
+      pattern: "*_sample.tsv"
+  - experiment:
+      type: file
+      description: TSV file containing experiment-level metadata
+      pattern: "*_experiment.tsv"
+  - read_group:
+      type: file
+      description: TSV file containing read group metadata
+      pattern: "*_read_group.tsv"
+
+output:
+  - ch_payload_files:
+      type: tuple
+      description: |
+        Tuple containing meta, payload, and payload_files after validation
+        Structure: [ val(meta), path(payload), path(payload_files) ]
+  - status:
+      type: file
+      description: YAML status file containing metadata validation results
+      pattern: "*_status.yml"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@lindaxiang"
+
+maintainers:
+  - "@lindaxiang"
