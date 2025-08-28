@@ -69,6 +69,7 @@ process VALIDATION_METADATA {
     status: "\$(if [ \$METADATA_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$METADATA_EXIT_CODE
     timestamp: "\$(date -Iseconds)"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}"
         analysis_type: "${meta.type}"
@@ -77,7 +78,7 @@ process VALIDATION_METADATA {
         payload_file: "${payload}"
         read_group_file: "${read_group}"
         specimen_file: "${specimen}"
-        sample_file: "${sample}" 
+        sample_file: "${sample}"
         experiment_file: "${experiment}"
         exit_on_error_enabled: "${exit_on_error_str}"
     END_STATUS
@@ -115,6 +116,7 @@ process VALIDATION_METADATA {
     status: "SUCCESS"
     exit_code: 0
     timestamp: "2025-01-25T10:31:00+00:00"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}"
         analysis_type: "${meta.type}"

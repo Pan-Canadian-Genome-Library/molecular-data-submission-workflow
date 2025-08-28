@@ -15,7 +15,7 @@ nextflow_process{
                 params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
                 params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
                 // Test input with molecular metadata files (all TSV format)
-                input[0] = ["EXAMPLE-CA"]
+                input[0] = "EXAMPLE-CA"
                 input[1] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Files.tsv')]
                 input[2] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Analysis.tsv')]
                 input[3] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Workflow.tsv')]
@@ -44,14 +44,14 @@ nextflow_process{
                 params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
                 params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
                 // Test input with molecular metadata files (all TSV format)
-                input[0] = ["EXAMPLE-CA"]
+                input[0] = "EXAMPLE-CA"
                 input[1] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Files.tsv')]
                 input[2] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Analysis.tsv')]
                 input[3] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Workflow.tsv')]
-                input[4] = [[]]
-                input[5] = [[]]
-                input[6] = [[]]
-                input[7] = [[]]
+                input[4] = []
+                input[5] = []
+                input[6] = []
+                input[7] = []
                 input[8] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/relational_mapping.json')]
                 """
             }
@@ -73,14 +73,14 @@ nextflow_process{
                 params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
                 params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
                 // Test input with molecular metadata files (all TSV format)
-                input[0] = ["EXAMPLE-CA"]
+                input[0] = "EXAMPLE-CA"
                 input[1] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/Files.tsv')]
                 input[2] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/bad_path/Duplicate_Analysis.tsv')]
-                input[3] = [[]]
-                input[4] = [[]]
-                input[5] = [[]]
-                input[6] = [[]]
-                input[7] = [[]]
+                input[3] = []
+                input[4] = []
+                input[5] = []
+                input[6] = []
+                input[7] = []
                 input[8] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/relational_mapping.json')]
                 """
             }
@@ -102,14 +102,14 @@ nextflow_process{
                 params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
                 params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
                 // Test input with molecular metadata files (all TSV format)
-                input[0] = ["EXAMPLE-CA"]
+                input[0] = "EXAMPLE-CA"
                 input[1] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Files.tsv')]
                 input[2] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Analysis.tsv')]
                 input[3] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Workflow.tsv')]
-                input[4] = [[]]
-                input[5] = [[]]
-                input[6] = [[]]
-                input[7] = [[]]
+                input[4] = []
+                input[5] = []
+                input[6] = []
+                input[7] = []
                 input[8] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/relational_mapping.json')]
                 """
             }

@@ -27,11 +27,11 @@ process CHECK_DEPENDENCIES {
 
     script:
     def prefix = task.ext.prefix ?: "${study_id}"
-    def sample_file = sample_metadata ? "--sample_metadata ${sample_metadata}" : ""
-    def specimen_file = specimen_metadata ? "--specimen_metadata ${specimen_metadata}" : ""
-    def experiment_file = experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
-    def read_group_file = read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
-    def workflow_file = workflow_metadata ? "--workflow_metadata ${workflow_metadata}" : ""
+    def sample_file = sample_metadata!=null && sample_metadata ? "--sample_metadata ${sample_metadata}" : ""
+    def specimen_file = specimen_metadata!=null  && specimen_metadata ? "--specimen_metadata ${specimen_metadata}" : ""
+    def experiment_file = experiment_metadata!=null &&  experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
+    def read_group_file = read_group_metadata!=null && read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
+    def workflow_file = workflow_metadata!=null && workflow_metadata ?  "--workflow_metadata ${workflow_metadata}" : ""
     """
     # Set error handling to continue on failure for resilient processing
     set +e
@@ -70,6 +70,7 @@ process CHECK_DEPENDENCIES {
     status: "\$(if [ \$CHECKDEPENDENCIES_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$CHECKDEPENDENCIES_EXIT_CODE
     timestamp: "\$(date -Iseconds)"
+    work_directory: "\$PWD"
     details:
         study_id: "${study_id}"
         file_metadata: "${file_metadata}"
@@ -98,14 +99,32 @@ process CHECK_DEPENDENCIES {
 
     stub:
     def prefix = task.ext.prefix ?: "${study_id}"
-    def sample_file = sample_metadata ? "--sample_metadata ${sample_metadata}" : ""
-    def specimen_file = specimen_metadata ? "--specimen_metadata ${specimen_metadata}" : ""
-    def experiment_file = experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
-    def read_group_file = read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
-    def workflow_file = workflow_metadata ? "--workflow_metadata ${workflow_metadata}" : ""
+    def sample_file = sample_metadata!=null && sample_metadata ? "--sample_metadata ${sample_metadata}" : ""
+    def specimen_file = specimen_metadata!=null  && specimen_metadata ? "--specimen_metadata ${specimen_metadata}" : ""
+    def experiment_file = experiment_metadata!=null &&  experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
+    def read_group_file = read_group_metadata!=null && read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
+    def workflow_file = workflow_metadata!=null && workflow_metadata ?  "--workflow_metadata ${workflow_metadata}" : ""
     """
     touch relational_mapping.json
     touch analysis_types.json
+
+    cat <<-END_STATUS > "${study_id}_${task.process.toLowerCase().replace(':', '_')}_status.yml"
+    process: "${task.process}"
+    status: "SUCCESS"
+    exit_code: 0
+    timestamp: "2025-01-22T10:30:00+00:00"
+    work_directory: "\$PWD"
+    details:
+        study_id: "${study_id}"
+        file_metadata: "${file_metadata}"
+        analysis_metadata: "${analysis_metadata}"
+        workflow_metadata: "${workflow_metadata}"
+        read_group_metadata: "${read_group_metadata}"
+        experiment_metadata: "${experiment_metadata}"
+        specimen_metadata: "${specimen_metadata}"
+        sample_metadata: "${sample_metadata}"
+        files_directory: "${data_directory}"
+    END_STATUS
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

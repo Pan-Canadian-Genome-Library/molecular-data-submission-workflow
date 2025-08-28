@@ -58,6 +58,7 @@ process SAMTOOLS_QUICKCHECK {
     status: "\$(if [ \$QUICKCHECK_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$QUICKCHECK_EXIT_CODE
     timestamp: "\$(date -Iseconds)"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}"
         tool: "samtools_quickcheck"
@@ -98,6 +99,7 @@ process SAMTOOLS_QUICKCHECK {
     status: "SUCCESS"
     exit_code: 0
     timestamp: "2025-08-11T10:30:00+00:00"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}"
         tool: "samtools_quickcheck"

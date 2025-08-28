@@ -14,32 +14,6 @@ from collections import defaultdict
 import sys
 
 
-def parse_analysis_file(file_path):
-    """Parse analysis JSON file and extract required information."""
-    try:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-        
-        return {
-            'file_manager_analysis_id': data.get('analysisId', 'unknown'),
-            'submitter_analysis_id': data.get('submitter_analysis_id', 'unknown'),
-            'analysis_state': data.get('analysisState', 'unknown'),
-            'published_at': data.get('publishedAt', 'unknown'),
-            'study_id': data.get('studyId', 'unknown'),
-            'analysis_type': data.get('analysisType', {}).get('name', 'unknown') if isinstance(data.get('analysisType'), dict) else 'unknown'
-        }
-    except Exception as e:
-        print(f"Error parsing analysis file {file_path}: {e}", file=sys.stderr)
-        return {
-            'file_manager_analysis_id': 'unknown',
-            'submitter_analysis_id': 'unknown',
-            'analysis_state': 'unknown', 
-            'published_at': 'unknown',
-            'study_id': 'unknown',
-            'analysis_type': 'unknown'
-        }
-
-
 def parse_status_file(file_path):
     """Parse a single status YAML file."""
     try:
@@ -64,22 +38,13 @@ def parse_status_file(file_path):
                 else:
                     submitter_analysis_id = filename.replace('_status', '')
         
-        # Extract error message from various possible locations
-        error_message = ''
-        if 'error_message' in data:
-            error_message = data['error_message']
-        elif 'details' in data and 'error_message' in data['details']:
-            error_message = data['details']['error_message']
-        elif 'details' in data and 'error_details' in data['details']:
-            error_message = data['details']['error_details']
-        
         return {
             'submitter_analysis_id': submitter_analysis_id,
             'process': data.get('process', None),
             'status': data.get('status', None),
             'exit_code': data.get('exit_code', None),
-            'error_message': error_message.strip() if error_message else None,
             'timestamp': data.get('timestamp', None),
+            'work_directory': data.get('work_directory', None),
             'details': data.get('details', None),
             'source_file': str(file_path)
         }
@@ -102,12 +67,11 @@ def generate_individual_receipt(processes, analysis_info, output_file):
             'process': p['process'],
             'status': p['status'],
             'exit_code': p['exit_code'],
-            'timestamp': p['timestamp']
+            'timestamp': p['timestamp'],
+            'work_directory': p.get('work_directory', None),
+            'details': p.get('details', None)
         }
-        if p['error_message']:
-            clean_process['error_message'] = p['error_message']
-        if p['details']:
-            clean_process['details'] = p['details']
+
         clean_processes.append(clean_process)
     
     # Create individual receipt structure
@@ -142,9 +106,9 @@ def main():
     args = parser.parse_args()
 
     # Parse analysis file if provided, else use defaults for song fields
-    file_manager_analysis_id = 'unknown'
-    file_manager_analysis_state = 'unknown'
-    file_manager_analysis_publish_at = 'unknown'
+    file_manager_analysis_id = 'Not applicable'
+    file_manager_analysis_state = 'Not applicable'
+    file_manager_analysis_publish_at = 'Not applicable'
     if args.analysis_file:
         try:
             with open(args.analysis_file, 'r') as f:
@@ -174,7 +138,7 @@ def main():
 
     for status_file in args.status_files:
         data = parse_status_file(status_file)
-        if data and data['submitter_analysis_id']:
+        if data and data.get('submitter_analysis_id'):
             if submitter_analysis_id is None:
                 submitter_analysis_id = data['submitter_analysis_id']
             elif submitter_analysis_id != data['submitter_analysis_id']:

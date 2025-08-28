@@ -94,6 +94,7 @@ process PAYLOAD_GENERATE {
     status: "\$(if [ \$GENERATION_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$GENERATION_EXIT_CODE
     timestamp: "\$(date -Iseconds)"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}"
         payload_file: "${prefix}_payload.json"
@@ -138,6 +139,7 @@ process PAYLOAD_GENERATE {
     status: "SUCCESS"
     exit_code: 0
     timestamp: "2025-01-22T10:30:00+00:00"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}"
         payload_file: "${prefix}_payload.json"
