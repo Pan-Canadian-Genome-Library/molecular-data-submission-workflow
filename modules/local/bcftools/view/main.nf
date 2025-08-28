@@ -59,6 +59,7 @@ process BCFTOOLS_VIEW {
     status: "\$(if [ \$VCF_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$VCF_EXIT_CODE
     timestamp: "\$(date -Iseconds)"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}"
         tool: "bcftools_view"
@@ -101,6 +102,7 @@ process BCFTOOLS_VIEW {
     status: "SUCCESS"
     exit_code: 0
     timestamp: "2025-08-11T10:30:00+00:00"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}"
         tool: "bcftools_view"

@@ -61,6 +61,7 @@ process VALIDATION_CROSSCHECK {
     status: "\$(if [ \$CROSSCHECK_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$CROSSCHECK_EXIT_CODE
     timestamp: "\$(date -Iseconds)"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}"
         payload_file: "${payload}"
@@ -101,6 +102,7 @@ process VALIDATION_CROSSCHECK {
     status: "SUCCESS"
     exit_code: 0
     timestamp: "2025-01-25T10:32:00+00:00"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}"
         payload_file: "${payload}"

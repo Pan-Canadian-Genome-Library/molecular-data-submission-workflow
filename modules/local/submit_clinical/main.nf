@@ -71,6 +71,7 @@ container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity
     status: "\$(if [ \$GENERATION_EXIT_CODE -eq 0 ]; then echo 'SUCCESS'; else echo 'FAILED'; fi)"
     exit_code: \$GENERATION_EXIT_CODE
     timestamp: "\$(date -Iseconds)"
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}" 
         sample_meta : "${clinical.sample}"
@@ -119,7 +120,7 @@ container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity
     status: "SUCCESS"
     exit_code: 0
     timestamp: "2025-01-22T10:30:00+00:00"
-    details:
+    work_directory: "\$PWD"
     details:
         analysis_id: "${meta.id}" 
         sample_meta : "${clinical.sample}"
