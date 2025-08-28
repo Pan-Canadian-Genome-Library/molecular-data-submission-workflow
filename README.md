@@ -26,7 +26,8 @@ The workflow consists of five main stages:
   - Docker (recommended)
   - Singularity/Apptainer 
   - Conda (alternative, but containers preferred)
-- **Java**: Java 8 or later (required by Nextflow)
+- **Java**: Java 17 (or later, up to 24)
+- **Bash**: Bash 3.2 (or later)
 - **Memory**: Minimum 8GB RAM recommended
 - **Storage**: Sufficient disk space for input data, intermediate files, and outputs
 
@@ -60,10 +61,11 @@ Please refer to **[Input Documentation](docs/input.md)** for the comprehensive p
 
    ```bash
    curl -s https://get.nextflow.io | bash
+   chmod +x nextflow
    mv nextflow ~/bin/ # or add to your PATH
    ```
 > [!NOTE]
-> If you are new to Nextflow, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to test your setup before running the workflow on actual data.
+> If you are new to Nextflow, please refer to [this page](https://www.nextflow.io/docs/latest/install.html#installation) on how to set-up Nextflow. Make sure to test your setup before running the workflow on actual data.
 
 2. **Install Container Engine**:
    - **Docker**: Follow [Docker installation guide](https://docs.docker.com/get-docker/)

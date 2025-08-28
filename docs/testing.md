@@ -6,8 +6,6 @@ Before testing the workflow, you can download the repository and its test data a
 
 ## Getting the Repository
 
-### Option 1: Clone the Repository (Recommended)
-
 To get the full repository with all test data:
 
 ```bash
@@ -19,30 +17,6 @@ cd molecular-data-submission-workflow
 
 # Verify test data is available
 ls tests/test_data/
-```
-
-### Option 2: Download Specific Release
-
-If you prefer to work with a specific version:
-
-```bash
-# Download and extract a specific release (replace v1.0.0 with desired version)
-wget https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/archive/refs/tags/v1.0.0.tar.gz
-tar -xzf v1.0.0.tar.gz
-cd molecular-data-submission-workflow-1.0.0/
-```
-
-### Option 3: Fork for Development
-
-If you plan to contribute or make modifications:
-
-```bash
-# Fork the repository on GitHub first, then clone your fork
-git clone https://github.com/YOUR_USERNAME/molecular-data-submission-workflow.git
-cd molecular-data-submission-workflow
-
-# Add upstream remote for keeping your fork updated
-git remote add upstream https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow.git
 ```
 
 ## Running Tests
