@@ -390,7 +390,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Tool: Check Clinical dependencies')
     parser.add_argument("-fi", "--file_metadata", dest="file_metadata", required=True, help="file metadata tsv")
     parser.add_argument("-an", "--analysis_metadata", dest="analysis_metadata", required=True, help="analysis metadata tsv")
-    parser.add_argument("-wo", "--workflow_metadata", dest="workflow_metadata", required=False, help="workflow metadata tsv")
+    parser.add_argument("-wo", "--workflow_metadata", default=False, dest="workflow_metadata", required=False, help="workflow metadata tsv")
     parser.add_argument("-sa", "--sample_metadata", default=False, dest="sample_metadata", required=False, help="sample metadata tsv")
     parser.add_argument("-sp", "--specimen_metadata", default=False, dest="specimen_metadata", required=False, help="specimen metadata tsv")
     parser.add_argument("-ex", "--experiment_metadata", default=False, dest="experiment_metadata", required=False, help="experiment metadata tsv")

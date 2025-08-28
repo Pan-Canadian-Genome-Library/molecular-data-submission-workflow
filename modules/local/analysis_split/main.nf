@@ -29,11 +29,11 @@ process ANALYSIS_SPLIT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${study_id}"
-    def sample_file = sample_metadata ? "--sample_metadata ${sample_metadata}" : ""
-    def specimen_file = specimen_metadata ? "--specimen_metadata ${specimen_metadata}" : ""
-    def experiment_file = experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
-    def read_group_file = read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
-    def workflow_file = workflow_metadata ? "--workflow_metadata ${workflow_metadata}" : ""
+    def sample_file = sample_metadata!=null && sample_metadata ? "--sample_metadata ${sample_metadata}" : ""
+    def specimen_file = specimen_metadata!=null && specimen_metadata ? "--specimen_metadata ${specimen_metadata}" : ""
+    def experiment_file = experiment_metadata!=null && experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
+    def read_group_file = read_group_metadata!=null && read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
+    def workflow_file = workflow_metadata!=null  && workflow_metadata ? "--workflow_metadata ${workflow_metadata}" : ""
     """
     main.py \
         --relational_mapping ${relational_mapping} \
@@ -55,6 +55,11 @@ process ANALYSIS_SPLIT {
     stub:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${study_id}"
+    def sample_file = sample_metadata!=null && sample_metadata ? "--sample_metadata ${sample_metadata}" : ""
+    def specimen_file = specimen_metadata!=null && specimen_metadata ? "--specimen_metadata ${specimen_metadata}" : ""
+    def experiment_file = experiment_metadata!=null && experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
+    def read_group_file = read_group_metadata!=null && read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
+    def workflow_file = workflow_metadata!=null  && workflow_metadata ? "--workflow_metadata ${workflow_metadata}" : ""
     """
     mkdir -p ${study_id}/{EXAMPLE_01,EXAMPLE_02,EXAMPLE_03}
 

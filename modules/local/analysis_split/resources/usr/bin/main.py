@@ -155,6 +155,7 @@ process: "CHECK_SUBMISSION_DEPENDENCIES:ANALYSIS_SPLIT"
 status: "%s"
 exit_code: %s
 timestamp: "%s"
+work_directory: "%s"
 details:
     analysis_id: "%s"
     error_message: "%s"
@@ -163,6 +164,7 @@ details:
                     "PASS" if analyses.get(analysis).get("status") else "FAILED",
                     "0" if analyses.get(analysis).get("status") else "1",
                     datetime.datetime.now(),
+                    os.getcwd(),
                     analysis,
                     "\n".join(analyses.get(analysis).get("comments") )
                 )
