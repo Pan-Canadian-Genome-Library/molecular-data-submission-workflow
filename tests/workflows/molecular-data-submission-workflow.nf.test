@@ -16,15 +16,16 @@ nextflow_workflow {
                 skip_upload = false
             }
             workflow {
-                """                
-                input[0] = Channel.of(file("${projectDir}/tests/test_data/analysis_meta/file_metadata.tsv")) // file_metadata
-                input[1] = Channel.of(file("${projectDir}/tests/test_data/analysis_meta/analysis_metadata.tsv")) // analysis_metadata
-                input[2] = Channel.of(file("${projectDir}/tests/test_data/analysis_meta/workflow_metadata.tsv")) // workflow_metadata
-                input[3] = Channel.of(file("${projectDir}/tests/test_data/biospecimen/read_group_metadata.tsv")) // read_group_metadata
-                input[4] = Channel.of(file("${projectDir}/tests/test_data/biospecimen/experiment_metadata.tsv")) // experiment_metadata
-                input[5] = Channel.of(file("${projectDir}/tests/test_data/biospecimen/specimen_metadata.tsv")) // specimen_metadata
-                input[6] = Channel.of(file("${projectDir}/tests/test_data/biospecimen/sample_metadata.tsv")) // sample_metadata
-                input[7] = Channel.of(file("${projectDir}/tests/test_data/genomics")) // path_to_files_directory
+                """
+                input[0] = channel.fromPath("${projectDir}/tests/test_data/analysis_meta/file_metadata.tsv") // file_metadata
+                input[1] = channel.fromPath("${projectDir}/tests/test_data/analysis_meta/analysis_metadata.tsv") // analysis_metadata
+                input[2] = channel.fromPath("${projectDir}/tests/test_data/analysis_meta/workflow_metadata.tsv") // workflow_metadata
+                input[3] = channel.fromPath("${projectDir}/tests/test_data/biospecimen/read_group_metadata.tsv") // read_group_metadata
+                input[4] = channel.fromPath("${projectDir}/tests/test_data/biospecimen/experiment_metadata.tsv") // experiment_metadata
+                input[5] = channel.fromPath("${projectDir}/tests/test_data/biospecimen/specimen_metadata.tsv") // specimen_metadata
+                input[6] = channel.fromPath("${projectDir}/tests/test_data/biospecimen/sample_metadata.tsv") // sample_metadata
+                input[7] = channel.fromPath("${projectDir}/tests/test_data/genomics") // path_to_files_directory
+
                 """
             }
         }
@@ -53,14 +54,14 @@ nextflow_workflow {
             }
             workflow {
                 """
-                input[0] = Channel.of(file("${projectDir}/tests/test_data/analysis_meta/file_metadata.tsv")) // file_metadata
-                input[1] = Channel.of(file("${projectDir}/tests/test_data/analysis_meta/analysis_metadata.tsv")) // analysis_metadata
-                input[2] = Channel.of(file("${projectDir}/tests/test_data/analysis_meta/workflow_metadata.tsv")) // workflow_metadata
-                input[3] = Channel.of(file("${projectDir}/tests/test_data/biospecimen/read_group_metadata.tsv")) // read_group_metadata
-                input[4] = Channel.of(file("${projectDir}/tests/test_data/biospecimen/experiment_metadata.tsv")) // experiment_metadata
-                input[5] = Channel.of(file("${projectDir}/tests/test_data/biospecimen/specimen_metadata.tsv")) // specimen_metadata
-                input[6] = Channel.of(file("${projectDir}/tests/test_data/biospecimen/sample_metadata.tsv")) // sample_metadata
-                input[7] = Channel.of(file("${projectDir}/tests/test_data/genomics")) // path_to_files_directory
+                input[0] = channel.fromPath("${projectDir}/tests/test_data/analysis_meta/file_metadata.tsv") // file_metadata
+                input[1] = channel.fromPath("${projectDir}/tests/test_data/analysis_meta/analysis_metadata.tsv") // analysis_metadata
+                input[2] = channel.fromPath("${projectDir}/tests/test_data/analysis_meta/workflow_metadata.tsv") // workflow_metadata
+                input[3] = channel.fromPath("${projectDir}/tests/test_data/biospecimen/read_group_metadata.tsv") // read_group_metadata
+                input[4] = channel.fromPath("${projectDir}/tests/test_data/biospecimen/experiment_metadata.tsv") // experiment_metadata
+                input[5] = channel.fromPath("${projectDir}/tests/test_data/biospecimen/specimen_metadata.tsv") // specimen_metadata
+                input[6] = channel.fromPath("${projectDir}/tests/test_data/biospecimen/sample_metadata.tsv") // sample_metadata
+                input[7] = channel.fromPath("${projectDir}/tests/test_data/genomics") // path_to_files_directory
                 """
             }
         }

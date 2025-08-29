@@ -21,6 +21,9 @@ process VALIDATION_METADATA {
     script:
     def exit_on_error = params.exit_on_error ?: task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error ? "true" : "false"  // Convert boolean to string
+    def specimen_arg = (specimen && specimen != [] && specimen.toString() != '[]') ? "--specimen-file ${specimen}" : ""
+    def sample_arg = (sample && sample != [] && sample.toString() != '[]') ? "--sample-file ${sample}" : ""
+    def experiment_arg = (experiment && experiment != [] && experiment.toString() != '[]') ? "--experiment-file ${experiment}" : ""
     def read_group_arg = (read_group && read_group != [] && read_group.toString() != '[]') ? "--read-group-file ${read_group}" : ""
     
     """
@@ -43,9 +46,9 @@ process VALIDATION_METADATA {
         
         # Build Python script arguments - read_group is conditionally added based on availability
         PYTHON_ARGS="${payload}"
-        PYTHON_ARGS="\$PYTHON_ARGS --specimen-file ${specimen}"
-        PYTHON_ARGS="\$PYTHON_ARGS --sample-file ${sample}"
-        PYTHON_ARGS="\$PYTHON_ARGS --experiment-file ${experiment}"
+        PYTHON_ARGS="\$PYTHON_ARGS ${specimen_arg}"
+        PYTHON_ARGS="\$PYTHON_ARGS ${sample_arg}"
+        PYTHON_ARGS="\$PYTHON_ARGS ${experiment_arg}"
         PYTHON_ARGS="\$PYTHON_ARGS ${read_group_arg}"
         PYTHON_ARGS="\$PYTHON_ARGS --analysis-type ${meta.type}"
         

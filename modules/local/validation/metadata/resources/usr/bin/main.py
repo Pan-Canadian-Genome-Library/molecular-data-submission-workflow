@@ -113,10 +113,11 @@ def comprehensive_validation(payload_file, specimen_file, sample_file, experimen
         # Check if read group is required (only for sequenceExperiment)
         read_group_required = analysis_type == "sequenceExperiment"
         
-        # Load biospecimen data
-        specimens = load_biospecimen_data(specimen_file, 'specimen')
-        samples = load_biospecimen_data(sample_file, 'sample')
-        experiments = load_biospecimen_data(experiment_file, 'experiment')
+        # Disable the loading of biospecimen entities
+        # # Load biospecimen data
+        # specimens = load_biospecimen_data(specimen_file, 'specimen')
+        # samples = load_biospecimen_data(sample_file, 'sample')
+        # experiments = load_biospecimen_data(experiment_file, 'experiment')
         
         # Load read groups if required or if file is provided
         read_groups = []
@@ -128,7 +129,7 @@ def comprehensive_validation(payload_file, specimen_file, sample_file, experimen
             raise ValueError(f'Read group data is required for analysis type "{analysis_type}" but no valid read group data found')
         
         print(f'Read group required: {read_group_required}')
-        print(f'Loaded biospecimen data: {len(specimens)} specimens, {len(samples)} samples, {len(experiments)} experiments, {len(read_groups)} read groups')
+        # print(f'Loaded biospecimen data: {len(specimens)} specimens, {len(samples)} samples, {len(experiments)} experiments, {len(read_groups)} read groups')
         
         # Perform cross-validation checks (individual validation done upstream)
         validation_errors = []
@@ -151,10 +152,10 @@ def main():
     """Main function for command line execution."""
     parser = argparse.ArgumentParser(description='Cross-validate file consistency between payload and read group data (assumes upstream validation of individual files and relationships)')
     parser.add_argument('payload_file', help='Path to analysis payload JSON file')
-    parser.add_argument('--specimen-file', required=True, help='Path to specimen TSV file')
-    parser.add_argument('--sample-file', required=True, help='Path to sample TSV file')
-    parser.add_argument('--experiment-file', required=True, help='Path to experiment TSV file')
-    parser.add_argument('--read-group-file', help='Path to read group TSV file (analysis type dependent)')
+    parser.add_argument('--specimen-file', required=False, help='Path to specimen TSV file')
+    parser.add_argument('--sample-file', required=False, help='Path to sample TSV file')
+    parser.add_argument('--experiment-file', required=False, help='Path to experiment TSV file')
+    parser.add_argument('--read-group-file', required=False, help='Path to read group TSV file (analysis type dependent)')
     parser.add_argument('--analysis-type', required=True, help='Analysis type from metadata (optional, will be extracted from payload if available)')
     
     args = parser.parse_args()

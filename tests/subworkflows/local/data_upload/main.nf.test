@@ -10,7 +10,6 @@ nextflow_workflow {
             params {
                 file_manager_container = "ghcr.io/overture-stack/song-client"
                 file_manager_container_tag = "822055be"
-                token = "test_token"
                 exit_on_error = false
                 allow_duplicates = true
             }
@@ -51,7 +50,6 @@ nextflow_workflow {
             params {
                 file_manager_container = "ghcr.io/overture-stack/song-client"
                 file_manager_container_tag = "822055be"
-                token = "test_token"
                 exit_on_error = false
             }
             workflow {
@@ -89,7 +87,6 @@ nextflow_workflow {
             params {
                 file_manager_container = "ghcr.io/overture-stack/song-client"
                 file_manager_container_tag = "822055be"
-                token = "test_token"
                 exit_on_error = false
                 allow_duplicates = false
             }

@@ -25,7 +25,7 @@ include { MOLECULAR_DATA_SUBMISSION_WORKFLOW  } from './workflows/molecular-data
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow PANCANADIANGENOMELIBRARY_MOLECULAR_DATA_SUBMISSION_WORKFLOW {
+workflow PCGL {
 
     take:
     file_metadata // Spreadsheet from --file_metadata
@@ -79,11 +79,11 @@ workflow {
     log.info "   - study_id: ${params.study_id}"
     log.info "   - analysis_metadata: ${params.analysis_metadata}"
     log.info "   - file_metadata: ${params.file_metadata}"
-    log.info "   - workflow_metadata: ${params.workflow_metadata}"
-    log.info "   - read_group_metadata: ${params.read_group_metadata}"
-    log.info "   - experiment_metadata: ${params.experiment_metadata}"
-    log.info "   - specimen_metadata: ${params.specimen_metadata}"
-    log.info "   - sample_metadata: ${params.sample_metadata}"
+    log.info "   - workflow_metadata: ${params.workflow_metadata ?: 'Not Provided'}"
+    log.info "   - read_group_metadata: ${params.read_group_metadata ?: 'Not Provided'}"
+    log.info "   - experiment_metadata: ${params.experiment_metadata ?: 'Not Provided'}"
+    log.info "   - specimen_metadata: ${params.specimen_metadata ?: 'Not Provided'}"
+    log.info "   - sample_metadata: ${params.sample_metadata ?: 'Not Provided'}"
     log.info "   - path_to_files_directory: ${params.path_to_files_directory}"
     log.info "   - skip_upload: ${params.skip_upload}"
     log.info "   - allow_duplicates: ${params.allow_duplicates}"
@@ -92,14 +92,14 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    PANCANADIANGENOMELIBRARY_MOLECULAR_DATA_SUBMISSION_WORKFLOW (
+    PCGL (
         channel.fromPath(params.file_metadata),
         channel.fromPath(params.analysis_metadata),
-        channel.fromPath(params.workflow_metadata),
-        channel.fromPath(params.read_group_metadata),
-        channel.fromPath(params.experiment_metadata),
-        channel.fromPath(params.specimen_metadata),
-        channel.fromPath(params.sample_metadata),
+        params.workflow_metadata ? channel.fromPath(params.workflow_metadata) : [],
+        params.read_group_metadata ? channel.fromPath(params.read_group_metadata) : [],
+        params.experiment_metadata ? channel.fromPath(params.experiment_metadata) : [],
+        params.specimen_metadata ? channel.fromPath(params.specimen_metadata) : [],
+        params.sample_metadata ? channel.fromPath(params.sample_metadata) : [],
         channel.fromPath(params.path_to_files_directory)
     )
     //

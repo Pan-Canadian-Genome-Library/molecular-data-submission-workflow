@@ -87,9 +87,9 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     CHECK_SUBMISSION_DEPENDENCIES.out.submitted_analysis_channels
     .map { item ->
         def meta = item.meta
-        def specimen_meta = item.clinical.specimen
-        def sample_meta = item.clinical.sample
-        def experiment_meta = item.clinical.experiment
+        def specimen_meta = item.clinical.specimen ?: []
+        def sample_meta = item.clinical.sample ?: []
+        def experiment_meta = item.clinical.experiment ?: []
         def read_group_meta = item.clinical.read_group ?: []
 
         // Return the tuple in the required format
