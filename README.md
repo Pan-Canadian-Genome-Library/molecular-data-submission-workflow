@@ -7,7 +7,11 @@
 For detailed information about workflow components, prerequisites, and system architecture, see **[Complete Introduction Guide](docs/Introduction.md)**  with comprehensive workflow overview, subworkflows, modules and technical details.
 
 ## Pipeline Overview
-[TODO] - add a workflow diagram
+### PCGL Submission Workflow Diagram
+
+<p >
+    <img src="assets/PCGL_Molecular_Data_Submission_Workflow-Diagram.png" alt="PCGL molecular data submission workflow diagram." width="800">
+</p>
 
 The workflow consists of five main stages:
 
