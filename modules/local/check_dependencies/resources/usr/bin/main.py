@@ -358,10 +358,11 @@ def main(args):
         [args.sample_metadata,args.specimen_metadata,args.experiment_metadata,args.read_group_metadata],
         ["sample","specimen","experiment","read_group"],
     ):
-        check_minimum_columns(
-            metadata,
-            relational_mapping.get(key).get('primary')+ [foreign_key.get('foreign') for foreign_key in relational_mapping.get(key).get('foreign')]
-        )
+        if metadata:
+            check_minimum_columns(
+                metadata,
+                relational_mapping.get(key).get('primary')+ [foreign_key.get('foreign') for foreign_key in relational_mapping.get(key).get('foreign')]
+            )
 
     if args.workflow_metadata:
         check_minimum_columns(

@@ -33,9 +33,9 @@ The workflow consists of five main stages:
 
 ### Access Requirements
 
-- **PCGL Access Token**: Valid authentication token with submission permissions for your study
-- **Study Registration**: Your study must be registered in the PCGL system
-- **Participant Registration**: The participants in your submission batch must be registered in the PCGL system
+- **PCGL API Token**: Valid authentication token with submission permissions for your study. [TODO: add URL for API token]
+- **Study Registration**: Your study must be registered in the PCGL system. Please contact PCGL Admin for more info.
+- **Participant Registration**: The participants in your submission batch must be registered in the PCGL system.
 - **Network Access**: Connectivity to PCGL submission endpoints:
   - File Manager service
   - File Transfer service  
@@ -46,26 +46,22 @@ Please refer to **[Input Documentation](docs/input.md)** for the comprehensive p
 
 - **Molecular Data Files**: 
   - Supported formats: CRAM, BAM, VCF, BCF
-  - Files must include appropriate index files (e.g., .crai, .bai, .tbi)
+  - Files must include appropriate index files (e.g., .crai, .bai, .tbi, .csi)
   - Files must be accessible from the specified `path_to_files_directory`
 
 - **Metadata Files**: 
   - **Required**: `file_metadata.tsv`, `analysis_metadata.tsv`
-  - **Optional**: `workflow_metadata.tsv`, `read_group_metadata.tsv`, `experiment_metadata.tsv`, `specimen_metadata.tsv`, `sample_metadata.tsv`
+  - **Optional**: 
+    - Biospecimen: `specimen_metadata.tsv`, `sample_metadata.tsv`, `experiment_metadata.tsv`, `read_group_metadata.tsv`
+    - Analysis: `workflow_metadata.tsv`
   - All metadata files must be in tab-separated (TSV) format
   - Files must comply with the Custom data model of your study, which is the combination of PCGL Base and Extentions Data Model. For the latest version of the PCGL Base Data Model, please see the [latest release folder](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB).
 
 ### Environment Setup
 
 1. **Install Nextflow**:
-
-   ```bash
-   curl -s https://get.nextflow.io | bash
-   chmod +x nextflow
-   mv nextflow ~/bin/ # or add to your PATH
-   ```
-> [!NOTE]
-> If you are new to Nextflow, please refer to [this page](https://www.nextflow.io/docs/latest/install.html#installation) on how to set-up Nextflow. Make sure to test your setup before running the workflow on actual data.
+   
+   Please refer to [this page](https://www.nextflow.io/docs/latest/install.html#installation) on how to set-up Nextflow. Make sure to test your setup before running the workflow on actual data.
 
 2. **Install Container Engine**:
    - **Docker**: Follow [Docker installation guide](https://docs.docker.com/get-docker/)
@@ -76,10 +72,14 @@ Please refer to **[Input Documentation](docs/input.md)** for the comprehensive p
    nextflow info
    docker --version  # or singularity --version
    ```
+    > [!NOTE]
+    > Please refer to section [System Requirements](#system-requirements) for required version. 
 
-4. **Obtain PCGL Access Token**:
-   - Contact your PCGL administrator or data coordinator
+4. **Obtain PCGL API Token**:
+   - Contact your PCGL administrator or data coordinator to begin registration for API key access
+   - Login into to CIlogon with your credentials
    - Ensure the token has appropriate permissions for your study
+
 
 ## Usage
 
@@ -103,6 +103,7 @@ input/
 
 
 ### Basic Usage with Required Metadata
+The following step will attempt to submit files and their corresponding analysis and file metadata. This assumes that the prior dependencies such as biospecimen entities(e.g, specimen, sample, experiment or read_group) have all been registered. If you are not submitting sequencing reads, the metadata of the workflow which generated the files should also be provided.
 
 ```bash
 nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
@@ -116,6 +117,7 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
 ```
 
 ### Advanced Usage with Additional Metadata
+The following step will attempt to submit files and their corresponding analysis and biospecimen metadata. New records will be registered. Existing records will be verified and flagged for discrepancies and otherwise cross referenced and skipped.
 
 ```bash
 nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
@@ -156,7 +158,7 @@ The workflow generates comprehensive outputs to track and verify your data submi
 
 Before running the pipeline on your data, we recommend testing it with the provided test datasets:
 
-- **[Testing Guide](docs/testing.md)** - Comprehensive instructions on how to test the workflow with the included test datasets
+- **[Testing Guide](docs/testing.md)** provides the comprehensive instructions on how to test the workflow with the included test datasets
 - Test datasets are provided in the `tests/test_data/` directory
 - Both minimal and comprehensive testing scenarios are covered
 
