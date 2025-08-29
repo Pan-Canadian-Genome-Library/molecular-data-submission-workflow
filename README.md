@@ -34,12 +34,15 @@ The workflow consists of five main stages:
 ### Access Requirements
 
 - **PCGL API Token**: Valid authentication token with submission permissions for your study. [TODO: add URL for API token]
-- **Study Registration**: Your study must be registered in the PCGL system. Please contact PCGL Admin for more info.
-- **Participant Registration**: The participants in your submission batch must be registered in the PCGL system.
 - **Network Access**: Connectivity to PCGL submission endpoints:
   - File Manager service
   - File Transfer service  
   - Clinical submission service 
+
+### Submission Dependencies
+- **Study Registration**: Your study must be registered in the PCGL system. Please contact PCGL Admin for more info.
+- **Participant Registration**: The participants in your submission batch must be registered in the PCGL system.
+- **Biospecimen Entities**: Please provide the metadata for relevant dependent Biospecimen Entities if they were not yet submitted.
 
 ### Input Data Requirements
 Please refer to **[Input Documentation](docs/input.md)** for the comprehensive parameter descriptions and file format specifications.
@@ -103,7 +106,7 @@ input/
 
 
 ### Basic Usage with Required Metadata
-The following step will attempt to submit files and their corresponding analysis and file metadata. This assumes that the prior dependencies such as biospecimen entities(e.g, specimen, sample, experiment or read_group) have all been registered. If you are not submitting sequencing reads, the metadata of the workflow which generated the files should also be provided.
+The following step will attempt to submit files and their corresponding analysis and file metadata. This assumes that the prior [Submission Dependencies](#submission-dependencies) such as Study, Participant, and Biospecimen entities(e.g, specimen, sample, experiment or read_group) have all been registered. If you are not submitting sequencing reads, the metadata of the workflow which generated the files should also be provided.
 
 ```bash
 nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \

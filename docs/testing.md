@@ -21,7 +21,8 @@ ls tests/test_data/
 
 ## Running Tests
 
-The repository includes comprehensive test datasets that you can use to verify the workflow functionality:
+The repository includes comprehensive test datasets that you can use to verify the workflow functionality. Please be noted that the Submission Dependencies such as Study and Participant have already been registered beforehand. 
+
 
 **Test with all provided metadata files (full test):**
 ```bash
