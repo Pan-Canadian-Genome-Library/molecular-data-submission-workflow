@@ -1,6 +1,6 @@
 nextflow_workflow {
     name "Test Subworkflow CHECK_SUBMISSION_DEPENDENCIES"
-    script "subworkflows/local/check_submission_dependencies.nf"
+    script "subworkflows/local/check_submission_dependencies/main.nf"
     workflow "CHECK_SUBMISSION_DEPENDENCIES"
     
     tag "subworkflows"
@@ -30,7 +30,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.out.versions},
-                { assert workflow.out.status_files},
+                { assert workflow.out.status},
                 { assert workflow.out.analysis_channels},
                 { assert workflow.out.analysis_channels.meta},
                 { assert workflow.out.analysis_channels.analysis},
@@ -95,7 +95,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.out.versions},
-                { assert workflow.out.status_files},
+                { assert workflow.out.status},
                 { assert workflow.out.analysis_channels},
                 { assert workflow.out.analysis_channels.meta},
                 { assert workflow.out.analysis_channels.analysis},

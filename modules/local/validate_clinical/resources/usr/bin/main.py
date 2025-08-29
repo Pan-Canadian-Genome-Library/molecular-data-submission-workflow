@@ -96,10 +96,10 @@ def check_workflow_analysis(analysis,analysis_types):
       if "workflow" in analysis_types[schema]['fields']:
          analysis_types_w_workflows.append(schema)
 
-   if analysis.get('analysis')["analysisType"].values.tolist()[0] in analysis_types_w_workflows and not analysis.get('workflows'):
+   if (analysis.get('analysis')["analysisType"].values.tolist()[0] in analysis_types_w_workflows) and not ("workflows" in analysis.keys()):
       analysis['status']=False
       analysis['comments'].append("AnalysisType %s expects workflow info" % (analysis.get('analysis')["analysisType"].values.tolist()[0]))
-   elif analysis.get('analysis')["analysisType"].values.tolist()[0] not in analysis_types_w_workflows and analysis.get('workflows'):
+   elif (analysis.get('analysis')["analysisType"].values.tolist()[0] not in analysis_types_w_workflows) and ("workflows" in analysis.keys()):
       analysis['status']=False
       analysis['comments'].append("AnalysisType %s does not require workflow info, but workflow record found" % (analysis.get('analysis')["analysisType"].values.tolist()[0]))      
 
@@ -109,7 +109,13 @@ def check_workflow_datatypes(analysis,analysis_types):
    for ind in analysis.get('files').index.values.tolist():
       if analysis.get('files').loc[ind,'fileType'] not in analysis_types[analysisType]['dataTypes']:
          analysis['status']=False
-         analysis['comments'].append("File %s of fileType %s is not accepted for analysisType %s. Allowed fileTypes are : %s" %  analysis.get('files').loc[ind,'fileName'],analysis.get('files').loc[ind,'fileType'],analysisType,",".join(analysis_types[analysisType]['dataTypes']))
+         analysis['comments'].append("File %s of fileType %s is not accepted for analysisType %s. Allowed fileTypes are : %s" %  (
+            analysis.get('files').loc[ind,'fileName'],
+            analysis.get('files').loc[ind,'fileType'],
+            analysisType,
+            ",".join(analysis_types[analysisType]['dataTypes'])
+            )
+         )
 def check_read_group_exists(analysis,analysisTypes,token,clinical_url,category_id,study_id):
    analysisType=analysis.get('analysis')["analysisType"].values.tolist()[0]
    experiment_id=analysis.get('analysis')["submitter_experiment_id"].values.tolist()[0]
@@ -196,7 +202,7 @@ def main(args):
 
    for metadata,key in zip(
         [args.analysis_metadata,args.file_metadata,args.workflow_metadata,args.sample_metadata,args.specimen_metadata,args.experiment_metadata,args.read_group_metadata],
-        ["analysis","files","workflow","sample","specimen","experiment","read_group"],
+        ["analysis","files","workflows","sample","specimen","experiment","read_group"],
    ):
       if metadata:
          analysis[key]=pd.read_csv(metadata,sep='\t')
@@ -222,7 +228,7 @@ def main(args):
    #check_read_group_exists(analysis,analysis_types,args.token,args.clinical_url,category_id,args.study_id)
    ###If entity pre-registered check values - moved into submit clinical
 
-   if len(analysis['comments'])>1:
+   if len(analysis['comments'])>=1:
       raise ValueError(".\n".join(analysis['comments']))
 
 
