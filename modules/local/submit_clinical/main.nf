@@ -35,7 +35,7 @@ container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity
     if [ "${meta.status ?: 'pass' }" != "pass" ]; then
         echo "Upstream process failed (meta.status: ${meta.status ?: 'pass'}), skipping payload generation"
         GENERATION_EXIT_CODE=1
-        ERROR_DETAILS="Submit clinical generation due to upstream failure"
+        ERROR_DETAILS="Submitting of clinical data skipped due to upstream failure"
 
     else
         echo "Upstream process successful, proceeding with payload generation"
