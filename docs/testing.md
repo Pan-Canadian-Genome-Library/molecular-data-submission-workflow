@@ -30,9 +30,11 @@ The repository includes comprehensive test datasets that you can use to verify t
 
 **What this tests**: 
 - Complete biospecimen entity creation
-- Full metadata validation and submission of biospecimen data
-- Clinical data submission process for all biospecimen data
-- End-to-end submission process including biospecimen submission
+- Full metadata validation and submission for all biospecimen data
+- End-to-end submission process including 
+  - biospecimen submission to clinical system
+  - analysis and file metadata submission to file-manager
+  - genomic files submission through file-transfer to object storage
 
 ```bash
 nextflow run . \
@@ -50,7 +52,7 @@ nextflow run . \
     --token "test_token_here"
 ```
 
-**Expected Terminal Output**: Upon successful completion, you will see a comprehensive summary box:
+**Expected Terminal Output**: Upon successful completion, you will see a comprehensive summary box with mixed SUCCESS/FAILED:
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════════╗
@@ -59,8 +61,8 @@ nextflow run . \
 ║  Study: TEST-CA
 ║  Batch ID: batch_20250829_130026
 ║  Total in this batch:    5
-║  ✅ Successful submissions: 5  
-║  ❌ Failed submissions:     0
+║  ✅ Successful submissions: 2  
+║  ❌ Failed submissions:     3
 ║
 ║  📋 BATCH RECEIPT GENERATED:
 ║  📁 JSON RECEIPT Location: /path/to/work/dir/20250829_130026_batch_receipt.json
@@ -86,9 +88,9 @@ nextflow run . \
 **Purpose**: Test the workflow when we assume all biospecimen entities (samples, specimens, experiments, read groups) have already been submitted to PCGL in advance. This scenario only requires file and analysis metadata for submission.
 
 **What this tests**:
-- Analysis-only submission pathway (biospecimen entities already exist)
+- Analysis entities only submission pathway (biospecimen entities already exist)
 - Minimal metadata validation (no biospecimen data required)
-- Workflow behavior when biospecimen dependencies are satisfied or not
+- Workflow behavior when biospecimen entities dependencies are satisfied or not
 - Error handling for missing optional metadata
 
 ```bash
@@ -102,7 +104,7 @@ nextflow run . \
     --token "test_token_here"
 ```
 
-**Expected Terminal Output**: Upon successful completion, you will see a comprehensive summary box:
+**Expected Terminal Output**: Upon successful completion, you will see a comprehensive summary box with mixed SUCCESS/FAILED:
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════════╗
@@ -111,8 +113,8 @@ nextflow run . \
 ║  Study: TEST-CA
 ║  Batch ID: batch_20250829_130026
 ║  Total in this batch:    5
-║  ✅ Successful submissions: 0
-║  ❌ Failed submissions:     5
+║  ✅ Successful submissions: 2
+║  ❌ Failed submissions:     3
 ║
 ║  📋 BATCH RECEIPT GENERATED:
 ║  📁 JSON RECEIPT Location: /path/to/work/dir/20250829_130026_batch_receipt.json
@@ -132,7 +134,7 @@ nextflow run . \
 
 ### 🧪 **Test Scenario 3: Partial Biospecimen Entities Pre-submitted**
 
-**Purpose**: Test the workflow when some biospecimen entities have been submitted to PCGL in advance, but others have not. This tests the workflow's ability to handle mixed biospecimen entity states.
+**Purpose**: Test the workflow when we assume some biospecimen entities have been submitted to PCGL in advance, but others have not. This tests the workflow's ability to handle mixed biospecimen entity states.
 
 **What this tests**:
 - Mixed biospecimen entity submission scenarios
@@ -156,7 +158,7 @@ nextflow run . \
     # workflow_metadata, read_group_metadata, specimen_metadata omitted
 ```
 
-**Expected Terminal Output**: Upon successful completion, you will see a comprehensive summary box:
+**Expected Terminal Output**: Upon successful completion, you will see a comprehensive summary box with mixed SUCCESS/FAILED:
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════════╗
@@ -184,6 +186,33 @@ nextflow run . \
 - Some analyses succeeded with the provided partial metadata
 - Others failed due to missing required metadata for their specific analysis type
 - The exact success/failure split depends on your analysis types and metadata requirements
+
+## 📋 **Common Failure Issues**
+
+When running the workflow, you may encounter these common issues across any test scenario:
+
+### **Authentication and Network Issues**
+- **Invalid authentication token**: Expired or incorrect authentication credentials
+- **Network connectivity issues**: Problems connecting to PCGL submission services  
+- **Service availability**: PCGL services temporarily unavailable
+
+### **Biospecimen Entity Issues**
+- **Biospecimen validation errors**: Issues with biospecimen metadata format or content
+- **Entity dependency conflicts**: The provided biospecimen metadata conflict with existing entities
+- **Missing metadata for required entities**: Some biospecimen entities expected but metadata not provided
+- **Biospecimen entity not found**: Expected pre-submitted biospecimen entities don't exist in PCGL
+
+### **Analysis and File Issues**  
+- **Missing workflow metadata**: Required workflow metadata not provided for certain analysis types
+- **Analysis type validation errors**: Analysis metadata doesn't meet requirements for the specified type
+- **File metadata validation failures**: Issues with file metadata format or content
+- **File transfer errors**: Issues uploading genomic files to object storage
+
+### **System Issues**
+- **Resource constraints**: Insufficient system resources during processing
+- **Timeout errors**: Operations exceeding configured time limits
+
+**👉 For detailed troubleshooting steps and solutions, see [Troubleshooting Guide](troubleshoot.md)**
 
 ## 📋 **Understanding Test Results Output**
 
@@ -233,15 +262,7 @@ Your output directory will contain various subdirectories with intermediate file
 **👉 See [Output Documentation](output.md) for comprehensive details about all output files and directories**
 
 
-## 🔍 **Common Test Scenarios and Expected Outcomes**
-
-| Test Scenario | Expected Outcome | Common Issues |
-|---------------|------------------|---------------|
-| **No Pre-submitted Biospecimen** | Mixed SUCCESS/FAILED | Network issues, biospecimen validation errors, invalid token issues|
-| **All Pre-submitted Biospecimen** | Mixed SUCCESS/FAILED | Missing workflow_metadata, invalid token issues |
-| **Partial Pre-submitted Biospecimen** | Mixed SUCCESS/FAILED | Entity dependency conflicts, missing metadata issues, invalid token issues |
-
-## 💡 **Testing Best Practices**
+##  **Testing Best Practices**
 
 1. **Start with Scenario 1 (No Pre-submitted Biospecimen)**: Verify full workflow functionality including biospecimen entity creation
 2. **Progress to Scenario 2 (All Pre-submitted)**: Test file and analysis only submission pathway
