@@ -26,7 +26,7 @@ The repository includes comprehensive test datasets that you can use to verify t
 
 
 ### 🧪 **Test Scenario 1: No Pre-submitted Biospecimen Entities**
-**Purpose**: Test the workflow when no biospecimen entities (samples, specimens, experiments, read groups) have been submitted to PCGL in advance. This scenario requires the workflow to create and submit all biospecimen entities during submission.
+**Purpose**: Test the workflow when we assume no biospecimen entities (samples, specimens, experiments, read groups) have been submitted to PCGL in advance. This scenario requires the workflow to create and submit all biospecimen entities during submission.
 
 **What this tests**: 
 - Complete biospecimen entity creation
@@ -83,7 +83,7 @@ nextflow run . \
 
 ### 🧪 **Test Scenario 2: All Biospecimen Entities Pre-submitted**
 
-**Purpose**: Test the workflow when all biospecimen entities (samples, specimens, experiments, read groups) have already been submitted to PCGL in advance. This scenario only requires file and analysis metadata for submission.
+**Purpose**: Test the workflow when we assume all biospecimen entities (samples, specimens, experiments, read groups) have already been submitted to PCGL in advance. This scenario only requires file and analysis metadata for submission.
 
 **What this tests**:
 - Analysis-only submission pathway (biospecimen entities already exist)
@@ -185,7 +185,7 @@ nextflow run . \
 - Others failed due to missing required metadata for their specific analysis type
 - The exact success/failure split depends on your analysis types and metadata requirements
 
-## 📋 **Understanding Test Results**
+## 📋 **Understanding Test Results Output**
 
 ### **Finding Your Batch Receipt**
 
@@ -204,12 +204,12 @@ Simply copy these paths to access your receipt files directly.
 Receipts are also copied to your specified output directory:
 ```
 <outdir>/
-├── batch_receipt/
+├── receipt_aggregate/
 │   ├── YYYYMMDD_HHMMSS_batch_receipt.json    # Detailed JSON format
 │   ├── YYYYMMDD_HHMMSS_batch_receipt.tsv     # Tabular format
 ```
 
-### **📚 Understanding Your Receipt**
+### **Understanding Your Receipt**
 
 For comprehensive information about interpreting your batch receipt, including:
 - Detailed field descriptions
@@ -219,11 +219,25 @@ For comprehensive information about interpreting your batch receipt, including:
 
 **👉 See [Receipt Documentation](receipt.md) for complete details**
 
+### **Examining the Specified Output Directory**
+
+Beyond the batch receipt files, your specified output directory (`--outdir`) contains additional important information about the workflow execution:
+
+**Complete Output Structure**:
+Your output directory will contain various subdirectories with intermediate files, logs, and results from each workflow process. This includes:
+- Process-specific input/output files
+- Intermediate data files
+- Process execution logs
+- Pipeline execution reports
+
+**👉 See [Output Documentation](output.md) for comprehensive details about all output files and directories**
+
+
 ## 🔍 **Common Test Scenarios and Expected Outcomes**
 
 | Test Scenario | Expected Outcome | Common Issues |
 |---------------|------------------|---------------|
-| **No Pre-submitted Biospecimen** | All processes SUCCESS | Network issues, biospecimen validation errors, invalid token issues|
+| **No Pre-submitted Biospecimen** | Mixed SUCCESS/FAILED | Network issues, biospecimen validation errors, invalid token issues|
 | **All Pre-submitted Biospecimen** | Mixed SUCCESS/FAILED | Missing workflow_metadata, invalid token issues |
 | **Partial Pre-submitted Biospecimen** | Mixed SUCCESS/FAILED | Entity dependency conflicts, missing metadata issues, invalid token issues |
 
@@ -239,9 +253,8 @@ For comprehensive information about interpreting your batch receipt, including:
 
 ## ⚠️ **Important Notes**
 
-- **Test Environment**: These examples use the `cumulus_dev` profile for development testing
+- **Test Environment**: These examples use the `cumulus_dev` profile for development testing in OICR. Please use `sd4h_dev` for any testing in SD4H.  
 - **Authentication**: Replace `"test_token_here"` with your actual authentication token
-- **Biospecimen Entity State**: Test scenarios simulate different pre-submission states of biospecimen entities
-- **Network Requirements**: Ensure access to PCGL development services for entity validation
+- **Network Requirements**: Ensure access to PCGL submission services
 - **Data Validation**: Test data is pre-validated; your actual data may require format adjustments
 - **Entity Registration**: Study and Participant entities are already registered for test scenarios
