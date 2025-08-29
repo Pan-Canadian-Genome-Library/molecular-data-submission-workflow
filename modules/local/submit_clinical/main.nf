@@ -46,6 +46,7 @@ container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity
         ${specimen_file} \
         ${experiment_file} \
         ${read_group_file} \
+        --analysis_metadata ${analysis.analysis} \
         --clinical_url ${params.clinical_url} \
         --relational_mapping ${relational_mapping} \
         --token ${params.token} \

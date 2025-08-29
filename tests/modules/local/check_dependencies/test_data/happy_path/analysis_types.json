@@ -1,1 +1,194 @@
-{"sequencingRead": {"fields": {"studyId": ["studyId"], "analysisType": ["name"], "files": ["dataType", "fileName", "fileSize", "fileType", "fileAccess", "fileMd5sum"], "experiment": ["libraryStrategy"]}, "dataTypes": []}, "sequenceExperiment": {"fields": {"studyId": ["studyId"], "analysisType": ["name"], "files": ["dataType", "fileName", "fileSize", "fileType", "fileAccess", "fileMd5sum"], "submitter_experiment_id": ["submitter_experiment_id"], "submitter_analysis_id": ["submitter_analysis_id"], "data_category": ["data_category"]}, "dataTypes": ["BAM", "FASTQ"], "externalValidations": [{"jsonPath": "submitter_experiment_id", "url": "https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/category/1/entity/experiment/exists?organization={studyId}&value={value}"}]}, "sequenceAlignment": {"fields": {"studyId": ["studyId"], "analysisType": ["name"], "files": ["dataType", "fileName", "fileSize", "fileType", "fileAccess", "fileMd5sum"], "submitter_experiment_id": ["submitter_experiment_id"], "workflow": ["submitter_workflow_id", "workflow_name"], "genome_build": ["genome_build"], "submitter_analysis_id": ["submitter_analysis_id"], "data_category": ["data_category"]}, "dataTypes": ["BAM", "CRAM", "BAI", "CRAI"], "externalValidations": [{"jsonPath": "submitter_experiment_id", "url": "https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/category/1/entity/experiment/exists?organization={studyId}&value={value}"}]}, "MyNewSchemaVersion": {"fields": {"studyId": ["studyId"], "analysisType": ["name"], "files": ["dataType", "fileName", "fileSize", "fileType", "fileAccess", "fileMd5sum"], "workflow": ["workflowName", "workflowShortName", "workflowVersion", "inputs", "runId", "sessionId"], "experiment": ["platform", "experimentalStrategy", "sequencingCenter", "sequencingDate"]}, "dataTypes": ["VCF", "TBI"], "externalValidations": []}, "variantCall": {"fields": {"studyId": ["studyId"], "analysisType": ["name"], "files": ["dataType", "fileName", "fileSize", "fileType", "fileAccess", "fileMd5sum"], "submitter_experiment_id": ["submitter_experiment_id"], "variant_calling_strategy": ["variant_calling_strategy"], "variant_class": ["variant_class"], "workflow": ["submitter_workflow_id", "workflow_name"], "genome_build": ["genome_build"], "submitter_analysis_id": ["submitter_analysis_id"], "data_category": ["data_category"]}, "dataTypes": ["VCF", "TBI"], "externalValidations": [{"jsonPath": "submitter_experiment_id", "url": "https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/category/1/entity/experiment/exists?organization={studyId}&value={value}"}]}}
+{
+  "sequencingRead": {
+    "fields": {
+      "studyId": [
+        "studyId"
+      ],
+      "analysisType": [
+        "name"
+      ],
+      "files": [
+        "dataType",
+        "fileName",
+        "fileSize",
+        "fileType",
+        "fileAccess",
+        "fileMd5sum"
+      ],
+      "experiment": [
+        "libraryStrategy"
+      ]
+    },
+    "dataTypes": []
+  },
+  "sequenceExperiment": {
+    "fields": {
+      "studyId": [
+        "studyId"
+      ],
+      "analysisType": [
+        "name"
+      ],
+      "files": [
+        "dataType",
+        "fileName",
+        "fileSize",
+        "fileType",
+        "fileAccess",
+        "fileMd5sum"
+      ],
+      "submitter_experiment_id": [
+        "submitter_experiment_id"
+      ],
+      "submitter_analysis_id": [
+        "submitter_analysis_id"
+      ],
+      "data_category": [
+        "data_category"
+      ]
+    },
+    "dataTypes": [
+      "BAM",
+      "FASTQ"
+    ],
+    "externalValidations": [
+      {
+        "jsonPath": "submitter_experiment_id",
+        "url": "https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/category/1/entity/experiment/exists?organization={studyId}&value={value}"
+      }
+    ]
+  },
+  "sequenceAlignment": {
+    "fields": {
+      "studyId": [
+        "studyId"
+      ],
+      "analysisType": [
+        "name"
+      ],
+      "files": [
+        "dataType",
+        "fileName",
+        "fileSize",
+        "fileType",
+        "fileAccess",
+        "fileMd5sum"
+      ],
+      "submitter_experiment_id": [
+        "submitter_experiment_id"
+      ],
+      "workflow": [
+        "submitter_workflow_id",
+        "workflow_name"
+      ],
+      "genome_build": [
+        "genome_build"
+      ],
+      "submitter_analysis_id": [
+        "submitter_analysis_id"
+      ],
+      "data_category": [
+        "data_category"
+      ]
+    },
+    "dataTypes": [
+      "BAM",
+      "CRAM",
+      "BAI",
+      "CRAI"
+    ],
+    "externalValidations": [
+      {
+        "jsonPath": "submitter_experiment_id",
+        "url": "https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/category/1/entity/experiment/exists?organization={studyId}&value={value}"
+      }
+    ]
+  },
+  "MyNewSchemaVersion": {
+    "fields": {
+      "studyId": [
+        "studyId"
+      ],
+      "analysisType": [
+        "name"
+      ],
+      "files": [
+        "dataType",
+        "fileName",
+        "fileSize",
+        "fileType",
+        "fileAccess",
+        "fileMd5sum"
+      ],
+      "workflow": [
+        "workflowName",
+        "workflowShortName",
+        "workflowVersion",
+        "inputs",
+        "runId",
+        "sessionId"
+      ],
+      "experiment": [
+        "platform",
+        "experimentalStrategy",
+        "sequencingCenter",
+        "sequencingDate"
+      ]
+    },
+    "dataTypes": [
+      "VCF",
+      "TBI"
+    ],
+    "externalValidations": []
+  },
+  "variantCall": {
+    "fields": {
+      "studyId": [
+        "studyId"
+      ],
+      "analysisType": [
+        "name"
+      ],
+      "files": [
+        "dataType",
+        "fileName",
+        "fileSize",
+        "fileType",
+        "fileAccess",
+        "fileMd5sum"
+      ],
+      "submitter_experiment_id": [
+        "submitter_experiment_id"
+      ],
+      "variant_calling_strategy": [
+        "variant_calling_strategy"
+      ],
+      "variant_class": [
+        "variant_class"
+      ],
+      "workflow": [
+        "submitter_workflow_id",
+        "workflow_name"
+      ],
+      "genome_build": [
+        "genome_build"
+      ],
+      "submitter_analysis_id": [
+        "submitter_analysis_id"
+      ],
+      "data_category": [
+        "data_category"
+      ]
+    },
+    "dataTypes": [
+      "VCF",
+      "TBI"
+    ],
+    "externalValidations": [
+      {
+        "jsonPath": "submitter_experiment_id",
+        "url": "https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/category/1/entity/experiment/exists?organization={studyId}&value={value}"
+      }
+    ]
+  }
+}

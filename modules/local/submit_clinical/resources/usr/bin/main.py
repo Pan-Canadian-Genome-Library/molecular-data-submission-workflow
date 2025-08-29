@@ -170,11 +170,9 @@ def query_clinical_validator(url,token):
             return(True)
         else:
             return(False)
-def query_registered_data(token,clinical_url,category_id,entity,study_id,primary_key,ind,analysis):
-    print("Verifying if submitted %s data record %s is consistent" % (entity,analysis[entity].loc[ind,primary_key]))
-    status=[]
-    comments=[]
 
+
+def query_registered_data(token,clinical_url,category_id,entity,study_id,primary_key,val):
     headers={
             "Authorization" : "Bearer %s" % token
     }
@@ -186,12 +184,13 @@ def query_registered_data(token,clinical_url,category_id,entity,study_id,primary
                             "op": "in",
                             "content": {
                                     "fieldName": primary_key,
-                                    "value": [analysis[entity].loc[ind,primary_key]]
+                                    "value": [val]
                                     }
                             }
                     ]
             }
-
+    print(url)
+    print(payload)
     try:
             response=requests.post(url,json=payload,headers=headers)
     except:
@@ -200,6 +199,15 @@ def query_registered_data(token,clinical_url,category_id,entity,study_id,primary
     if response.status_code!=200 and response.status_code!=404:
             raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
             exit(1)
+
+    return(response)  
+
+def verify_registered_data(token,clinical_url,category_id,entity,study_id,primary_key,ind,analysis):
+    print("Verifying if submitted %s data record %s is consistent" % (entity,analysis[entity].loc[ind,primary_key]))
+    status=[]
+    comments=[]
+
+    response=query_registered_data(token,clinical_url,category_id,entity,study_id,primary_key,analysis[entity].loc[ind,primary_key])
 
     for col in analysis[entity].columns.values.tolist():
         if response.json()['records'][0]['data'].get(col):
@@ -229,7 +237,7 @@ def check_registered_entities(analysis,clinical_url,category_id,study_id,relatio
                 url="%s/validator/category/%s/entity/%s/exists?organization=%s&value=%s" % (clinical_url,category_id,entity,study_id,analysis[entity].loc[ind,primary_key])
 
                 if query_clinical_validator(url,token):
-                    comments,redundant=query_registered_data(token,clinical_url,category_id,entity,study_id,primary_key,ind,analysis)
+                    comments,redundant=verify_registered_data(token,clinical_url,category_id,entity,study_id,primary_key,ind,analysis)
 
                     ###Regardless of record matching to committed data, we will not submit
                     usable[entity]=False
@@ -247,13 +255,16 @@ def rename_input(output_directory,sample_metadata,specimen_metadata,experiment_m
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory)
 
+    if not os.path.isdir("%s/submit" % (output_directory)):
+        os.makedirs("%s/submit" % (output_directory))
+
     for metadata,entity in zip([sample_metadata,specimen_metadata,experiment_metadata,read_group_metadata],["sample","specimen","experiment","read_group"]):
         ###We only submit entities that present and not redundant (i.e. submitted before)
         if metadata and usability[entity]:
             tmp=pd.read_csv(metadata,sep='\t')
             rename=os.path.basename(entity).lower().capitalize()
             print("Renaming %s to %s" % (metadata,rename))
-            tmp.to_csv("%s/%s.tsv" % (output_directory,rename),sep='\t',index=False)
+            tmp.to_csv("%s/submit/%s.tsv" % (output_directory,rename),sep='\t',index=False)
     return(True)
 
 def submit_clinical(clinical_url,category_id,study_id,output_directory,token):
@@ -406,7 +417,58 @@ def committed_status(clinical_url,submission_id,token):
         exit(1)
     return(True)
 
+def return_submitted_data(
+    category_id,
+    clinical_url,
+    token,
+    analysis,
+    output_directory
+):
+    print("Check if submitted clinical data is needed for downstream molecular validation")
+
+    data=pd.read_csv(analysis,sep='\t')
+    output={}
+
+    for ind in data.index.values.tolist():
+        if data.loc[ind,"analysisType"]=='sequenceExperiment':
+            print("sequenceExperiment confirmed. Clinical data is needed for downstream molecular validation")
+            ###Currently does not account for pagination
+            for primary_key,entity in zip(["submitter_experiment_id"],['read_group']):
+                response=query_registered_data(
+                    token,
+                    clinical_url,
+                    category_id,
+                    entity,
+                    data.loc[ind,"studyId"],
+                    primary_key,
+                    data.loc[ind,primary_key]
+                    )
+                
+                print(response.text)
+                if response.status_code!=404:
+                    output[entity]=pd.DataFrame()
+
+                for record in response.json()['records']:
+                    ind=len(output[entity])
+                    for key in record['data'].keys():
+                        output[entity].loc[ind,key]=record['data'][key]
+
+    if len(output.keys())>0:
+    
+        if not os.path.isdir(output_directory):
+            os.makedirs(output_directory)
+
+        if not os.path.isdir("%s/retrieved" % (output_directory)):
+            os.makedirs("%s/retrieved" % (output_directory))
+
+        for entity in output.keys():
+            print("Outputing %s as %s" % (entity,"%s/retrieved/%s.tsv" % (output_directory,entity)))
+            output[entity].to_csv("%s/retrieved/%s.tsv" % (output_directory,entity),sep='\t',index=False)
+    else:
+        print("Nothing to retrieve")
+
 def main(args):
+    if args.analysis_metadata: print("input:",args.analysis_metadata)
     if args.sample_metadata: print("input:",args.sample_metadata)
     if args.specimen_metadata: print("input:",args.specimen_metadata)
     if args.experiment_metadata: print("input:",args.experiment_metadata)
@@ -455,7 +517,7 @@ def main(args):
     if len(analysis['comments'])>0:
         raise ValueError(".\n".join(analysis['comments']))
 
-    if len([file for file in glob.iglob(args.output_directory+"/*.tsv")])>0:
+    if len([file for file in glob.iglob(args.output_directory+"/submit/*.tsv")])>0:
         submission_id=submit_clinical(
             args.clinical_url,
             category_id,
@@ -487,10 +549,19 @@ def main(args):
     else:
         print("No data to submit")
 
+    return_submitted_data(
+        category_id,
+        args.clinical_url,
+        args.token,
+        args.analysis_metadata,
+        args.output_directory
+    )
+
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Tool: Check Clinical dependencies')
+    parser.add_argument("-an", "--analysis_metadata", dest="analysis_metadata", required=True, help="analysis metadata tsv")
     parser.add_argument("-sa", "--sample_metadata", default=False, dest="sample_metadata", required=False, help="sample metadata tsv")
     parser.add_argument("-sp", "--specimen_metadata", default=False, dest="specimen_metadata", required=False, help="specimen metadata tsv")
     parser.add_argument("-ex", "--experiment_metadata", default=False, dest="experiment_metadata", required=False, help="experiment metadata tsv")

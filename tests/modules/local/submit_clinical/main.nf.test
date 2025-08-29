@@ -17,7 +17,7 @@ nextflow_process {
                 // Test input with molecular metadata files (all TSV format)
                 input[0] = Channel.of([
                     [study:"EXAMPLE-CA9",status:"pass",id:"NEW_ANALYSIS_02",type:[]],
-                    [analysis:[],files:[],process:[]],
+                    [analysis:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/analysis.tsv'),files:[],process:[]],
                     [specimen:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/specimen.tsv'),sample:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/sample.tsv'),experiment:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/experiment.tsv'),read_group:file('${projectDir}/tests/modules/local/submit_clinical/happy_path/read_group.tsv')],
                     [[],[],[]],
                     file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/dummy_status.yml'),

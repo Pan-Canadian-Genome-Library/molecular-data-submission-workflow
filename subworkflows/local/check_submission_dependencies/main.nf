@@ -209,10 +209,16 @@ Please fix the above issues and re-run the workflow.
             def updated_meta = meta.clone()
 
             updated_meta.status = (status_value == 'pass' && meta.status == 'pass') ? 'pass' : 'failed'
+            def updated_clinical = [
+                specimen : file("${file(status_file).parent}/*/retrieved/specimen.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/specimen.tsv")[0],
+                sample : file("${file(status_file).parent}/*/retrieved/sample.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/sample.tsv")[0],
+                experiment : file("${file(status_file).parent}/*/retrieved/experiment.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/experiment.tsv")[0],
+                read_group : file("${file(status_file).parent}/*/retrieved/read_group.tsv").size()==0 ? null : file("${file(status_file).parent}/*/retrieved/read_group.tsv")[0]
+            ]
             [
                 meta : updated_meta,
                 analysis : analysis,
-                clinical : clinical,
+                clinical :  updated_clinical,
                 files : files,
                 status_file : status_file
             ]
