@@ -1,6 +1,6 @@
 # Testing Guide
 
-## Prerequisites
+## 📋 **Prerequisites**
 
 Before testing the workflow, ensure you have the proper environment set up and can download the repository with its test data available locally.
 
@@ -32,13 +32,13 @@ ls tests/test_data/
 - **Data Model**: Please check the latest version of the [PCGL Base Data Model](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB) to make sure your data conforms to the metadata requirements and dependencies.
 
 
-## Running Tests
+## 🧪 **Running Tests**
 
 The repository includes comprehensive test datasets that you can use to verify the workflow functionality. Please be noted that the Submission Dependencies such as Study and Participant have already been registered beforehand. 
 [TODO: add links to Study and Participant registration section when the full submission docs is available.]
 
 
-### 🧪 **Test Scenario 1: No Pre-submitted Biospecimen Entities**
+### **Test Scenario 1: No Pre-submitted Biospecimen Entities**
 **Purpose**: Test the workflow when we assume no biospecimen entities (samples, specimens, experiments, read groups) have been submitted to PCGL in advance. This scenario requires the workflow to create and submit all biospecimen entities during submission.
 
 **What this tests**: 
@@ -62,7 +62,7 @@ nextflow run . \
     --token "test_token_here"
 ```
 
-### 🧪 **Test Scenario 2: All Biospecimen Entities Pre-submitted**
+### **Test Scenario 2: All Biospecimen Entities Pre-submitted**
 
 **Purpose**: Test the workflow when we assume all biospecimen entities (samples, specimens, experiments, read groups) have already been submitted to PCGL in advance. This scenario only requires file and analysis metadata for submission.
 
@@ -83,7 +83,7 @@ nextflow run . \
     --token "test_token_here"
 ```
 
-### 🧪 **Test Scenario 3: Partial Biospecimen Entities Pre-submitted**
+### **Test Scenario 3: Partial Biospecimen Entities Pre-submitted**
 
 **Purpose**: Test the workflow when we assume some biospecimen entities have been submitted to PCGL in advance, but others have not. This tests the workflow's ability to handle mixed biospecimen entity states.
 
@@ -141,6 +141,15 @@ If the workflow detects that minimum requirements for data submission are not me
 Please fix the above issues and re-run the workflow.
 ```
 
+**What this output means**:
+- **🚨 WORKFLOW STOPPED**: The workflow has terminated early before processing any analyses
+- **Study**: Shows which study the workflow was attempting to process
+- **Issues found**: Detailed list of specific problems that prevented the workflow from starting
+- **Common solutions**: Quick reference guide for resolving typical configuration issues
+- **Status file location**: Path to detailed error information for further investigation
+
+❌ **When you see this output**: The workflow has detected critical issues that prevent data submission from proceeding. No analyses will be processed until these fundamental requirements are resolved. Fix the listed issues and re-run the workflow.
+
 ### **Case 2: Workflow Completes Successfully**
 
 Upon successful completion of any test scenario, you will see a comprehensive summary box with mixed SUCCESS/FAILED results:
@@ -175,36 +184,10 @@ Upon successful completion of any test scenario, you will see a comprehensive su
 - **Summary information**: What you'll find in the receipt files
 
 **What the mixed results indicate**:
-- Some analyses succeeded with the provided metadata
-- Others failed due to missing required metadata for their specific analysis type
-- The exact success/failure split depends on your analysis types, metadata requirements, and biospecimen entity pre-submission state
-
-## 📋 **Common Failure Issues**
-
-When running the workflow, you may encounter these common issues across any test scenario:
-
-### **Authentication and Network Issues**
-- **Invalid authentication token**: Expired or incorrect authentication credentials
-- **Network connectivity issues**: Problems connecting to PCGL submission services  
-- **Service availability**: PCGL services temporarily unavailable
-
-### **Biospecimen Entity Issues**
-- **Biospecimen validation errors**: Issues with biospecimen metadata format or content
-- **Entity dependency conflicts**: The provided biospecimen metadata conflict with existing entities
-- **Missing metadata for required entities**: Some biospecimen entities expected but metadata not provided
-- **Biospecimen entity not found**: Expected pre-submitted biospecimen entities don't exist in PCGL
-
-### **Analysis and File Issues**  
-- **Missing workflow metadata**: Required workflow metadata not provided for certain analysis types
-- **Analysis type validation errors**: Analysis metadata doesn't meet requirements for the specified type
-- **File metadata validation failures**: Issues with file metadata format or content
-- **File transfer errors**: Issues uploading genomic files to object storage
-
-### **System Issues**
-- **Resource constraints**: Insufficient system resources during processing
-- **Timeout errors**: Operations exceeding configured time limits
-
-**👉 For detailed troubleshooting steps and solutions, see [Troubleshooting Guide](troubleshoot.md)**
+- **Successful analyses**: These analyses had all required metadata and passed validation successfully
+- **Failed analyses**: These encountered issues during processing and require attention before resubmission
+- **Next steps**: Review the batch receipt to identify specific failure reasons and correct the issues before re-running the workflow
+- **Result variability**: The success/failure distribution depends on your analysis types, metadata completeness, and biospecimen entity pre-submission state
 
 ## 📋 **Understanding Test Results**
 
@@ -253,8 +236,36 @@ Your output directory will contain various subdirectories with intermediate file
 
 **👉 See [Output Documentation](output.md) for comprehensive details about all output files and directories**
 
+## 📋 **Common Failure Issues**
 
-##  **Testing Best Practices**
+When running the workflow, you may encounter these common issues across any test scenario:
+
+### **Authentication and Network Issues**
+- **Invalid authentication token**: Expired or incorrect authentication credentials
+- **Network connectivity issues**: Problems connecting to PCGL submission services  
+- **Service availability**: PCGL services temporarily unavailable
+
+### **Biospecimen Entity Issues**
+- **Biospecimen validation errors**: Issues with biospecimen metadata format or content
+- **Entity dependency conflicts**: The provided biospecimen metadata conflict with existing entities
+- **Missing metadata for required entities**: Some biospecimen entities expected but metadata not provided
+- **Biospecimen entity not found**: Expected pre-submitted biospecimen entities don't exist in PCGL
+
+### **Analysis and File Issues**  
+- **Missing workflow metadata**: Required workflow metadata not provided for certain analysis types
+- **Analysis type validation errors**: Analysis metadata doesn't meet requirements for the specified type
+- **File metadata validation failures**: Issues with file metadata format or content
+- **File transfer errors**: Issues uploading genomic files to object storage
+
+### **System Issues**
+- **Resource constraints**: Insufficient system resources during processing
+- **Timeout errors**: Operations exceeding configured time limits
+
+**👉 For detailed troubleshooting steps and solutions, see [Troubleshooting Guide](troubleshoot.md)**
+
+
+
+## 💡 **Testing Best Practices**
 
 1. **Start with Scenario 1 (No Pre-submitted Biospecimen)**: Verify full workflow functionality including biospecimen entity creation
 2. **Progress to Scenario 2 (All Pre-submitted)**: Test file and analysis only submission pathway
