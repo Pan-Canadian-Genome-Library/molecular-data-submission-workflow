@@ -234,11 +234,12 @@ Upon successful completion of any test scenario, you will see a comprehensive su
 - **Receipt locations**: Direct paths to detailed batch receipt files
 - **Summary information**: What you'll find in the receipt files
 
-**What the mixed results indicate**:
-- **Successful analyses**: These analyses had all required metadata and passed validation successfully
-- **Failed analyses**: These encountered issues during processing and require attention before resubmission
-- **Next steps**: Review the batch receipt to identify specific failure reasons and correct the issues before re-running the workflow
-- **Result variability**: The success/failure distribution depends on your analysis types, metadata completeness, and biospecimen entity pre-submission state
+**What the results indicate**:
+- **Successful analyses**: These analyses had all required metadata and passed validation successfully.
+- **Failed analyses**: These encountered issues during processing and require attention before resubmission.
+- **Result variability**: The success/failure depends on your analysis types, metadata completeness, and biospecimen entity pre-submission state.
+- **Next steps**: Review the batch receipt to identify specific failure reasons and correct the issues before re-running the workflow.
+
 
 ## 📋 **Understanding Test Results**
 
@@ -292,21 +293,23 @@ Your output directory will contain various subdirectories with intermediate file
 When running the workflow, you may encounter these common issues across any test scenario:
 
 ### **Authentication and Network Issues**
-- **Invalid authentication token**: Expired or incorrect authentication credentials
+- **Invalid authentication token**: Expired or incorrect authentication credentials will result in authentication failures (typically HTTP `403` Forbidden errors).
 - **Network connectivity issues**: Problems connecting to PCGL submission services  
 - **Service availability**: PCGL services temporarily unavailable
 
-### **Biospecimen Entity Issues**
-- **Biospecimen validation errors**: Issues with biospecimen metadata format or content
-- **Entity dependency conflicts**: The provided biospecimen metadata conflict with existing entities
-- **Missing metadata for required entities**: Some biospecimen entities expected but metadata not provided
-- **Biospecimen entity not found**: Expected pre-submitted biospecimen entities don't exist in PCGL
+### **Submission Dependencies Issues**
+- **Unregistered study**: Study ID not found in PCGL system - contact PCGL Administrator to register your study before submission
+- **Unregistered participants**: One or more participant IDs in your submission batch are not registered in the PCGL clinical system
+- **Biospecimen metadata validation errors**: Biospecimen metadata files contain format errors, missing required fields, or invalid data values
+- **Biospecimen entity dependency conflicts**: Provided biospecimen metadata conflicts with existing entities already registered in PCGL
+- **Missing biospecimen metadata**: Required biospecimen entities (samples, specimens, experiments, read groups) are expected but metadata files not provided
+- **Missing biospecimen entities**: Expected pre-submitted biospecimen entities do not exist in PCGL clinical system - verify entity IDs and registration status
 
 ### **Analysis and File Issues**  
-- **Missing workflow metadata**: Required workflow metadata not provided for certain analysis types
-- **Analysis type validation errors**: Analysis metadata doesn't meet requirements for the specified type
-- **File metadata validation failures**: Issues with file metadata format or content
-- **File transfer errors**: Issues uploading genomic files to object storage
+- **Missing workflow metadata**: Required `workflow_metadata.tsv` file not provided for analysis types that mandate workflow provenance information (e.g., variant calling pipelines, assembly workflows)
+- **Analysis type validation errors**: Analysis metadata values fail schema validation for the specified analysis type - check required fields, controlled vocabulary terms, and data type constraints in `analysis_metadata.tsv`
+- **File validation failures**: Genomic file metadata contains formatting errors, missing mandatory fields, or invalid values; alternatively, genomic files referenced in `file_metadata.tsv` are missing from the specified directory path or fail checksum verification
+- **File transfer errors**: Genomic file upload to PCGL object storage fails due to network issues, authentication problems, or object storage service unavailability
 
 ### **System Issues**
 - **Resource constraints**: Insufficient system resources during processing
@@ -317,13 +320,15 @@ When running the workflow, you may encounter these common issues across any test
 
 
 ## 💡 **Testing Best Practices**
+- **Understand Submission Dependencies**: Review entity hierarchy (Study → Participant → Sample → Specimen → Experiment → Read Group) and analysis requirements before test execution
+- **Start with Scenario 1 (No Pre-submitted Biospecimen)**: Execute complete end-to-end workflow testing including biospecimen entity creation, validation, and submission to verify full pipeline functionality
+- **Progress to Scenario 2 (All Pre-submitted)**: Test analysis-only submission pathway when biospecimen dependencies are satisfied - validates workflow behavior with existing entity references
+- **Test Scenario 3 (Partial Pre-submitted)**: Validate hybrid submission mode handling mixed biospecimen entity states and selective metadata processing
+- **Nextflow Process Status Interpretation**: Nextflow processes show completion status due to error handling mechanisms. Therefore failed processes still appear "completed" but with error exit codes captured in batch receipt
+- **Review Batch Receipts**: Examine JSON or TSV receipt files after each test execution to analyze submission status and failure diagnostics. Failed processes trigger automatic skipping of dependent downstream processes. Please analyze the process entries which were captured in chronological execution order in the JSON receipt to identify the root cause of the failed submission.
+- **Use Different Output Directories**: Maintain separate `--outdir` paths for each test scenario to prevent result contamination and enable parallel testing
+- **Check Work Directories**: Utilize work directory paths documented in batch receipts for process-level debugging and intermediate file inspection
 
-1. **Start with Scenario 1 (No Pre-submitted Biospecimen)**: Verify full workflow functionality including biospecimen entity creation
-2. **Progress to Scenario 2 (All Pre-submitted)**: Test file and analysis only submission pathway
-3. **Test Scenario 3 (Partial Pre-submitted)**: Validate mixed entity state handling
-4. **Review Batch Receipts**: Always check the receipt files after each test run to understand biospecimen entity processing
-5. **Use Different Output Directories**: Keep test results organized by different scenario
-6. **Check Work Directories**: Use work directory paths in receipts for detailed debugging information
-7. **Understand Entity Dependencies**: Review which biospecimen entities your analyses require before testing
+
 
 
