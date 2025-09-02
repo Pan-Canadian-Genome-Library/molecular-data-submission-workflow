@@ -27,9 +27,9 @@ ls tests/test_data/
 - **Test Environment**: These examples use the `cumulus_dev` profile for development testing in **OICR**. Please use `sd4h_dev` for any testing in **SD4H**.  
 - **Authentication**: Replace `"test_token_here"` with your actual authentication token.
 - **Network Requirements**: Ensure access to PCGL submission services in your testing environment.
-- **Data Validation**: The provided test data is pre-validated; your actual data may require format adjustments.
+- **Data Model**: Please check the latest version of the [PCGL Base Data Model](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB) to ensure your data conforms to the metadata requirements and dependencies.
 - **Entity Registration**: Please make sure that `Study` and `Participant` entities are already registered for all test scenarios.
-- **Data Model**: Please check the latest version of the [PCGL Base Data Model](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB) to make sure your data conforms to the metadata requirements and dependencies.
+- **Test Dataset**: The [provided test data](../tests/test_data/) is pre-formatted and compliant with the latest PCGL Base Data Model. When using your own data, refer to the [Input Documentation](input.md) for formatting requirements and data preparation guidelines.
 
 
 ## 🧪 **Running Tests**
@@ -108,6 +108,57 @@ nextflow run . \
 ```
 
 ## 📊 **Expected Terminal Output**
+
+When you run any test scenario, the workflow will display input parameters, execute pipeline processes in real-time, and conclude with either a successful completion summary or an early termination message if critical issues are detected.
+
+### **Input Parameters Display**
+
+At the start of workflow execution, you'll see a summary of all input parameters, for example:
+
+```
+🔧 Input parameters:
+   - study_id: TEST-CA
+   - analysis_metadata: tests/test_data/analysis_meta/analysis_metadata.tsv
+   - file_metadata: tests/test_data/analysis_meta/file_metadata.tsv
+   - workflow_metadata: tests/test_data/analysis_meta/workflow_metadata.tsv
+   - read_group_metadata: tests/test_data/biospecimen/read_group_metadata.tsv
+   - experiment_metadata: tests/test_data/biospecimen/experiment_metadata.tsv
+   - specimen_metadata: tests/test_data/biospecimen/specimen_metadata.tsv
+   - sample_metadata: tests/test_data/biospecimen/sample_metadata.tsv
+   - path_to_files_directory: tests/test_data/genomics
+   - skip_upload: false
+   - allow_duplicates: true
+```
+
+**What this shows**:
+- **Study identification**: Confirms which study is being processed
+- **Configuration confirmation**: Verifies the workflow received all your input parameters correctly
+- **File paths validation**: Shows the exact paths to metadata files being used
+- **Parameter settings**: Displays key workflow behavior settings like `skip_upload` and `allow_duplicates`
+
+
+### **Pipeline Process Execution**
+
+After the input parameters, you'll see Nextflow executing individual pipeline processes in real-time, for example:
+
+```
+[0a/132c7b] PCG…CK_DEPENDENCIES (TEST-CA) | 1 of 1 ✔
+[32/3ff298] PCG…:ANALYSIS_SPLIT (TEST-CA) | 1 of 1 ✔
+[e2/669398] PCG…E_CLINICAL (analysis_005) | 5 of 5 ✔
+[c9/d27988] PCG…SUBMISSION (analysis_005) | 5 of 5 ✔
+[1b/a88c56] PCG…D_GENERATE (analysis_005) | 4 of 4 ✔
+[62/43ef84] PCG…D_VALIDATE (analysis_005) | 4 of 4 ✔
+[d4/0eda2e] PCG…N_METADATA (analysis_005) | 4 of 4 ✔
+......
+```
+
+**What this shows**:
+- **Process IDs**: Each line starts with a unique process execution ID (e.g., `[0a/132c7b]`)
+- **Process names**: Abbreviated process names (e.g., `PCG…CK_DEPENDENCIES` for dependency checking)
+- **Input context**: What the process is operating on (e.g., study ID, analysis ID, etc.)
+- **Execution progress**: Number of tasks completed vs. total tasks (e.g., `5 of 5`)
+- **Status indicators**: ✔ indicates successful completion of that process
+- **Real-time updates**: Processes appear as they execute, showing workflow progress
 
 ### **Case 1: Workflow Stops Due to Minimum Requirements Not Met**
 
@@ -261,7 +312,7 @@ When running the workflow, you may encounter these common issues across any test
 - **Resource constraints**: Insufficient system resources during processing
 - **Timeout errors**: Operations exceeding configured time limits
 
-**👉 For detailed troubleshooting steps and solutions, see [Troubleshooting Guide](troubleshoot.md)**
+**👉 For detailed troubleshooting steps and solutions, see [Troubleshooting Guide](troubleshooting.md)**
 
 
 
