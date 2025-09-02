@@ -29,13 +29,13 @@ ls tests/test_data/
 - **Network Requirements**: Ensure access to PCGL submission services in your testing environment.
 - **Data Model**: Please check the latest version of the [PCGL Base Data Model](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB) to ensure your data conforms to the metadata requirements and dependencies.
 - **Entity Registration**: Please make sure that `Study` and `Participant` entities are already registered for all test scenarios.
-- **Test Dataset**: The [provided test data](../tests/test_data/) is pre-formatted and compliant with the latest PCGL Base Data Model. When using your own data, refer to the [Input Documentation](input.md) for formatting requirements and data preparation guidelines.
+- **Test Dataset**: The [provided test data](../tests/test_data/) is pre-formatted and compliant with the latest PCGL Base Data Model. When using your own data, refer to the [Input Documentation](input.md) [**TODO**] for formatting requirements and data preparation guidelines.
 
 
 ## 🧪 **Running Tests**
 
 The repository includes comprehensive test datasets that you can use to verify the workflow functionality. Please be noted that the Submission Dependencies such as Study and Participant have already been registered beforehand. 
-[TODO: add links to Study and Participant registration section when the full submission docs is available.]
+[**TODO**: add links to Study and Participant registration section when the full submission docs is available.]
 
 
 ### **Test Scenario 1: No Pre-submitted Biospecimen Entities**
@@ -285,7 +285,7 @@ Your output directory will contain various subdirectories with intermediate file
 - Process execution logs
 - Pipeline execution reports
 
-**👉 See [Output Documentation](output.md) for comprehensive details about all output files and directories**
+**👉 See [Output Documentation](output.md) [**TODO**] for comprehensive details about all output files and directories**
 
 ## 📋 **Common Failure Issues**
 
@@ -312,7 +312,7 @@ When running the workflow, you may encounter these common issues across any test
 - **Resource constraints**: Insufficient system resources during processing
 - **Timeout errors**: Operations exceeding configured time limits
 
-**👉 For detailed troubleshooting steps and solutions, see [Troubleshooting Guide](troubleshooting.md)**
+**👉 For detailed troubleshooting steps and solutions, see [Troubleshooting Guide](troubleshooting.md)** [**TODO**]
 
 
 
