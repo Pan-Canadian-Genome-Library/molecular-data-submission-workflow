@@ -1,6 +1,10 @@
 # Understanding Batch Receipt
 
-The batch receipt is a comprehensive report generated after processing all analyses in your submission. It provides detailed information about the success or failure of each analysis at multiple levels: batch, analysis, and individual process level.
+The batch receipt is a comprehensive execution report generated after processing all analyses in your submission batch. It provides detailed status information about the success or failure of each analysis across three hierarchical levels:
+
+- **[Batch Level](#1-batch-level)**: Aggregated submission statistics for the entire batch which contains multiple analyses and provides overall submission summary and tracking information during batch processing
+- **[Analysis Level](#2-analysis-level)**: Individual analysis submission results which contains analysis-specific metadata, PCGL system identifiers, and published status  
+- **[Process Level](#3-process-level)**: Granular workflow process execution details which tracks each Nextflow task/step within the pipeline with process name, execution status, exit codes, timestamps, and debugging information
 
 ## 📋 **Receipt File Formats**
 
