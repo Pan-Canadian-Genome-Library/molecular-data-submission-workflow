@@ -4,7 +4,7 @@
 
 **Pan-Canadian-Genome-Library/molecular-data-submission-workflow** is a Nextflow pipeline that automates the validation, packaging, and submission of molecular genomics data and associated metadata to the Pan-Canadian Genome Library (PCGL) data repository. The pipeline ensures data integrity, validates metadata compliance, handles file uploads, and generates comprehensive submission receipts for tracking and audit purposes. The workflow has adopted [nf-core](https://nf-co.re/) framework and best practice guidelines to ensure reproducibility, portability and scalability.
 
-For detailed information about workflow components, prerequisites, and system architecture, see **[Complete Introduction Guide](docs/Introduction.md)**  with comprehensive workflow overview, subworkflows, modules and technical details.
+For detailed information about workflow components, prerequisites, and system architecture, see **[Complete Introduction Guide](docs/Introduction.md)** [**TODO**] with comprehensive workflow overview, subworkflows, modules and technical details.
 
 ## Pipeline Overview
 ### PCGL Submission Workflow Diagram
@@ -13,13 +13,13 @@ For detailed information about workflow components, prerequisites, and system ar
     <img src="assets/PCGL_Molecular_Data_Submission_Workflow-Diagram.png" alt="PCGL molecular data submission workflow diagram." width="800">
 </p>
 
-The workflow consists of five main stages:
+The workflow consists of five main subworkflows:
 
-1. **Dependency Checking** - Validates input files, metadata completeness, and submission prerequisites
-2. **Metadata Payload Generation** - Creates standardized JSON payloads from input metadata
-3. **Data Validation** - Validates data files and metadata against PCGL schemas and requirements  
-4. **Data Upload** - Handles secure file transfer and metadata submission to PCGL repositories
-5. **Receipt Generation** - Creates detailed batch receipts and summary reports for submission tracking
+1. **Dependency Checking** - Validates input files, verifies metadata completeness, and ensures all submission prerequisites are met before processing
+2. **Metadata Payload Generation** - Transforms input metadata into standardized JSON payloads that comply with PCGL data model requirements
+3. **Data Validation** - Performs comprehensive validation of data file integrity, metadata format compliance, and cross-validation between data and metadata  
+4. **Data Uploading** - Handles secure file transfer to object storage (file-transfer) and submits metadata to PCGL repositories (file-manager and clinical systems)
+5. **Receipt Generation** - Creates comprehensive batch receipts and summary reports for submission tracking, audit trails, and troubleshooting
 
 ## Prerequisites
 
@@ -37,7 +37,7 @@ The workflow consists of five main stages:
 
 ### Access Requirements
 
-- **PCGL API Token**: Valid authentication token with submission permissions for your study. [TODO: add URL for API token]
+- **PCGL API Token**: Valid authentication token with submission permissions for your study. [**TODO**: add links to PCGL API token]
 - **Network Access**: Connectivity to PCGL submission endpoints:
   - File Manager service
   - File Transfer service  
@@ -49,7 +49,7 @@ The workflow consists of five main stages:
 - **Biospecimen Entities**: Please provide the metadata for relevant dependent Biospecimen Entities if they were not yet submitted.
 
 ### Input Data Requirements
-Please refer to **[Input Documentation](docs/input.md)** for the comprehensive parameter descriptions and file format specifications.
+Please refer to **[Input Documentation](docs/input.md)** [**TODO**] for the comprehensive parameter descriptions and file format specifications.
 
 - **Molecular Data Files**: 
   - Supported formats: CRAM, BAM, VCF, BCF
@@ -90,7 +90,7 @@ Please refer to **[Input Documentation](docs/input.md)** for the comprehensive p
 
 ## Usage
 
-For more detailed usage instructions, including additional examples and configuration options, see **[Complete Usage Guide](docs/usage.md)** which contains detailed command-line examples, instructions, and advanced configurations.
+For more detailed usage instructions, including additional examples and configuration options, see **[Complete Usage Guide](docs/usage.md)** [**TODO**] which contains detailed command-line examples, instructions, and advanced configurations.
 
 First, prepare your data and metadata files into a data directory structure, e.g:
 
@@ -145,7 +145,7 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
 ## Output
 
 The workflow generates comprehensive outputs to track and verify your data submission. For detailed information about output files and how to interpret results, see:
-- **[Output Documentation](docs/output.md)** - Complete output structure and file descriptions
+- **[Output Documentation](docs/output.md)** [**TODO**] - Complete output structure and file descriptions
 - **[Receipt Guide](docs/receipt.md)** - How to understand and interprete batch receipts
 
 ### Primary Output Files
@@ -180,10 +180,10 @@ We thank the following people for their extensive assistance in the development 
 
 ## Contributions and Support
 
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
+If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md) [**TODO**].
 
 For troubleshooting common issues, error resolution, and getting help:
-- **[Troubleshooting Guide](docs/troubleshooting.md)** - Common problems, solutions, and debugging tips
+- **[Troubleshooting Guide](docs/troubleshooting.md)** [**TODO**] - Common problems, solutions, and debugging tips
 
 If you encounter issues not covered in the troubleshooting guide, please:
 1. Check the [GitHub Issues](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/issues) for existing solutions
