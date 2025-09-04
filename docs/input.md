@@ -25,20 +25,19 @@
 | Parameter                           | Description                                      | Default           |
 |-------------------------------------|--------------------------------------------------|-------------------|
 | `outdir`                            | Output directory for results                     | "out"             |
-| `skip_upload`                       | Skip actual data upload (dry run mode)          | false             |
-| `skip_duplicate_check`              | Skip duplicate submission checking               | false             |
+| `skip_upload`                       | Skip actual molecular data upload.               | false             |
 | `allow_duplicates`                  | Allow duplicate file submissions                 | false             |
 | `exit_on_error`                     | Exit pipeline on first error                    | false             |
 | `debug_channels`                    | Enable debug output for workflow channels       | false             |
-| `file_manager_url`                  | Custom file manager server URL                   | null              |
-| `file_transfer_url`                 | Custom file transfer server URL                  | null              |
-| `clinical_url`                      | Custom clinical submission URL                   | null              |
-| `file_manager_container`            | SONG client container image                     | ghcr.io/overture-stack/song-client |
-| `file_manager_container_tag`        | SONG client container tag                       | 822055be          |
+| `file_manager_url`                  | File manager server URL                   | null              |
+| `file_transfer_url`                 | File transfer server URL                  | null              |
+| `clinical_url`                      | Clinical submission URL                   | null              |
+| `file_manager_container`            | File manager client container image                     | ghcr.io/overture-stack/song-client |
+| `file_manager_container_tag`        | File manager client container tag                       | 822055be          |
 | `file_transfer_container`           | File transfer container image                    | ghcr.io/pan-canadian-genome-library/file-transfer |
 | `file_transfer_container_tag`       | File transfer container tag                     | edge              |
-| `file_transfer_transport_parallel`  | Parallel transfer configuration                  | null              |
-| `file_transfer_transport_mem`       | Memory configuration for transfers               | null              |
+| `file_transfer_transport_parallel`  | File transfer parallel configuration                  | null              |
+| `file_transfer_transport_mem`       | File transfer memory configuration               | null              |
 
 ## Input File Validation
 
@@ -47,7 +46,6 @@ The workflow automatically validates:
 - Metadata file format and required columns
 - Data file integrity and format compliance
 - Metadata consistency and relationships
-- Study permissions and access rights
 
 ## File Format Specifications
 
@@ -63,7 +61,7 @@ The workflow automatically validates:
 #### `file_metadata.tsv` (Required)
 | Column                | Description                        | Example                | Required |
 |-----------------------|------------------------------------|------------------------|----------|
-| submitter_analysis_id | Linked analysis identifier         | analysis_001           | Yes      |
+| submitter_analysis_id | Unique analysis identifier         | analysis_001           | Yes      |
 | fileName              | Name of the data file              | sample001.bam          | Yes      |
 | fileSize              | Size in bytes                      | 123456789              | Yes      |
 | fileMd5sum            | MD5 checksum of the file           | 1a2b3c4d5e6f...        | Yes      |
@@ -77,7 +75,7 @@ The workflow automatically validates:
 | studyId                    | Study identifier                   | TEST-CA                | Yes      |
 | submitter_analysis_id      | Unique analysis identifier         | analysis_001           | Yes      |
 | analysisType               | Type of analysis performed         | sequenceAlignment      | Yes      |
-| submitter_participant_id   | Participant identifier             | PART_001               | Yes      |
+| submitter_participant_id   | Participant identifier             | PART_001               | No      |
 | submitter_specimen_id      | Specimen identifier                | SPEC_001               | No       |
 | submitter_sample_id        | Sample identifier                  | SAMP_001               | No       |
 | submitter_experiment_id    | Experiment identifier              | EXP_001                | No       |
@@ -93,7 +91,7 @@ The workflow automatically validates:
 | submitter_workflow_id  | Unique workflow identifier         | workflow_001           | Yes      |
 | submitter_analysis_id  | Linked analysis identifier         | analysis_001           | Yes      |
 | workflow_name          | Name of workflow                   | bwa-mem2-alignment     | Yes      |
-| workflow_version       | Version of workflow                | 2.2.1                  | Yes      |
+| workflow_version       | Version of workflow                | 2.2.1                  | No      |
 | workflow_url           | URL to workflow repository         | github.com/...         | No       |
 
 #### Biospecimen Metadata Files (Optional)
@@ -109,24 +107,24 @@ For biospecimen metadata files (`specimen_metadata.tsv`, `sample_metadata.tsv`, 
 - Ensure data files are properly indexed and not corrupted
 - Use consistent naming conventions across metadata and data files
 - Verify file checksums match actual file content
-- Ensure file paths in metadata are relative to `path_to_files_directory`
-- Test metadata file parsing with small datasets before large submissions
+- Ensure data files are accessible from the specified `path_to_files_directory`
+- Test with small batch before large submissions
 
 ### Recommended Directory Structure
 
 This suggested organization separates metadata files from data files, making it easier to manage and reference your submission components:
 
 ```
-project/
+study/
 ├── metadata/
 │   ├── file_metadata.tsv          # Required: File information
-│   ├── analysis_metadata.tsv      # Required: Analysis details
+│   ├── analysis_metadata.tsv      # Required: Analysis information
 │   ├── workflow_metadata.tsv      # Optional: Workflow information
-│   ├── read_group_metadata.tsv    # Optional: Read group details
+│   ├── read_group_metadata.tsv    # Optional: Read group information
 │   ├── experiment_metadata.tsv    # Optional: Experiment information
-│   ├── specimen_metadata.tsv      # Optional: Specimen details
+│   ├── specimen_metadata.tsv      # Optional: Specimen information
 │   └── sample_metadata.tsv        # Optional: Sample information
-└── data/                           # path_to_files_directory
+└── data/                          # path_to_files_directory
     ├── sample1.cram
     ├── sample1.cram.crai
     ├── sample2.cram
@@ -139,8 +137,6 @@ project/
 - **Simple referencing**: The `data/` directory serves as your `path_to_files_directory` parameter
 - **Scalability**: Easy to add more files without cluttering the project root
 - **Index file co-location**: Data files and their corresponding index files are kept together
-    └── sample2.cram.crai
-```
 
 ---
 
