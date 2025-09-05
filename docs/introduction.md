@@ -4,10 +4,25 @@
 
 The Pan-Canadian Genome Library (PCGL) Molecular Data Submission Workflow is a Nextflow-based pipeline designed to automate the validation, packaging, and submission of molecular genomics data and associated metadata to the PCGL data repository. The workflow ensures data integrity, metadata compliance, secure file transfer, and comprehensive submission tracking.
 
-This document provides a detailed overview of the workflow components, prerequisites, and system architecture to help users understand, configure, and operate the pipeline effectively.
+This document provides a detailed overview of the workflow diagram, components, prerequisites, and system architecture to help users understand, configure, and operate the pipeline effectively.
 
 ---
+## Workflow Diagram and System Architecture
+<p >
+    <img src="../assets/PCGL_Molecular_Data_Submission_Workflow-Diagram.png" alt="PCGL molecular data submission workflow diagram." width="800">
+</p>
 
+The workflow leverages Nextflow DSL2 for modular, reproducible, and scalable execution. Key architectural features include:
+
+- **Modular Subworkflows**: Each stage is implemented as a separate module for maintainability and extensibility
+- **Containerization**: All processes run in containers for reproducibility and portability
+- **Centralized Configuration**: Pipeline parameters and environment settings are managed via configuration files
+- **Integrated Validation**: Metadata and data validation are performed at multiple stages to ensure compliance
+- **Secure Data Transfer**: Genomic files and metadata are uploaded using secure protocols to PCGL repositories
+- **Comprehensive Logging**: All steps generate logs and status files for audit and troubleshooting
+- **Receipt-Based Tracking**: Batch receipts provide hierarchical tracking of submission status at batch, analysis, and process levels
+
+---
 ## Workflow Components
 
 The workflow is organized into five main subworkflows, each responsible for a critical stage of the submission process:
@@ -31,8 +46,8 @@ The workflow is organized into five main subworkflows, each responsible for a cr
 ### 4. Data Uploading
 - Submits validated JSON payloads to PCGL file manager
 - Generates file manifest with checksums and transfer metadata
-- Uploads sequencing files to PCGL object storage
-- Publishes analysis metadata and retrieves unique analysis IDs
+- Uploads genomic files to PCGL object storage
+- Publishes analysis and retrieves unique PCGL analysis IDs
 
 ### 5. Receipt Generation
 - Provides real-time submission status feedback
@@ -40,7 +55,6 @@ The workflow is organized into five main subworkflows, each responsible for a cr
 - Summarizes results, errors, and audit information
 
 ---
-
 ## Prerequisites
 
 ### System Requirements
@@ -67,29 +81,11 @@ The workflow is organized into five main subworkflows, each responsible for a cr
 
 ---
 
-## System Architecture
 
-The workflow leverages Nextflow DSL2 for modular, reproducible, and scalable execution. Key architectural features include:
-
-- **Modular Subworkflows**: Each stage is implemented as a separate module for maintainability and extensibility
-- **Containerization**: All processes run in containers for reproducibility and portability
-- **Centralized Configuration**: Pipeline parameters and environment settings are managed via configuration files
-- **Integrated Validation**: Metadata and data validation are performed at multiple stages to ensure compliance
-- **Secure Data Transfer**: Genomic files and metadata are uploaded using secure protocols to PCGL endpoints
-- **Comprehensive Logging**: All steps generate logs and status files for audit and troubleshooting
-- **Receipt-Based Tracking**: Batch receipts provide hierarchical tracking of submission status at batch, analysis, and process levels
 
 ---
 
-## References & Further Reading
-- [PCGL Base Data Model](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB)
-- [nf-core Framework](https://nf-co.re/)
-- [Nextflow Documentation](https://www.nextflow.io/docs/latest/index.html)
-- [PCGL Molecular Data Submission Workflow GitHub](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow)
-
----
-
-For detailed usage instructions, troubleshooting, and output interpretation, see the corresponding documentation files:
+For detailed input description, usage instructions, troubleshooting, and output interpretation, see the corresponding documentation files:
 - [Input Documentation](input.md)
 - [Testing Guide](testing.md)
 - [Receipt Guide](receipt.md)
@@ -98,4 +94,4 @@ For detailed usage instructions, troubleshooting, and output interpretation, see
 
 ---
 
-For questions or support, please contact your PCGL administrator or data coordinator.
+For questions or support, please create a ticket via email: helpdesk@genomelibrary.ca
