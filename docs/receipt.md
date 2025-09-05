@@ -1,4 +1,4 @@
-# Understanding Batch Receipt
+# PCGL Molecular Data Submission Workflow: Understanding Batch Receipt
 
 The batch receipt is a comprehensive execution report generated after processing all analyses in your submission batch. It provides detailed status information about the success or failure of each analysis across three hierarchical levels:
 
