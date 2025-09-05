@@ -174,12 +174,12 @@ singularity --version
 
 Built on **Nextflow DSL2**, this workflow delivers enterprise-grade data submission capabilities:
 
-🚀 **Faster Submissions**: Parallel execution with intelligent de-duplication prevents accidentally submitting the same data twice  
-🛡️ **Keeps Going When Things Break**: Analysis-level error isolation ensures batch resilience and maximum throughput 
-⚙️ **Works Everywhere**: Environment-specific profiles (dev/QA/prod) with seamless configuration management  
-🔒 **Safe and Secure**: End-to-end encryption, checksum verification, and comprehensive audit trails  
-🎯 **Unified Experience**: Single interface seamlessly orchestrates multiple PCGL backend services  
-📊 **Clear Feedback**: Real-time monitoring, detailed reporting, and actionable feedback at every stage 
+🚀 **Faster Submissions**: Parallel execution with intelligent de-duplication prevents accidentally submitting the same data twice.  
+🛡️ **Keeps Going When Things Break**: Analysis-level error isolation ensures batch resilience and maximum throughput.      
+⚙️ **Works Everywhere**: Environment-specific profiles (dev/QA/prod) with seamless configuration management.  
+🔒 **Safe and Secure**: Token-based authentication, HTTPS transport, checksum verification, and comprehensive audit trails.  
+🎯 **Unified Experience**: Single interface seamlessly orchestrates multiple PCGL backend submission services.  
+📊 **Clear Feedback**: Real-time monitoring, detailed reporting, and actionable feedback at every stage.   
 
 ---
 
