@@ -245,9 +245,9 @@ Built on **Nextflow DSL2**, this workflow delivers enterprise-grade data submiss
 
 
 ### Need Help?
-1. **Common Issues**: [Troubleshooting Guide](Troubleshooting.md) provides solutions to frequent problems
-2. **Understand Results**: [Receipt Guide](Receipt.md) interprets submission outcomes
-3. **Output Details**: [Output Documentation](output.md) describes workflow outputs
+1. **[Troubleshooting Guide](Troubleshooting.md)**: Provides solutions to frequent problems and common issues.
+2. **[Receipt Guide](Receipt.md)**: Interprets submission outcomes
+3. **[Output Documentation](output.md)**: Describes workflow outputs
 
 ### Support
 
