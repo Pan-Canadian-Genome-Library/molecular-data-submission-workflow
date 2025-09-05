@@ -1,4 +1,15 @@
-# Input
+# PCGL Molecular Data Submission Workflow: Input
+
+## Quick Start Checklist
+
+Before running the workflow, ensure you have:
+- [ ] `study_id` and `token` from PCGL administrator  
+- [ ] Completed `file_metadata.tsv` and `analysis_metadata.tsv`
+- [ ] Data files with corresponding index files in accessible directory
+- [ ] Verified file names in metadata match actual file names 
+
+**New to PCGL?** See [Getting Started](Introduction.md#getting-started) for registration steps.  
+**Ready to run?** See [Usage Guide](usage.md) for execution commands.
 
 ## Required Parameters
 
@@ -39,26 +50,29 @@
 | `file_transfer_transport_parallel`  | File transfer parallel configuration                  | null              |
 | `file_transfer_transport_mem`       | File transfer memory configuration               | null              |
 
-## Input File Validation
-
-The workflow automatically validates:
-- File existence and accessibility
-- Metadata file format and required columns
-- Data file integrity and format compliance
-- Metadata consistency and relationships
-
-## File Format Specifications
+## File Requirements and Specifications
 
 ### Molecular Data Files
 - **Supported formats**: CRAM, BAM, VCF, BCF
 - **Index files**: Required for each data file (e.g., .crai, .bai, .tbi, .csi)
-- **Naming**: File names must match entries in `file_metadata.tsv`
+- **Naming requirements**: 
+  - File names must match entries in `file_metadata.tsv`
+  - No spaces or special characters in file names
+  - Case-sensitive matching between metadata and actual files
 - **Location**: All files must be accessible from the specified `path_to_files_directory`
 - **Integrity**: Files should be properly formatted and not corrupted
+
+### Metadata Files
+- **Format**: Tab-separated values (TSV) with UTF-8 encoding
+- **Required columns**: Each metadata file must include all required columns as specified in schemas below
+- **Consistency**: Analysis IDs must be consistent across all metadata files
+- **Relationships**: Foreign key relationships must be maintained between entities
 
 ### Metadata File Schema Examples
 
 #### `file_metadata.tsv` (Required)
+**📄 [Download Template](TBD) TBD**
+
 | Column                | Description                        | Example                | Required |
 |-----------------------|------------------------------------|------------------------|----------|
 | submitter_analysis_id | Unique analysis identifier         | analysis_001           | Yes      |
@@ -70,6 +84,8 @@ The workflow automatically validates:
 | dataType              | Type of data content               | Aligned Reads          | Yes      |
 
 #### `analysis_metadata.tsv` (Required)
+**📄 [Download Template](TBD) TBD**
+
 | Column                     | Description                        | Example                | Required |
 |----------------------------|------------------------------------|------------------------|----------|
 | studyId                    | Study identifier                   | TEST-CA                | Yes      |
@@ -86,6 +102,8 @@ The workflow automatically validates:
 | genome_annotation          | Genome annotation version          | GENCODE v29            | No       |
 
 #### `workflow_metadata.tsv` (Optional)
+**📄 [Download Template](TBD) TBD**
+
 | Column                 | Description                        | Example                | Required |
 |------------------------|------------------------------------|------------------------|----------|
 | submitter_workflow_id  | Unique workflow identifier         | workflow_001           | Yes      |
@@ -95,6 +113,8 @@ The workflow automatically validates:
 | workflow_url           | URL to workflow repository         | github.com/...         | No       |
 
 #### Biospecimen Metadata Files (Optional)
+**📄 [Download Biospecimen Templates](TBD) TBD**
+
 For biospecimen metadata files (`specimen_metadata.tsv`, `sample_metadata.tsv`, `experiment_metadata.tsv`, `read_group_metadata.tsv`):
 - Each file must include unique entity IDs as primary keys
 - All required fields must be present as per PCGL Base Data Model
@@ -103,12 +123,39 @@ For biospecimen metadata files (`specimen_metadata.tsv`, `sample_metadata.tsv`, 
 
 ## Data Preparation Guidelines
 
-- Validate all metadata files for required columns and correct formats
-- Ensure data files are properly indexed and not corrupted
-- Use consistent naming conventions across metadata and data files
-- Verify file checksums match actual file content
-- Ensure data files are accessible from the specified `path_to_files_directory`
-- Test with small batch before large submissions
+### Pre-submission Validation Checklist
+
+**📁 File Validation:**
+- [ ] **File Existence**: All files listed in `file_metadata.tsv` exist in `path_to_files_directory`
+- [ ] **Index Files**: Each data file has its corresponding index (.crai, .bai, .tbi, .csi) alongside
+- [ ] **File Integrity**: MD5 checksums match `fileMd5sum` column values
+- [ ] **File Access**: All files are readable by the workflow execution environment
+
+**📊 Metadata Validation:**
+- [ ] **Format Check**: TSV files open correctly in spreadsheet software without encoding issues
+- [ ] **Required Columns**: All required columns are present with correct names
+- [ ] **Data Consistency**: Analysis IDs are consistent across all metadata files
+- [ ] **Controlled Vocabularies**: Values use permissible values
+
+**🔧 Technical Validation:**
+- [ ] **No Special Characters**: File names contain only alphanumeric characters, hyphens, and underscores
+- [ ] **Path Accessibility**: All file paths are accessible from the workflow execution environment
+- [ ] **Case Sensitivity**: File names in metadata exactly match actual file names
+
+> 💡 **Quick Validation**: The workflow automatically performs these validations, but checking beforehand prevents submission failures.
+
+### Generating MD5 Checksums
+```bash
+# For single file
+md5sum sample001.cram
+
+# For all files in directory
+find /path/to/data -name "*.cram" -exec md5sum {} \; > checksums.txt
+```
+
+### Testing Your Input Setup
+- Start with 1-2 small files to validate your environment and input setup
+- See [Testing Guide](testing.md) for comprehensive testing guide using provided test dataset
 
 ### Recommended Directory Structure
 
@@ -142,6 +189,7 @@ study/
 
 For further details, see:
 - [Introduction Guide](Introduction.md) - Workflow overview and architecture
+- [Usage Guide](usage.md) - Step-by-step execution instructions
 - [Testing Guide](Testing.md) - Testing instructions with sample data
 - [Receipt Guide](receipt.md) - Understanding submission results
 - [Output Documentation](output.md) - Complete output file descriptions
