@@ -17,11 +17,13 @@ The Pan-Canadian Genome Library (PCGL) [Molecular Data Submission Workflow](http
 
 ### Supported Data Types
 
-This workflow supports submission of:
-- **Genomic Data**: WGS, WES, RNA-Seq, Panel sequencing
+This workflow currently supports submission of **short-read sequencing data** and their downstream analysis:
+- **Genomic Data**: WGS, WES, RNA-Seq, Panel sequencing (short-read based)
 - **File Formats**: CRAM, BAM, VCF, BCF (with corresponding index files)
 - **Analysis Types**: Variant calling, Alignment, Raw Sequencing Reads
-- **Metadata**: Biospecimen and Analysis Entities 
+- **Metadata**: Biospecimen and Analysis Entities in TSV format
+
+> **🔬 Future Support**: Long-read sequencing data and their analysis will be supported in upcoming releases.
 
 ### What to Expect
 
@@ -60,7 +62,7 @@ This workflow supports submission of:
 
 **System Requirements:**
 - [ ] **Nextflow**: v22.04.0+ (DSL2)
-- [ ] **Container Engine**: Docker (recommended), Singularity/Apptainer, or Conda
+- [ ] **Container Engine**: Docker (recommended), Singularity/Apptainer
 - [ ] **Java**: 17 or newer
 - [ ] **Bash**: 3.2 or newer
 - [ ] **Memory**: 8GB RAM minimum (16GB+ recommended for large batches)
@@ -189,12 +191,12 @@ Built on **Nextflow DSL2**, this workflow delivers enterprise-grade data submiss
 **What it does**: Ensures all prerequisites are met before starting submission
 
 - ✅ Verifies study and participant registration status
-- ✅ Checks biospecimen entity requirements (samples, specimens, experiments)
+- ✅ Checks biospecimen entity requirements (samples, specimens, experiments and read groups)
 - ✅ Validates file accessibility and permissions
 - ✅ Cross-checks metadata consistency with PCGL records
 - ✅ Registers missing biospecimen entities when needed
 
-**User benefit**: Catches registration issues early, preventing failed submissions
+**User benefit**: Catches submission dependencies issues early, preventing failed submissions
 
 ### 📝 2. Metadata Payload Generation 
 **What it does**: Converts your TSV metadata into PCGL-compliant JSON format
@@ -203,7 +205,7 @@ Built on **Nextflow DSL2**, this workflow delivers enterprise-grade data submiss
 - ✅ Validates against PCGL data model schemas
 - 🔧 Handles format conversions and data type validation
 
-**User benefit**: Ensures your metadata meets PCGL standards before submission
+**User benefit**: Ensures your molecular metadata meets PCGL standards before submission
 
 ### 🧪 3. Data Validation 
 **What it does**: Comprehensive quality checks on your data and metadata
@@ -253,7 +255,7 @@ Built on **Nextflow DSL2**, this workflow delivers enterprise-grade data submiss
 
 If you encounter issues not covered in the [Troubleshooting Guide](Troubleshooting.md), please:
 1. Check the [GitHub Issues](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/issues) for existing solutions
-2. Create a new issue with detailed error messages and system information
+2. Create a new issue with detailed error messages, system information, and batch receipts when available
 3. Contact the PCGL administrator by Email: helpdesk@genomelibrary.ca
 
 
