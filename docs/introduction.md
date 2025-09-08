@@ -1,5 +1,32 @@
 # PCGL Molecular Data Submission Workflow: Introduction
 
+## 📋 Table of Contents
+
+- [Overview](#overview)
+  - [What This Workflow Does For You](#what-this-workflow-does-for-you)
+  - [Supported Data Types](#supported-data-types)
+  - [What to Expect](#what-to-expect)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+  - [New to PCGL? Start Here](#new-to-pcgl-start-here)
+  - [Ready to Submit? Quick Start](#ready-to-submit-quick-start)
+- [Environment Setup](#environment-setup)
+  - [Step 1: Install Nextflow](#step-1-install-nextflow)
+  - [Step 2: Install Container Engine](#step-2-install-container-engine)
+  - [Step 3: Obtain PCGL API Token](#step-3-obtain-pcgl-api-token)
+- [Workflow Diagram](#workflow-diagram)
+- [Architecture Highlights](#architecture-highlights)
+- [Workflow Components](#workflow-components)
+  - [🔍 1. Dependency Checking](#-1-dependency-checking)
+  - [📝 2. Metadata Payload Generation](#-2-metadata-payload-generation)
+  - [🧪 3. Data Validation](#-3-data-validation)
+  - [⬆️ 4. Data Uploading](#️-4-data-uploading)
+  - [📋 5. Receipt Generation](#-5-receipt-generation)
+- [Next Steps](#next-steps)
+  - [Ready to Submit Data?](#ready-to-submit-data)
+  - [Need Help?](#need-help)
+  - [Support](#support)
+
 ---
 
 ## Overview
