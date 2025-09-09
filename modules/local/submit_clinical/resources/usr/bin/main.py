@@ -276,7 +276,7 @@ def submit_clinical(clinical_url,category_id,study_id,output_directory,token):
     } 
 
     files=[]
-    for file in glob.iglob(output_directory+"/*.tsv"):
+    for file in glob.iglob("%s/submit/*.tsv" % (output_directory)):
         files.append(
             (
                 'files',
@@ -291,6 +291,8 @@ def submit_clinical(clinical_url,category_id,study_id,output_directory,token):
 
     try:
             response = requests.post(url, headers=headers, files=files,data={"organization":study_id})
+            print(files)
+            print(headers)
     except:
         comments=[]
         comments.append('ERROR REACHING %s' % (url))
