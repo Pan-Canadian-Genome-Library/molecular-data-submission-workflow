@@ -20,14 +20,21 @@ Welcome to the comprehensive documentation for the Pan-Canadian Genome Library (
 
 ## 🛠️ Support & Troubleshooting
 - **[Troubleshooting](Troubleshooting.md)** - Common issues, error solutions, and debugging guidance
-- **HelpDesk Email**: helpdesk@genomelibrary.ca
-- **Issues**: [GitHub Issues](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/issues)
+- **[GitHub Issues](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/issues)** 
+  - Check the GitHub Issues for existing solutions
+  - Create a new issue with detailed error messages, system information, and batch receipts when available
+- Contact the PCGL administrator by Email: helpdesk@genomelibrary.ca
 
 ---
 
 ## 🔗 External Resources
 
+### PCGL Data Standards
 - **[PCGL Base Data Model](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB)** - Complete metadata schemas and controlled vocabularies
+- **[PCGL Extensible Data Schema](https://github.com/Pan-Canadian-Genome-Library/data-dictionary)** - Extensible data schema definitions and field specifications
+- **[PCGL Data Model Feedback](https://github.com/Pan-Canadian-Genome-Library/PCGL-data-model-feedback)** - Community discussions and data model enhancement proposals
+
+### Development Resources
 - **[GitHub Repository](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow)** - Source code, issues, and releases
 - **[Nextflow Documentation](https://www.nextflow.io/docs/latest/)** - Official Nextflow guides and references
 
