@@ -6,8 +6,9 @@ This guide provides practical instructions and command-line examples for running
 
 ### **Prerequisites Checklist**
 Before running the workflow, ensure you have:
-- [ ] Valid PCGL access token
-- [ ] Study ID assigned by PCGL
+- [ ] Study registered in PCGL (Contact: helpdesk@genomelibrary.ca)
+- [ ] All participants registered (Coordinate with your Study data coordinator)
+- [ ] API token obtained (Request from PCGL administrator)
 - [ ] Prepared metadata files (see **[Input Documentation](Input.md)** for requirements and formats)
 - [ ] Data files organized in accessible directory
 - [ ] Nextflow installed (version 23.04.1 or later)
@@ -22,7 +23,7 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     --file_metadata "metadata/files.tsv" \
     --analysis_metadata "metadata/analyses.tsv" \
     --outdir results \
-    -profile docker
+    -profile docker,sd4h_prod
 ```
 
 ## 🏭 Production Usage Examples
