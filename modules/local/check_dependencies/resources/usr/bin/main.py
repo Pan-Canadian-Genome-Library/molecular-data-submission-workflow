@@ -172,7 +172,8 @@ def check_analysis_types(file_manager_url,study_id,token):
         if response.status_code!=200:
             raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
             exit(1)
-
+        if response.json()['name']=='waste_water':
+            continue
         for required in response.json()['schema']['required']:
             if response.json()['schema']['properties'][required].get('type'):
                 if response.json()['schema']['properties'][required]["type"]=="string":

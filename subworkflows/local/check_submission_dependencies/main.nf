@@ -69,12 +69,17 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
 ║                        🚨 WORKFLOW STOPPED                                   ║
 ║              Minimum requirements for data submission not met!               ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
-
+""".stripIndent()
+System.err.println """
 ❌ Study: ${study_id}
 
 🔍 Issues found:
 --------------------------------------------------------------------------------
+""".stripIndent()
+System.err.println """
 ${error_details}
+""".stripIndent()
+System.err.println """
 --------------------------------------------------------------------------------
 
 📋 Common solutions:
@@ -84,9 +89,11 @@ ${error_details}
    • Check that file paths in metadata files are valid and files exist
    • Verify that all required columns are present in metadata files
    • Ensure study_id matches across all metadata files
-
+""".stripIndent()
+System.err.println """
 💡 For detailed error information, check: ${status_file}
-
+""".stripIndent()
+System.err.println """
 Please fix the above issues and re-run the workflow.
                     """.stripIndent()
                     
@@ -100,7 +107,7 @@ Please fix the above issues and re-run the workflow.
                     System.exit(1)
                 }
             }
-        
+
         // Continue with the rest of the workflow only if dependencies check passed
         CHECK_DEPENDENCIES.out.status
             .filter { study, status_file -> 
