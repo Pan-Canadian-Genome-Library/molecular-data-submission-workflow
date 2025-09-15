@@ -97,6 +97,7 @@ def map_biospecimen_entities(analyses,relational_mapping,data):
                 #     analyses[analysis][foreign_entity]['data']=pd.DataFrame([foreign_values],columns=[foreign_key])
                 #     analyses[analysis][foreign_entity]['submitted']=False                   
             elif analyses.get(analysis).get(foreign_entity):
+
                 #From the other end, if experiment exists, use experiment to find read_group
                 if analyses.get(analysis).get(foreign_entity).get('submitted') and foreign_entity!='participant':
                     foreign_values=analyses.get(analysis).get(foreign_entity).get('data').loc[:,foreign_key].values.tolist()
