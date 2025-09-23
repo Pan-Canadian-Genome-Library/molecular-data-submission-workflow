@@ -3,7 +3,7 @@ process BCFTOOLS_VIEW {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container 'biocontainers/bcftools:1.20--h8b25389_0'
+    container 'quay.io/biocontainers/bcftools:1.20--h8b25389_0'
 
     input:
     tuple val(meta), path(payload), path(vcf_file), path(index_files)

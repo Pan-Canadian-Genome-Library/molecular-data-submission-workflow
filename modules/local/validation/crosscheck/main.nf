@@ -3,7 +3,7 @@ process VALIDATION_CROSSCHECK {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container 'biocontainers/python:3.9--1'
+    container 'quay.io/biocontainers/python:3.9--1'
 
     input:
     tuple val(meta), path(payload), path(payload_files)

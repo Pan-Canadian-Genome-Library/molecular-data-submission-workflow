@@ -3,7 +3,7 @@ process SEQKIT_SEQ {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container 'biocontainers/seqkit:2.8.2--h9ee0642_0'
+    container 'quay.io/biocontainers/seqkit:2.8.2--h9ee0642_0'
 
     input:
     tuple val(meta), path(payload), path(fastq_file)

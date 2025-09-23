@@ -4,7 +4,7 @@ process VALIDATE_CLINICAL {
     maxForks 1
 
     conda "${moduleDir}/environment.yml"
-    container 'biocontainers/ampcombi:2.0.1--pyhdfd78af_0'
+    container 'quay.io/biocontainers/ampcombi:2.0.1--pyhdfd78af_0'
 
     input:
         //tuple val(meta), val(analysis), val(clinical), val(files), path(status_file), path(relational_mapping)

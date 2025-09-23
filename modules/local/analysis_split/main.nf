@@ -3,7 +3,7 @@ process ANALYSIS_SPLIT {
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container 'biocontainers/ampcombi:2.0.1--pyhdfd78af_0'
+    container 'quay.io/biocontainers/ampcombi:2.0.1--pyhdfd78af_0'
 
     input:
         val(study_id)

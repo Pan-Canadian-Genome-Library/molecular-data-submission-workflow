@@ -20,7 +20,7 @@ process RECEIPT_GENERATE {
     label 'process_single'
 
     conda "conda-forge::pyyaml=6.0"
-    container 'biocontainers/multiqc:1.13--pyhdfd78af_0'
+    container 'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0'
 
     input:
     tuple val(meta), path(status_files), path(analysis_file)
