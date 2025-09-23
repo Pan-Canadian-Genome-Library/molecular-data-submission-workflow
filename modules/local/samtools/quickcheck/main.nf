@@ -3,9 +3,7 @@ process SAMTOOLS_QUICKCHECK {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/samtools:1.21--h50ea8bc_0':
-        'biocontainers/samtools:1.21--h50ea8bc_0' }"
+    container 'biocontainers/samtools:1.21--h50ea8bc_0'
 
     input:
     tuple val(meta), path(payload), path(alignment_file), path(index_files)
