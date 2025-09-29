@@ -3,9 +3,7 @@ process SEQKIT_SEQ {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/seqkit:2.8.2--h9ee0642_0':
-        'biocontainers/seqkit:2.8.2--h9ee0642_0' }"
+    container 'quay.io/biocontainers/seqkit:2.8.2--h9ee0642_0'
 
     input:
     tuple val(meta), path(payload), path(fastq_file)

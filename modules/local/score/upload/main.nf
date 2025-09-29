@@ -4,7 +4,11 @@ process SCORE_UPLOAD {
     label 'process_medium'
 
     container "${params.file_transfer_container}:${params.file_transfer_container_tag}"
-    containerOptions "-v \$(pwd):/score-client/logs"
+    containerOptions {
+        workflow.containerEngine == 'singularity' ? 
+            "--bind \$(pwd):/score-client/logs" : 
+            "-v \$(pwd):/score-client/logs"
+    }
 
     input:
     tuple val(meta), path(analysis_id_file), path(manifest), path(upload)

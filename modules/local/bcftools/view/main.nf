@@ -3,9 +3,7 @@ process BCFTOOLS_VIEW {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bcftools:1.20--h8b25389_0':
-        'biocontainers/bcftools:1.20--h8b25389_0' }"
+    container 'quay.io/biocontainers/bcftools:1.20--h8b25389_0'
 
     input:
     tuple val(meta), path(payload), path(vcf_file), path(index_files)

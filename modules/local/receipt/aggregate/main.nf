@@ -3,9 +3,7 @@ process RECEIPT_AGGREGATE {
     label 'process_single'
 
     conda "conda-forge::pyyaml=6.0"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/pyyaml:6.0--py39h89e85a6_2' :
-        'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0' }"
+    container 'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0'
 
     input:
     tuple val(meta), path(individual_receipts)
@@ -49,6 +47,7 @@ process RECEIPT_AGGREGATE {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python --version | sed 's/Python //g')
+        multiqc: \$(multiqc --version 2>/dev/null | grep multiqc | sed 's/.*multiqc, version //' || echo "unknown")
         pyyaml: \$(python -c "import yaml; print(yaml.__version__)" 2>/dev/null || echo "unknown")
     END_VERSIONS
     """
