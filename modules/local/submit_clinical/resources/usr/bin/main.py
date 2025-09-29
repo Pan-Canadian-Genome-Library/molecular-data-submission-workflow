@@ -1,26 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
- Copyright (c) 2019, Ontario Institute for Cancer Research (OICR).
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU Affero General Public License as published
- by the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Affero General Public License for more details.
-
- You should have received a copy of the GNU Affero General Public License
- along with this program. If not, see <https://www.gnu.org/licenses/>.
-
- Author:Guanqiao Feng <gfeng@oicr.on.ca>
-        Junjun Zhang <junjun.zhang@oicr.on.ca>
-        Linda Xiang <linda.xiang@oicr.on.ca>
- """
-
 import pandas as pd
 import requests
 import numpy as np
@@ -196,10 +175,9 @@ def query_registered_data(token,clinical_url,category_id,entity,study_id,primary
     except:
             raise ValueError('ERROR REACHING %s' % (url))
 
-    if response.status_code!=200 and response.status_code!=404:
-            raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+    if response.status_code!=200:
+            raise ValueError('ERROR w/ %s : Code %s - %s' % (url,response.status_code,response.text))
             exit(1)
-
     return(response)  
 
 def verify_registered_data(token,clinical_url,category_id,entity,study_id,primary_key,ind,analysis):
@@ -276,7 +254,7 @@ def submit_clinical(clinical_url,category_id,study_id,output_directory,token):
     } 
 
     files=[]
-    for file in glob.iglob(output_directory+"/*.tsv"):
+    for file in glob.iglob("%s/submit/*.tsv" % (output_directory)):
         files.append(
             (
                 'files',
@@ -291,6 +269,8 @@ def submit_clinical(clinical_url,category_id,study_id,output_directory,token):
 
     try:
             response = requests.post(url, headers=headers, files=files,data={"organization":study_id})
+            print(files)
+            print(headers)
     except:
         comments=[]
         comments.append('ERROR REACHING %s' % (url))
@@ -452,6 +432,20 @@ def return_submitted_data(
                     ind=len(output[entity])
                     for key in record['data'].keys():
                         output[entity].loc[ind,key]=record['data'][key]
+        else:
+            print("Verifying Dependency for analysis record %s is met" % data.loc[ind,"submitter_analysis_id"])
+            ###Currently does not account for pagination
+            for primary_key,entity in zip(["submitter_experiment_id"],['experiment']):
+                response=query_registered_data(
+                    token,
+                    clinical_url,
+                    category_id,
+                    entity,
+                    data.loc[ind,"studyId"],
+                    primary_key,
+                    data.loc[ind,primary_key]
+                    )
+                  
 
     if len(output.keys())>0:
     

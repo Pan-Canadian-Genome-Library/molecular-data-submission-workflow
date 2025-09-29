@@ -2,9 +2,8 @@ process CHECK_DEPENDENCIES {
     tag "${study_id}"
     label 'process_single'
 
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ampcombi:2.0.1--pyhdfd78af_0':
-        'biocontainers/ampcombi:2.0.1--pyhdfd78af_0' }"
+    conda "${moduleDir}/environment.yml"
+    container 'quay.io/biocontainers/ampcombi:2.0.1--pyhdfd78af_0'
 
     input:
         val(study_id)

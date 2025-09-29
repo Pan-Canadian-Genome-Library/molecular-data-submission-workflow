@@ -4,7 +4,7 @@
 
 **Pan-Canadian-Genome-Library/molecular-data-submission-workflow** is a Nextflow pipeline that automates the validation, packaging, and submission of molecular genomics data and associated metadata to the Pan-Canadian Genome Library (PCGL) data repository. The pipeline ensures data integrity, validates metadata compliance, handles file uploads, and generates comprehensive submission receipts for tracking and audit purposes. The workflow has adopted [nf-core](https://nf-co.re/) framework and best practice guidelines to ensure reproducibility, portability and scalability.
 
-For detailed information about workflow components, prerequisites, and system architecture, see **[Complete Introduction Guide](docs/Introduction.md)** [**TODO**] with comprehensive workflow overview, subworkflows, modules and technical details.
+For detailed information about workflow components, prerequisites, and system architecture, see **[Complete Introduction Guide](docs/Introduction.md)** with comprehensive workflow overview, subworkflows, modules and technical details.
 
 ## Pipeline Overview
 ### PCGL Submission Workflow Diagram
@@ -49,7 +49,7 @@ The workflow consists of five main subworkflows:
 - **Biospecimen Entities**: Please provide the metadata for relevant dependent Biospecimen Entities if they were not yet submitted.
 
 ### Input Data Requirements
-Please refer to **[Input Documentation](docs/input.md)** [**TODO**] for the comprehensive parameter descriptions and file format specifications.
+Please refer to **[Input Documentation](docs/input.md)** for the comprehensive parameter descriptions and file format specifications.
 
 - **Molecular Data Files**: 
   - Supported formats: CRAM, BAM, VCF, BCF
@@ -145,7 +145,7 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
 ## Output
 
 The workflow generates comprehensive outputs to track and verify your data submission. For detailed information about output files and how to interpret results, see:
-- **[Output Documentation](docs/output.md)** [**TODO**] - Complete output structure and file descriptions
+- **[Output Documentation](docs/output.md)** - Complete output structure and file descriptions
 - **[Receipt Guide](docs/receipt.md)** - How to understand and interprete batch receipts
 
 ### Primary Output Files
@@ -178,9 +178,7 @@ We thank the following people for their extensive assistance in the development 
 
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
-## Contributions and Support
-
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md) [**TODO**].
+## Support
 
 For troubleshooting common issues, error resolution, and getting help:
 - **[Troubleshooting Guide](docs/troubleshooting.md)** [**TODO**] - Common problems, solutions, and debugging tips

@@ -5,9 +5,7 @@ process CLINICAL_SUBMISSION {
     label 'process_single'
     maxForks 1
 
-container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ampcombi:2.0.1--pyhdfd78af_0':
-        'biocontainers/ampcombi:2.0.1--pyhdfd78af_0' }"
+    container 'quay.io/biocontainers/ampcombi:2.0.1--pyhdfd78af_0'
 
     input:
     tuple val(meta), val(analysis), val(clinical), val(files), path(status_file), path(relational_mapping), path(analysis_types), path(data_directory)

@@ -3,9 +3,7 @@ process VALIDATION_METADATA {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.9--1' :
-        'biocontainers/python:3.9--1' }"
+    container 'quay.io/biocontainers/python:3.9--1'
 
     input:
     tuple val(meta), path(payload), path(payload_files), path(specimen), path(sample), path(experiment), path(read_group)

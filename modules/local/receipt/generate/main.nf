@@ -20,9 +20,7 @@ process RECEIPT_GENERATE {
     label 'process_single'
 
     conda "conda-forge::pyyaml=6.0"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/pyyaml:6.0--py39h89e85a6_2' :
-        'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0' }"
+    container 'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0'
 
     input:
     tuple val(meta), path(status_files), path(analysis_file)

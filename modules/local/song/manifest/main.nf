@@ -3,7 +3,11 @@ process SONG_MANIFEST {
     label 'process_single'
 
     container "${ params.file_manager_container }:${ params.file_manager_container_tag }"
-    containerOptions "-v \$(pwd):/song-client/logs"
+    containerOptions {
+        workflow.containerEngine == 'singularity' ? 
+            "--bind \$(pwd):/song-client/logs" : 
+            "-v \$(pwd):/song-client/logs"
+    }
 
 
     input:

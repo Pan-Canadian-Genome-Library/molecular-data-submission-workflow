@@ -20,9 +20,14 @@ process SONG_GETANALYSIS {
     label 'process_single'
 
     container "${ params.file_manager_container }:${ params.file_manager_container_tag }"
-
-    // Container options must be set as a string, not a Groovy closure
-    containerOptions "-v \$(pwd):/song-client/logs"
+    
+    // Container options for both Docker and Singularity compatibility
+    // Singularity automatically converts Docker containers - no separate images needed
+    containerOptions {
+        workflow.containerEngine == 'singularity' ? 
+            "--bind \$(pwd):/song-client/logs" : 
+            "-v \$(pwd):/song-client/logs"
+    }
 
     input:
     tuple val(meta), path(analysis_id_file)
