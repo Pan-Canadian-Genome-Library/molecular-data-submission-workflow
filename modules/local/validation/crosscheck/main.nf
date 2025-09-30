@@ -1,6 +1,6 @@
 process VALIDATION_CROSSCHECK {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
     container 'quay.io/biocontainers/python:3.9--1'

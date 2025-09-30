@@ -1,7 +1,7 @@
 
 process SCORE_UPLOAD {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_high'
 
     container "${params.file_transfer_container}:${params.file_transfer_container_tag}"
     containerOptions {
