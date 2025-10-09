@@ -30,7 +30,7 @@ import argparse
 import os
 import datetime
 
-def split_analyses(analysis_df):
+def split_analyses(analysis_df,debug):
     print("Creating dictionary based off of available analyses")
     return(
         {
@@ -44,102 +44,121 @@ def split_analyses(analysis_df):
         }
     )
 
-def flag_duplicate_analyses(analyses):
+def flag_duplicate_analyses(analyses,debug):
     print("Checking for duplicate analyses")
     for analysis in analyses:
+        if debug: print("#%s" % analysis)
         if len(analyses.get(analysis).get("analysis").get('data'))>1:
             analyses[analysis]['status']=False
             analyses[analysis]['comments'].append("Duplicate analyses found for %s : %s conflicting records" % (analysis,str(len(analyses.get(analysis).get("analysis")))))
 
-def map_analysis_dependencies(analyses,relational_mapping,data):
+def map_analysis_dependencies(analyses,relational_mapping,data,debug):
     print("Updating relational_mapping to include analysis foreign keys")
     for analysis in analyses:
+        if debug: print("#%s" % analysis)
         for analysisType in analyses.get(analysis).get("analysis").get('data')['analysisType'].unique().tolist():
             foreign_entity=relational_mapping.get("analysis").get("analysisTypes").get(analysisType).get("foreign").get("entity")
             foreign_key=relational_mapping.get("analysis").get("analysisTypes").get(analysisType).get("foreign").get("foreign")
             foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key].values.tolist()
-
+            if debug : print("#%s %s %s %s" % (analysisType,foreign_entity,foreign_key,foreign_values))
             analyses[analysis][foreign_entity]={}
             if foreign_entity in data.keys() and foreign_entity!='participant':
+                if debug : print("#map_analysis_dependenciesA")
                 analyses[analysis][foreign_entity]['data']=data[foreign_entity].get('data').query("%s==@foreign_values" % foreign_key)
                 analyses[analysis][foreign_entity]['submitted']=True
             else:
+                if debug : print("#map_analysis_dependenciesB")
                 analyses[analysis][foreign_entity]['data']=pd.DataFrame(foreign_values if isinstance(foreign_values, list) else [foreign_values],columns=[foreign_key])
                 analyses[analysis][foreign_entity]['submitted']=False
 
-def map_biospecimen_entities(analyses,relational_mapping,data):
+def map_biospecimen_entities(analyses,relational_mapping,data,debug):
     print("Mapping biospecimens to analyses")
     for entity in ["analysis","experiment","sample","specimen","read_group"]:
+        if debug : print("#%s" % entity)
         for analysis in analyses:
             if entity=='analysis':
+                if debug : print("#map_biospecimen_entitiesA")
                 analysis_type=analyses.get(analysis).get(entity).get('data').loc[:,"analysisType"].values.tolist()[0]
-                #print(entity,analysis_type)
                 foreign_entity=relational_mapping.get(entity).get("analysisTypes").get(analysis_type).get("foreign").get("entity")
                 foreign_key=relational_mapping.get(entity).get("analysisTypes").get(analysis_type).get("foreign").get("foreign")
             else:
+                if debug : print("#map_biospecimen_entitiesB")
                 foreign_entity=relational_mapping.get(entity).get("foreign")[0].get("entity")
                 foreign_key=relational_mapping.get(entity).get("foreign")[0].get("foreign")
             ###Only check if biospecimen records are local
             #print(analyses.get(analysis))
+            if debug : print("#%s %s" % (foreign_entity,foreign_key))
             if analyses.get(analysis).get(entity):
+                if debug : print("#map_biospecimen_entitiesC")
                 #If experiment exists, use experiment to find sample
                 if analyses.get(analysis).get(entity).get('submitted') and foreign_entity!='participant':
-                    #print(entity,foreign_entity)
+                    if debug : print("#map_biospecimen_entitiesCA")
                     foreign_values=analyses.get(analysis).get(entity).get('data').loc[:,foreign_key].values.tolist()
                     analyses[analysis][foreign_entity]={}
                     if foreign_entity in data.keys():
+                        if debug : print("#map_biospecimen_entitiesCB")
                         analyses[analysis][foreign_entity]['data']=data[foreign_entity].get('data').query("%s==@foreign_values" % foreign_key)
                         analyses[analysis][foreign_entity]['submitted']=data.get(foreign_entity).get('submitted')
                     else:
+                        if debug : print("#map_biospecimen_entitiesCC")
                         analyses[analysis][foreign_entity]['data']=pd.DataFrame(foreign_values if isinstance(foreign_values, list) else [foreign_values],columns=[foreign_key])
                         analyses[analysis][foreign_entity]['submitted']=False
                 # else:
                 #     analyses[analysis][foreign_entity]['data']=pd.DataFrame([foreign_values],columns=[foreign_key])
                 #     analyses[analysis][foreign_entity]['submitted']=False                   
             elif analyses.get(analysis).get(foreign_entity):
-
+                if debug : print("#map_biospecimen_entitiesD")
                 #From the other end, if experiment exists, use experiment to find read_group
                 if analyses.get(analysis).get(foreign_entity).get('submitted') and foreign_entity!='participant':
+                    if debug : print("#map_biospecimen_entitiesDA")
                     foreign_values=analyses.get(analysis).get(foreign_entity).get('data').loc[:,foreign_key].values.tolist()
                     analyses[analysis][entity]={}
                     if data.get(entity):
-                        if data.get('submitted'):
+                        if debug : print("#map_biospecimen_entitiesDB")
+                        if data.get(entity).get('submitted'):
+                            if debug : print("#map_biospecimen_entitiesDBA")
                             analyses[analysis][entity]['data']=data[entity].get('data').query("%s==@foreign_values" % foreign_key)
                             analyses[analysis][entity]['submitted']=True
                         else:
+                            if debug : print("#map_biospecimen_entitiesDBB")
                             analyses[analysis][entity]['data']=pd.DataFrame(foreign_values if isinstance(foreign_values, list) else [foreign_values],columns=[foreign_key])
                             analyses[analysis][entity]['submitted']=False
                     else:
+                        if debug : print("#map_biospecimen_entitiesDC")
                         analyses[analysis][entity]['data']=pd.DataFrame(foreign_values if isinstance(foreign_values, list) else [foreign_values],columns=[foreign_key])
                         analyses[analysis][entity]['submitted']=False
             else:
-                ###
+                if debug : print("#map_biospecimen_entitiesE")
                 print("Nothing to map for entity %s in analysis %s" % (entity,analysis))
 
-def map_files(analyses,relational_mapping,data):
+def map_files(analyses,relational_mapping,data,debug):
     print("Mapping files to analyses")
     entity="files"
     foreign_entity=relational_mapping.get(entity).get("foreign")[0].get("entity")
     foreign_key=relational_mapping.get(entity).get("foreign")[0].get("foreign")
+    if debug : print("#%s %s %s" % (entity,foreign_entity,foreign_key))
     for analysis in analyses:
+        if debug : print("#%s" % analysis)
         analyses[analysis][entity]={}
         foreign_values=analyses.get(analysis).get(foreign_entity).get('data').loc[:,foreign_key].values.tolist()
         analyses[analysis][entity]['data']=data[entity].get('data').query("%s==@foreign_values" % foreign_key)
         analyses[analysis][entity]['submitted']=True
 
-def map_workflows(analyses,relational_mapping,data):
+def map_workflows(analyses,relational_mapping,data,debug):
     print("Mapping workflows to analyses")
     entity="workflow"
     for analysis in analyses:
+        if debug : print("#%s" % analysis)
         analysis_types=analyses.get(analysis).get("analysis").get("data").loc[:,"analysisType"]
         for analysis_type in analysis_types:
+            if debug : print("#%s %s" % (analysis,analysis_type))
             if analysis_type in relational_mapping.get(entity).get('analysisTypes').keys():
                 analyses[analysis][entity]={}
                 if entity in data:
                     analyses[analysis][entity]['data']=data[entity].get('data').query("submitter_analysis_id==@analysis")
                     analyses[analysis][entity]['submitted']=True
 
-def save_outputs(analyses,output_directory):       
+def save_outputs(analyses,output_directory,debug):       
     print("Saving analysis specific TSVs and status.yml")
     if not os.path.isdir(output_directory):
         os.makedirs(output_directory)
@@ -166,7 +185,7 @@ details:
     error_message: "%s"
 
             """ % (
-                    "PASS" if analyses.get(analysis).get("status") else "FAILED",
+                    "SUCCESS" if analyses.get(analysis).get("status") else "FAILED",
                     "0" if analyses.get(analysis).get("status") else "1",
                     datetime.datetime.now(),
                     os.getcwd(),
@@ -199,20 +218,24 @@ def main(args):
             data[key]={}
             data[key]['data']=pd.read_csv(metadata,sep='\t')
             data[key]['submitted']=True
+   
+    if args.debug:
+        for key in data:
+            print("DATA#####%s" % key)
+            print(data[key])
 
-    analyses=split_analyses(data['analysis'])
+    analyses=split_analyses(data['analysis'],args.debug)
 
-    flag_duplicate_analyses(analyses)
+    flag_duplicate_analyses(analyses,args.debug)
 
-    map_analysis_dependencies(analyses,relational_mapping,data)
+    map_analysis_dependencies(analyses,relational_mapping,data,args.debug)
+
 
     ###This is currently making the assumption that all analyses are mapped to experiment, address this when this changes in the future
-    map_biospecimen_entities(analyses,relational_mapping,data)
-
-    map_files(analyses,relational_mapping,data)
-
-    map_workflows(analyses,relational_mapping,data)
-    save_outputs(analyses,args.output_directory)
+    map_biospecimen_entities(analyses,relational_mapping,data,args.debug)
+    map_files(analyses,relational_mapping,data,args.debug)
+    map_workflows(analyses,relational_mapping,data,args.debug)
+    save_outputs(analyses,args.output_directory,args.debug)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Tool: Check Clinical dependencies')
@@ -225,6 +248,7 @@ if __name__ == "__main__":
     parser.add_argument("-rg", "--read_group_metadata", default=False, dest="read_group_metadata", required=False, help="read_group metadata tsv")
     parser.add_argument("-rm", "--relational_mapping", default=True, dest="relational_mapping", required=True, help="relational mapping json")
     parser.add_argument("-od", "--output_directory", default="output", dest="output_directory", required=False, help="output directory")
+    parser.add_argument("--debug",action='store_true', default=False, dest="debug", required=False, help="Print Debug messages")
     args = parser.parse_args()
 
     main(args)
