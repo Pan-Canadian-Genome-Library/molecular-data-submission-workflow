@@ -28,8 +28,6 @@ def retrieve_category_id(clinical_url,study_id,token):
     categories=response.json()
 
     for cat_id in categories:
-        print(cat_id['name'],study_id,study_id.lower() in cat_id['name'] )
-        print(cat_id['name'],study_id,study_id.upper() in cat_id['name'])
         if study_id.lower() in cat_id['name'] or study_id.upper() in cat_id['name']:
             return(str(cat_id["id"]))
 

@@ -14,6 +14,7 @@ nextflow_process{
                 """
                 params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
                 params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                params.allow_duplicates = True
                 // Test input with molecular metadata files (all TSV format)
                 input[0] = "EXAMPLE-CA"
                 input[1] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Files.tsv')]
@@ -43,6 +44,7 @@ nextflow_process{
                 """
                 params.clinical_url = "https://submission.pcgl-dev.cumulus.genomeinformatics.org"
                 params.file_manager_url = "https://file-manager.pcgl-dev.cumulus.genomeinformatics.org"
+                params.allow_duplicates = True
                 // Test input with molecular metadata files (all TSV format)
                 input[0] = "EXAMPLE-CA"
                 input[1] = [file('${projectDir}/tests/modules/local/check_dependencies/test_data/happy_path/Files.tsv')]

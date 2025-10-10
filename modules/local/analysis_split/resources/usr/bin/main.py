@@ -44,13 +44,66 @@ def split_analyses(analysis_df,debug):
         }
     )
 
-def flag_duplicate_analyses(analyses,debug):
-    print("Checking for duplicate analyses")
+def flag_duplicate_analyses_local(analyses,debug):
+    print("Checking for duplicate analyses locally")
     for analysis in analyses:
         if debug: print("#%s" % analysis)
         if len(analyses.get(analysis).get("analysis").get('data'))>1:
             analyses[analysis]['status']=False
             analyses[analysis]['comments'].append("Duplicate analyses found for %s : %s conflicting records" % (analysis,str(len(analyses.get(analysis).get("analysis")))))
+
+def flag_duplicate_analyses_external(analyses,file_manager,study_id,token,debug):
+    print("Checking for duplicate analyses externally")
+
+    unique_identifier="submitter_analysis_id"
+    existing_analyses=[]
+    headers={"Authorization" : "Bearer %s" % token}
+
+
+    ###First query to determine total
+    url="%s/studies/%s/analysis/paginated?analysisStates=PUBLISHED&limit=1&offset=0" % (file_manager,study_id)
+    if debug: print("#%s" % url)
+    try:
+        if token:
+            response=requests.get(url,headers)
+        else:
+            response=requests.get(url)
+    except:
+        raise ValueError('ERROR REACHING %s' % (url))
+
+    if response.status_code!=200:
+        raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+        exit(1)
+
+    totalAnalyses=response.json()['totalAnalyses']
+
+    ###Subsequent queries to retrieve identifier
+    for offset in range(0,totalAnalyses,100):
+        url="%s/studies/%s/analysis/paginated?analysisStates=PUBLISHED&limit=100&offset=%s" % (file_manager,study_id,str(offset))
+        if debug: print("#%s" % url)
+        try:
+            if token:
+                response=requests.get(url,headers)
+            else:
+                response=requests.get(url)
+        except:
+            raise ValueError('ERROR REACHING %s' % (url))
+    
+        if response.status_code!=200:
+            raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+            exit(1)
+    
+        for song_analysis in response.json()['analyses']:
+            if song_analysis.get(unique_identifier):
+                existing_analyses.append(song_analysis[unique_identifier])
+
+            
+    for analysis in analyses:
+        if debug: print("#%s" % analysis)
+            
+        if analysis in existing_analyses : 
+            analyses[analysis]['status']=False
+            analyses[analysis]['comments'].append("%s record already exists in FileManager/Song : %s" % (unique_identifier,analysis))
 
 def map_analysis_dependencies(analyses,relational_mapping,data,debug):
     print("Updating relational_mapping to include analysis foreign keys")
@@ -205,6 +258,9 @@ def main(args):
     if args.experiment_metadata: print("input:",args.experiment_metadata)
     if args.read_group_metadata: print("input:",args.read_group_metadata)
     if args.relational_mapping: print("input:",args.relational_mapping)
+    if args.file_manager: print("input:",args.file_manager)
+    if args.study_id: print("input:",args.study_id)
+    if args.token: print("input:",args.token)
 
     with open(args.relational_mapping, 'r') as file:
             relational_mapping = json.load(file)
@@ -226,7 +282,14 @@ def main(args):
 
     analyses=split_analyses(data['analysis'],args.debug)
 
-    flag_duplicate_analyses(analyses,args.debug)
+    flag_duplicate_analyses_local(analyses,args.debug)
+    if args.allow_duplicates:
+        flag_duplicate_analyses_external(
+            analyses,
+            args.file_manager,
+            args.study_id,
+            args.token,
+            args.debug)
 
     map_analysis_dependencies(analyses,relational_mapping,data,args.debug)
 
@@ -248,7 +311,11 @@ if __name__ == "__main__":
     parser.add_argument("-rg", "--read_group_metadata", default=False, dest="read_group_metadata", required=False, help="read_group metadata tsv")
     parser.add_argument("-rm", "--relational_mapping", default=True, dest="relational_mapping", required=True, help="relational mapping json")
     parser.add_argument("-od", "--output_directory", default="output", dest="output_directory", required=False, help="output directory")
+    parser.add_argument("-fm", "--file_manager",dest="file_manager", required=True, help="Required file manager URL")
+    parser.add_argument("-si", "--study_id",dest="study_id", required=True, help="Required Study ID")
+    parser.add_argument("-to", "--token",dest="token", required=False, help="Required Token")
     parser.add_argument("--debug",action='store_true', default=False, dest="debug", required=False, help="Print Debug messages")
+    parser.add_argument("--allow_duplicates",action='store_true', default=False, dest="debug", required=False, help="Print Debug messages")
     args = parser.parse_args()
 
     main(args)
