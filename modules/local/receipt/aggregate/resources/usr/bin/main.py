@@ -46,6 +46,17 @@ def generate_batch_tsv(receipts, batch_id, output_file):
             study_id = receipt.get('study_id', None)
             analysis_state = receipt.get('analysis_state', None)
             published_at = receipt.get('published_at', None)
+            process_failure_point = None
+
+            if receipt.get("processes"):
+                failed_processes=[]
+                for process in receipt.get('processes'):
+                    if process.get('status'):
+                        if process.get('status')==False:
+                            failed_processes.append(process.get("process"))
+                
+                if not overall_status:
+                    process_failure_point = failed_processes[-1]
 
             for process in receipt.get('processes', []):
                 writer.writerow([
