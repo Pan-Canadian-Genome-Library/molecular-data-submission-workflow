@@ -65,7 +65,8 @@ def flag_duplicate_analyses_external(analyses,file_manager,study_id,token,debug)
     if debug: print("#%s" % url)
     try:
         if token:
-            response=requests.get(url,headers)
+            response=requests.get(url,headers=headers)
+            #response=requests.get(url)
         else:
             response=requests.get(url)
     except:
@@ -83,7 +84,8 @@ def flag_duplicate_analyses_external(analyses,file_manager,study_id,token,debug)
         if debug: print("#%s" % url)
         try:
             if token:
-                response=requests.get(url,headers)
+                response=requests.get(url,headers=headers)
+                #response=requests.get(url)
             else:
                 response=requests.get(url)
         except:
@@ -283,7 +285,7 @@ def main(args):
     analyses=split_analyses(data['analysis'],args.debug)
 
     flag_duplicate_analyses_local(analyses,args.debug)
-    if args.allow_duplicates:
+    if not args.allow_duplicates:
         flag_duplicate_analyses_external(
             analyses,
             args.file_manager,
@@ -315,7 +317,7 @@ if __name__ == "__main__":
     parser.add_argument("-si", "--study_id",dest="study_id", required=True, help="Required Study ID")
     parser.add_argument("-to", "--token",dest="token", required=False, help="Required Token")
     parser.add_argument("--debug",action='store_true', default=False, dest="debug", required=False, help="Print Debug messages")
-    parser.add_argument("--allow_duplicates",action='store_true', default=False, dest="debug", required=False, help="Print Debug messages")
+    parser.add_argument("--allow_duplicates",action='store_true', default=False, dest="allow_duplicates", required=False, help="Print Debug messages")
     args = parser.parse_args()
 
     main(args)
