@@ -33,16 +33,23 @@ process ANALYSIS_SPLIT {
     def experiment_file = experiment_metadata!=null && experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
     def read_group_file = read_group_metadata!=null && read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
     def workflow_file = workflow_metadata!=null  && workflow_metadata ? "--workflow_metadata ${workflow_metadata}" : ""
+    def allow_duplicates_arg  = params.allow_duplicates ? "--allow_duplicates" : ''
+    def token_arg  = params.token ? "--token ${params.token}" : ''
     """
     main.py \
         --relational_mapping ${relational_mapping} \
         --file_metadata ${file_metadata} \
         --analysis_metadata ${analysis_metadata} \
+        --file_manager ${params.file_manager_url} \
+        --study_id ${study_id} \
+        --token ${params.token} \
         ${workflow_file} \
         ${sample_file} \
         ${specimen_file} \
         ${experiment_file} \
         ${read_group_file} \
+        ${allow_duplicates_arg} \
+        ${token_arg} \
         --output_directory ${study_id}
 
     cat <<-END_VERSIONS > versions.yml

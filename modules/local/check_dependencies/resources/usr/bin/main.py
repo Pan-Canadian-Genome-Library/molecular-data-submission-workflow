@@ -69,6 +69,7 @@ def check_clinical_study(clinical_url,study_id,token):
     }
     try:
         response=requests.get(url,headers=headers)
+        #response=requests.get(url)
     except:
         raise ValueError('ERROR REACHING %s' % (url))
 
@@ -109,7 +110,7 @@ def retrieve_category_id(clinical_url,study_id,token):
     categories=response.json()
 
     for cat_id in categories:
-        if study_id.lower() in cat_id['name']:
+        if study_id.lower() in cat_id['name'] or study_id.upper() in cat_id['name']:
             return(str(cat_id["id"]))
 
     for cat_id in categories:

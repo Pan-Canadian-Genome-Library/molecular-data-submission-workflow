@@ -28,12 +28,12 @@ def retrieve_category_id(clinical_url,study_id,token):
     categories=response.json()
 
     for cat_id in categories:
-            if study_id.lower() in cat_id['name']:
-                    return(str(cat_id["id"]))
+        if study_id.lower() in cat_id['name'] or study_id.upper() in cat_id['name']:
+            return(str(cat_id["id"]))
 
     for cat_id in categories:
-            if "prod_pcgl_schema" in cat_id['name']:
-                    return(str(cat_id["id"]))
+        if "prod_pcgl_schema" in cat_id['name']:
+            return(str(cat_id["id"]))
 
     raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
 
