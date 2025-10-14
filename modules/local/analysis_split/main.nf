@@ -33,7 +33,7 @@ process ANALYSIS_SPLIT {
     def experiment_file = experiment_metadata!=null && experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
     def read_group_file = read_group_metadata!=null && read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
     def workflow_file = workflow_metadata!=null  && workflow_metadata ? "--workflow_metadata ${workflow_metadata}" : ""
-    def allow_duplicates_arg  = params.allow_duplicates ? "--allow-duplicates" : ''
+    def allow_duplicates_arg  = params.allow_duplicates ? "--allow_duplicates" : ''
     def token_arg  = params.token ? "--token ${params.token}" : ''
     """
     main.py \

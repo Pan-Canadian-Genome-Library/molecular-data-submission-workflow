@@ -69,6 +69,7 @@ def check_clinical_study(clinical_url,study_id,token):
     }
     try:
         response=requests.get(url,headers=headers)
+        #response=requests.get(url)
     except:
         raise ValueError('ERROR REACHING %s' % (url))
 
