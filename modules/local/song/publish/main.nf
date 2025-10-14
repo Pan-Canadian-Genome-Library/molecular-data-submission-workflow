@@ -57,14 +57,14 @@ process SONG_PUBLISH {
         export CLIENT_STUDY_ID=${study_id}
         export CLIENT_ACCESS_TOKEN=${accessToken}
 
-        # Execute SONG publish
-        sing publish -a \${ANALYSIS_ID} $args
+        # Execute SONG publish and capture stderr directly
+        ERROR_OUTPUT=\$(sing publish -a \${ANALYSIS_ID} $args 2>&1)
         PUBLISH_EXIT_CODE=\${?}
         
         if [ \${PUBLISH_EXIT_CODE} -ne 0 ]; then
-            # Capture error details preserving original formatting
-            if [ -f "song.log" ] && [ -s "song.log" ]; then
-                ERROR_DETAILS=\$(cat "song.log")
+            # Process the captured error output
+            if [ -n "\${ERROR_OUTPUT}" ]; then
+                ERROR_DETAILS=\$(echo "\${ERROR_OUTPUT}" | tr '\\r' '\\n' | grep "ERROR" || echo "\${ERROR_OUTPUT}")
             else
                 ERROR_DETAILS="Script execution failed - no error details available"
             fi

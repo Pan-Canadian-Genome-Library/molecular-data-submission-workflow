@@ -78,19 +78,33 @@ process SONG_GETANALYSIS {
         export CLIENT_STUDY_ID=${study_id}
         export CLIENT_ACCESS_TOKEN=${accessToken}
 
-        # Execute SONG get analysis with ANALYSIS_ID prefix
-        sing search -a \${ANALYSIS_ID} $args > ${meta.id}_\${ANALYSIS_ID}.analysis.json
+        # Execute SONG get analysis - separate stdout and stderr for better error handling
+        TEMP_STDOUT="temp_stdout.json"
+        TEMP_STDERR="temp_stderr.log"
+        
+        sing search -a \${ANALYSIS_ID} $args > "\${TEMP_STDOUT}" 2> "\${TEMP_STDERR}"
         GETANALYSIS_EXIT_CODE=\${?}
         
-        if [ \${GETANALYSIS_EXIT_CODE} -ne 0 ]; then
-            # Capture error details preserving original formatting
-            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
-                ERROR_DETAILS=\$(cat ".command.err")
+        if [ \${GETANALYSIS_EXIT_CODE} -eq 0 ]; then
+            # Success - move stdout to final location
+            mv "\${TEMP_STDOUT}" "${meta.id}_\${ANALYSIS_ID}.analysis.json"
+        else
+            # Failure - capture error details from stderr
+            if [ -s "\${TEMP_STDERR}" ]; then
+                ERROR_DETAILS=\$(cat "\${TEMP_STDERR}")
+            elif [ -s "\${TEMP_STDOUT}" ]; then
+                # Sometimes errors are written to stdout
+                ERROR_DETAILS=\$(cat "\${TEMP_STDOUT}")
             else
                 ERROR_DETAILS="Script execution failed - no error details available"
             fi
-
-            # Create placeholder analysis file for failed retrieval with ANALYSIS_ID prefix
+        fi
+        
+        # Clean up temp files
+        rm -f "\${TEMP_STDOUT}" "\${TEMP_STDERR}"
+        
+        # Create placeholder analysis file for failed retrieval if needed
+        if [ \${GETANALYSIS_EXIT_CODE} -ne 0 ]; then
             echo '{"error": "Analysis retrieval failed"}' > ${meta.id}_\${ANALYSIS_ID}.analysis.json
         fi
     fi
