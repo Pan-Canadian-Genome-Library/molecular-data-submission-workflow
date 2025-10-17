@@ -46,7 +46,8 @@ nextflow run . \
     --outdir test_performance_20G \
     -profile test_sequential,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_sequential_20G.txt
+    -with-trace tests/performance/trace_report/trace_sequential_20G.txt \
+    -with-report tests/performance/trace_report/report_sequential_20G.html
 
 # Batch 2: 39GB submissions (sequential)
 nextflow run . \
@@ -58,7 +59,8 @@ nextflow run . \
     --outdir test_performance_39G \
     -profile test_sequential,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_sequential_39G.txt
+    -with-trace tests/performance/trace_report/trace_sequential_39G.txt \
+    -with-report tests/performance/trace_report/report_sequential_39G.html
 
 # Batch 3: 97GB submissions (sequential)
 nextflow run . \
@@ -70,7 +72,8 @@ nextflow run . \
     --outdir test_performance_97G \
     -profile test_sequential,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_sequential_97G.txt
+    -with-trace tests/performance/trace_report/trace_sequential_97G.txt \
+    -with-report tests/performance/trace_report/report_sequential_97G.html
 
 # Batch 4: 194GB submissions (sequential)
 nextflow run . \
@@ -82,7 +85,8 @@ nextflow run . \
     --outdir test_performance_194G \
     -profile test_sequential,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_sequential_194G.txt
+    -with-trace tests/performance/trace_report/trace_sequential_194G.txt \
+    -with-report tests/performance/trace_report/report_sequential_194G.html
 
 # Batch 5: 388GB submissions (sequential)
 nextflow run . \
@@ -94,7 +98,8 @@ nextflow run . \
     --outdir test_performance_388G \
     -profile test_sequential,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_sequential_388G.txt
+    -with-trace tests/performance/trace_report/trace_sequential_388G.txt \
+    -with-report tests/performance/trace_report/report_sequential_388G.html
 ```
 
 ## Test Scenario 2: Parallel Execution per Batch
@@ -114,7 +119,8 @@ nextflow run . \
     --outdir test_performance_parallel_20G \
     -profile test_parallel,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_parallel_20G.txt
+    -with-trace tests/performance/trace_report/trace_parallel_20G.txt \
+    -with-report tests/performance/trace_report/report_parallel_20G.html
 
 # Batch 2: 39GB submissions (parallel)
 nextflow run . \
@@ -126,7 +132,8 @@ nextflow run . \
     --outdir test_performance_parallel_39G \
     -profile test_parallel,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_parallel_39G.txt
+    -with-trace tests/performance/trace_report/trace_parallel_39G.txt \
+    -with-report tests/performance/trace_report/report_parallel_39G.html
 
 # Batch 3: 97GB submissions (parallel)
 nextflow run . \
@@ -138,7 +145,8 @@ nextflow run . \
     --outdir test_performance_parallel_97G \
     -profile test_parallel,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_parallel_97G.txt
+    -with-trace tests/performance/trace_report/trace_parallel_97G.txt \
+    -with-report tests/performance/trace_report/report_parallel_97G.html
 
 # Batch 4: 194GB submissions (parallel)
 nextflow run . \
@@ -150,7 +158,8 @@ nextflow run . \
     --outdir test_performance_parallel_194G \
     -profile test_parallel,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_parallel_194G.txt
+    -with-trace tests/performance/trace_report/trace_parallel_194G.txt \
+    -with-report tests/performance/trace_report/report_parallel_194G.html
 
 # Batch 5: 388GB submissions (parallel)
 nextflow run . \
@@ -162,7 +171,8 @@ nextflow run . \
     --outdir test_performance_parallel_388G \
     -profile test_parallel,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_parallel_388G.txt
+    -with-trace tests/performance/trace_report/trace_parallel_388G.txt \
+    -with-report tests/performance/trace_report/report_parallel_388G.html
 ```
 
 ## Test Scenario 3: Multi-VM Parallel Execution
@@ -181,7 +191,8 @@ nohup nextflow run . \
     --outdir test_performance_vm1_20G \
     -profile test_parallel,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_vm1_20G.txt > vm1_20G.log 2>&1 &
+    -with-trace tests/performance/trace_report/trace_vm1_20G.txt \
+    -with-report tests/performance/trace_report/report_vm1_20G.html > vm1_20G.log 2>&1 &
 
 nohup nextflow run . \
     --study_id "TEST-C3G" \
@@ -192,7 +203,8 @@ nohup nextflow run . \
     --outdir test_performance_vm1_39G \
     -profile test_parallel,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_vm1_39G.txt > vm1_39G.log 2>&1 &
+    -with-trace tests/performance/trace_report/trace_vm1_39G.txt \
+    -with-report tests/performance/trace_report/report_vm1_39G.html > vm1_39G.log 2>&1 &
 ```
 
 ### VM2 Commands
@@ -207,7 +219,8 @@ nohup nextflow run . \
     --outdir test_performance_vm2_97G \
     -profile test_parallel,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_vm2_97G.txt > vm2_97G.log 2>&1 &
+    -with-trace tests/performance/trace_report/trace_vm2_97G.txt \
+    -with-report tests/performance/trace_report/report_vm2_97G.html > vm2_97G.log 2>&1 &
 
 nohup nextflow run . \
     --study_id "TEST-C3G" \
@@ -218,7 +231,8 @@ nohup nextflow run . \
     --outdir test_performance_vm2_194G \
     -profile test_parallel,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_vm2_194G.txt > vm2_194G.log 2>&1 &
+    -with-trace tests/performance/trace_report/trace_vm2_194G.txt \
+    -with-report tests/performance/trace_report/report_vm2_194G.html > vm2_194G.log 2>&1 &
 ```
 
 ### VM3 Commands
@@ -233,30 +247,46 @@ nohup nextflow run . \
     --outdir test_performance_vm3_388G \
     -profile test_parallel,docker,sd4h_k8s_dev \
     --token "test_token_here" \
-    -with-trace tests/performance/trace_report/trace_vm3_388G.txt > vm3_388G.log 2>&1 &
+    -with-trace tests/performance/trace_report/trace_vm3_388G.txt \
+    -with-report tests/performance/trace_report/report_vm3_388G.html > vm3_388G.log 2>&1 &
 ```
 
 ## Expected Outputs
 
-After completing all tests, you should have:
+After completing all tests, you should have both trace files (.txt) and execution report files (.html) in the same directory:
 
 ```
 tests/performance/trace_report/
 ├── trace_sequential_20G.txt
+├── report_sequential_20G.html
 ├── trace_sequential_39G.txt
+├── report_sequential_39G.html
 ├── trace_sequential_97G.txt
+├── report_sequential_97G.html
 ├── trace_sequential_194G.txt
+├── report_sequential_194G.html
 ├── trace_sequential_388G.txt
+├── report_sequential_388G.html
 ├── trace_parallel_20G.txt
+├── report_parallel_20G.html
 ├── trace_parallel_39G.txt
+├── report_parallel_39G.html
 ├── trace_parallel_97G.txt
+├── report_parallel_97G.html
 ├── trace_parallel_194G.txt
+├── report_parallel_194G.html
 ├── trace_parallel_388G.txt
+├── report_parallel_388G.html
 ├── trace_vm1_20G.txt
+├── report_vm1_20G.html
 ├── trace_vm1_39G.txt
+├── report_vm1_39G.html
 ├── trace_vm2_97G.txt
+├── report_vm2_97G.html
 ├── trace_vm2_194G.txt
+├── report_vm2_194G.html
 ├── trace_vm3_388G.txt
+└── report_vm3_388G.html
 ```
 
 ## Notes
