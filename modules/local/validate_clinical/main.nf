@@ -1,6 +1,6 @@
 process VALIDATE_CLINICAL {
     tag "$meta.id"
-    label 'process_single'
+    label 'process_low'
     maxForks 1
 
     conda "${moduleDir}/environment.yml"

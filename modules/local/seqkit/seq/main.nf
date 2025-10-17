@@ -1,6 +1,6 @@
 process SEQKIT_SEQ {
     tag "$meta.id:$fastq_file.baseName"
-    label 'process_low'
+    label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
     container 'quay.io/biocontainers/seqkit:2.8.2--h9ee0642_0'
