@@ -197,7 +197,13 @@ def map_files(analyses,relational_mapping,data,debug):
         analyses[analysis][entity]={}
         foreign_values=analyses.get(analysis).get(foreign_entity).get('data').loc[:,foreign_key].values.tolist()
         analyses[analysis][entity]['data']=data[entity].get('data').query("%s==@foreign_values" % foreign_key)
-        analyses[analysis][entity]['submitted']=True
+
+        if len(analyses[analysis][entity]['data'])>0:
+            analyses[analysis][entity]['submitted']=True
+        else:
+            analyses[analysis][entity]['submitted']=False
+            analyses[analysis]['status']=False
+            analyses[analysis]['comments'].append("No files provded in file TSV. Nothing to Submit")
 
 def map_workflows(analyses,relational_mapping,data,debug):
     print("Mapping workflows to analyses")
