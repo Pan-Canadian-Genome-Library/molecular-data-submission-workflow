@@ -61,14 +61,14 @@ process SONG_MANIFEST {
         export CLIENT_STUDY_ID=${study_id}
         export CLIENT_ACCESS_TOKEN=${accessToken}
 
-        # Execute SONG manifest generation
-        sing manifest -a \${ANALYSIS_ID} -d . -f ${manifest_file} $args
+        # Execute SONG manifest generation and capture stderr directly
+        ERROR_OUTPUT=\$(sing manifest -a \${ANALYSIS_ID} -d . -f ${manifest_file} $args 2>&1)
         MANIFEST_EXIT_CODE=\${?}
         
         if [ \${MANIFEST_EXIT_CODE} -ne 0 ]; then
-            # Capture error details preserving original formatting
-            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
-                ERROR_DETAILS=\$(cat ".command.err")
+            # Process the captured error output
+            if [ -n "\${ERROR_OUTPUT}" ]; then
+                ERROR_DETAILS=\$(echo "\${ERROR_OUTPUT}" | tr '\\r' '\\n' | grep "ERROR" || echo "\${ERROR_OUTPUT}")
             else
                 ERROR_DETAILS="Script execution failed - no error details available"
             fi

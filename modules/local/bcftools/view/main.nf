@@ -34,14 +34,15 @@ process BCFTOOLS_VIEW {
         ERROR_DETAILS="Skipped VCF validation due to upstream failure"
     else
         echo "Running bcftools view validation on: ${vcf_file}"
-        # Use bcftools view to validate VCF format - remove redirection to see errors
-        bcftools view --no-header "${vcf_file}" | wc -l > /dev/null
-        if [ \$? -ne 0 ]; then
-            VCF_EXIT_CODE=1
-            # Capture error details from .command.err file
-            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
+        # Execute bcftools view and capture stderr directly
+        ERROR_OUTPUT=\$(bcftools view --no-header "${vcf_file}" 2>&1)
+        VCF_EXIT_CODE=\$?
+        
+        if [ \${VCF_EXIT_CODE} -ne 0 ]; then
+            # Process the captured error output
+            if [ -n "\${ERROR_OUTPUT}" ]; then
                 # Remove ANSI color codes, carriage returns, and filter out empty lines
-                ERROR_DETAILS=\$(sed 's/\\x1b\\[[0-9;]*m//g' ".command.err" | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || cat ".command.err" | sed 's/\\x1b\\[[0-9;]*m//g')
+                ERROR_DETAILS=\$(echo "\${ERROR_OUTPUT}" | sed 's/\\x1b\\[[0-9;]*m//g' | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || echo "\${ERROR_OUTPUT}")
             else
                 ERROR_DETAILS="VCF file ${vcf_file}: Failed bcftools view validation"
             fi

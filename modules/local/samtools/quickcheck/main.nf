@@ -34,13 +34,15 @@ process SAMTOOLS_QUICKCHECK {
         ERROR_DETAILS="Skipped samtools quickcheck due to upstream failure"
     else
         echo "Running samtools quickcheck on: ${alignment_file}"
-        samtools quickcheck -v "${alignment_file}"
-        if [ \$? -ne 0 ]; then
-            QUICKCHECK_EXIT_CODE=1
-            # Capture error details from .command.err file
-            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
+        # Execute samtools quickcheck and capture stderr directly
+        ERROR_OUTPUT=\$(samtools quickcheck -v "${alignment_file}" 2>&1)
+        QUICKCHECK_EXIT_CODE=\$?
+        
+        if [ \${QUICKCHECK_EXIT_CODE} -ne 0 ]; then
+            # Process the captured error output
+            if [ -n "\${ERROR_OUTPUT}" ]; then
                 # Remove ANSI color codes, carriage returns, and filter out empty lines
-                ERROR_DETAILS=\$(sed 's/\\x1b\\[[0-9;]*m//g' ".command.err" | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || cat ".command.err" | sed 's/\\x1b\\[[0-9;]*m//g')
+                ERROR_DETAILS=\$(echo "\${ERROR_OUTPUT}" | sed 's/\\x1b\\[[0-9;]*m//g' | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || echo "\${ERROR_OUTPUT}")
             else
                 ERROR_DETAILS="Alignment file ${alignment_file}: Failed samtools quickcheck"
             fi
