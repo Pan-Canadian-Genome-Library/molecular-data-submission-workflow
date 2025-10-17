@@ -1,0 +1,21 @@
+studyId	submitter_analysis_id	analysisType	submitter_participant_id	submitter_specimen_id	submitter_sample_id	submitter_experiment_id	data_category	variant_class	variant_calling_strategy	genome_build	genome_annotation
+TEST-CA	analysis_024	sequenceAlignment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_025	sequenceExperiment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_006	sequenceAlignment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_007	sequenceExperiment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_008	sequenceAlignment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_009	sequenceExperiment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_010	sequenceAlignment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_011	sequenceExperiment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_012	sequenceAlignment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_013	sequenceExperiment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_014	sequenceAlignment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_015	sequenceExperiment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_016	sequenceAlignment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_017	sequenceExperiment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_018	sequenceAlignment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_019	sequenceExperiment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_020	sequenceAlignment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_021	sequenceExperiment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_022	sequenceAlignment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38
+TEST-CA	analysis_023	sequenceExperiment	PART_004	SPEC_004	SAMPLE_004	EXP_004	Genomics			GRCh38	GENCODE v38

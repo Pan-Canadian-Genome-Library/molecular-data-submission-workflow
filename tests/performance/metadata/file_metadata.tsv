@@ -1,0 +1,107 @@
+submitter_analysis_id	fileName	fileSize	fileMd5sum	fileType	fileAccess	dataType
+analysis_20G_001	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_001	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_002	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_002	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_003	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_003	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_004	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_004	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_005	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_005	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_006	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_006	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_007	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_007	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_008	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_008	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_009	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_009	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_010	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_010	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_011	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_011	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_012	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_012	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_013	HG002_GM24385.20G.cram  20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_013	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_014	HG002_GM24385.20G.cram	20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_014	HG002_GM24385.20G.cram.crai	9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_015	HG002_GM24385.20G.cram  20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_015	HG002_GM24385.20G.cram.crai  9899845	b61e451165c2abc1d5a0ddb2d753b90f	CRAI	controlled	Aligned Reads Index
+analysis_20G_016	HG002_GM24385.20G.cram  20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_016	HG002_GM24385.20G.cram.crai  9899845  b61e451165c2abc1d5a0ddb2d753b90f  CRAI	controlled	Aligned Reads Index
+analysis_20G_017	HG002_GM24385.20G.cram  20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_017	HG002_GM24385.20G.cram.crai  9899845  b61e451165c2abc1d5a0ddb2d753b90f  CRAI	controlled	Aligned Reads Index
+analysis_20G_018	HG002_GM24385.20G.cram  20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_018	HG002_GM24385.20G.cram.crai  9899845  b61e451165c2abc1d5a0ddb2d753b90f  CRAI  controlled	Aligned Reads Index
+analysis_20G_019	HG002_GM24385.20G.cram  20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_019	HG002_GM24385.20G.cram.crai  9899845  b61e451165c2abc1d5a0ddb2d753b90f  CRAI  controlled	Aligned Reads Index
+analysis_20G_020	HG002_GM24385.20G.cram  20826543628	dc65af43241be4c4a41379a3e6ec90ea	CRAM	controlled	Aligned Reads
+analysis_20G_020	HG002_GM24385.20G.cram.crai  9899845  b61e451165c2abc1d5a0ddb2d753b90f  CRAI  controlled	Aligned Reads Index
+analysis_39G_001	HG002_GM24385.39G.cram	41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM	controlled	Aligned Reads
+analysis_39G_001	HG002_GM24385.39G.cram.crai	19832304	54a71c194eb93538a6e7a01139424262	CRAI	controlled	Aligned Reads Index
+analysis_39G_002	HG002_GM24385.39G.cram	41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM	controlled	Aligned Reads
+analysis_39G_002	HG002_GM24385.39G.cram.crai	19832304	54a71c194eb93538a6e7a01139424262	CRAI	controlled	Aligned Reads Index
+analysis_39G_003	HG002_GM24385.39G.cram	41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM	controlled	Aligned Reads
+analysis_39G_003	HG002_GM24385.39G.cram.crai	19832304	54a71c194eb93538a6e7a01139424262	CRAI	controlled	Aligned Reads Index
+analysis_39G_004  HG002_GM24385.39G.cram	41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM	controlled	Aligned Reads
+analysis_39G_004	HG002_GM24385.39G.cram.crai	19832304	54a71c194eb93538a6e7a01139424262	CRAI	controlled	Aligned Reads Index
+analysis_39G_005	HG002_GM24385.39G.cram  41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM	controlled	Aligned Reads
+analysis_39G_005	HG002_GM24385.39G.cram.crai  19832304	54a71c194eb93538a6e7a01139424262	CRAI	controlled	Aligned Reads Index
+analysis_39G_006  HG002_GM24385.39G.cram  41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM	controlled	Aligned Reads
+analysis_39G_006	HG002_GM24385.39G.cram.crai  19832304	54a71c194eb93538a6e7a01139424262	CRAI	controlled	Aligned Reads Index
+analysis_39G_007  HG002_GM24385.39G.cram  41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM	controlled	Aligned Reads
+analysis_39G_007	HG002_GM24385.39G.cram.crai  19832304	54a71c194eb93538a6e7a01139424262	CRAI	controlled	Aligned Reads Index
+analysis_39G_008  HG002_GM24385.39G.cram  41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM  controlled	Aligned Reads
+analysis_39G_008	HG002_GM24385.39G.cram.crai  19832304	54a71c194eb93538a6e7a01139424262	CRAI  controlled	Aligned Reads Index
+analysis_39G_009  HG002_GM24385.39G.cram  41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM  controlled	Aligned Reads
+analysis_39G_009  HG002_GM24385.39G.cram.crai  19832304  54a71c194eb93538a6e7a01139424262	CRAI  controlled	Aligned Reads Index
+analysis_39G_010  HG002_GM24385.39G.cram	41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM	controlled	Aligned Reads
+analysis_39G_010	HG002_GM24385.39G.cram.crai	19832304	54a71c194eb93538a6e7a01139424262	CRAI	controlled	Aligned Reads Index
+analysis_39G_011	HG002_GM24385.39G.cram  41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM  controlled	Aligned Reads
+analysis_39G_011	HG002_GM24385.39G.cram.crai  19832304  54a71c194eb93538a6e7a01139424262	CRAI  controlled	Aligned Reads Index
+analysis_39G_012  HG002_GM24385.39G.cram  41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM  controlled	Aligned Reads
+analysis_39G_012	HG002_GM24385.39G.cram.crai  19832304  54a71c194eb93538a6e7a01139424262	CRAI  controlled	Aligned Reads Index
+analysis_39G_013  HG002_GM24385.39G.cram  41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM  controlled	Aligned Reads
+analysis_39G_013  HG002_GM24385.39G.cram.crai  19832304  54a71c194eb93538a6e7a01139424262	CRAI  controlled	Aligned Reads Index
+analysis_39G_014  HG002_GM24385.39G.cram  41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM  controlled	Aligned Reads
+analysis_39G_014  HG002_GM24385.39G.cram.crai  19832304  54a71c194eb93538a6e7a01139424262  CRAI  controlled	Aligned Reads Index 
+analysis_39G_015  HG002_GM24385.39G.cram  41652984281	0e45f932da1307ac77e37bd27c95854b	CRAM  controlled	Aligned Reads
+analysis_39G_015  HG002_GM24385.39G.cram.crai  19832304  54a71c194eb93538a6e7a01139424262  CRAI  controlled	Aligned Reads Index 
+analysis_97G_001	HG002_GM24385.97G.cram	104132306104	031fce15068b1c7f0026c07837903a9b	CRAM	controlled	Aligned Reads
+analysis_97G_001	HG002_GM24385.97G.cram.crai	49627988	aa80c6d2ad4989d747f7df6d79faadf5	CRAI	controlled	Aligned Reads Index
+analysis_97G_002	HG002_GM24385.97G.cram	104132306104  031fce15068b1c7f0026c07837903a9b  CRAM	controlled	Aligned Reads
+analysis_97G_002	HG002_GM24385.97G.cram.crai	49627988	aa80c6d2ad4989d747f7df6d79faadf5	CRAI	controlled	Aligned Reads Index
+analysis_97G_003	HG002_GM24385.97G.cram  104132306104	031fce15068b1c7f0026c07837903a9b  CRAM	controlled	Aligned Reads
+analysis_97G_003	HG002_GM24385.97G.cram.crai	49627988	aa80c6d2ad4989d747f7df6d79faadf5	CRAI	controlled	Aligned Reads Index
+analysis_97G_004	HG002_GM24385.97G.cram  104132306104	031fce15068b1c7f0026c07837903a9b  CRAM	controlled	Aligned Reads
+analysis_97G_004	HG002_GM24385.97G.cram.crai	49627988	aa80c6d2ad4989d747f7df6d79faadf5	CRAI  controlled	Aligned Reads Index
+analysis_97G_005	HG002_GM24385.97G.cram  104132306104	031fce15068b1c7f0026c07837903a9b  CRAM	controlled	Aligned Reads
+analysis_97G_005	HG002_GM24385.97G.cram.crai	49627988	aa80c6d2ad4989d747f7df6d79faadf5	CRAI  controlled	Aligned Reads Index
+analysis_97G_006	HG002_GM24385.97G.cram  104132306104	031fce15068b1c7f0026c07837903a9b  CRAM	controlled	Aligned Reads
+analysis_97G_006	HG002_GM24385.97G.cram.crai	49627988	aa80c6d2ad4989d747f7df6d79faadf5	CRAI  controlled	Aligned Reads Index
+analysis_97G_007	HG002_GM24385.97G.cram  104132306104	031fce15068b1c7f0026c07837903a9b  CRAM	controlled	Aligned Reads 
+analysis_97G_007	HG002_GM24385.97G.cram.crai	49627988	aa80c6d2ad4989d747f7df6d79faadf5	CRAI  controlled	Aligned Reads Index
+analysis_97G_008	HG002_GM24385.97G.cram  104132306104	031fce15068b1c7f0026c07837903a9b  CRAM	controlled	Aligned Reads
+analysis_97G_008	HG002_GM24385.97G.cram.crai	49627988  aa80c6d2ad4989d747f7df6d79faadf5  CRAI  controlled	Aligned Reads Index
+analysis_97G_009	HG002_GM24385.97G.cram  104132306104	031fce15068b1c7f0026c07837903a9b  CRAM	controlled	Aligned Reads
+analysis_97G_009	HG002_GM24385.97G.cram.crai	49627988  aa80c6d2ad4989d747f7df6d79faadf5  CRAI  controlled	Aligned Reads Index
+analysis_97G_010	HG002_GM24385.97G.cram  104132306104	031fce15068b1c7f0026c07837903a9b  CRAM  controlled	Aligned Reads
+analysis_97G_010	HG002_GM24385.97G.cram.crai	49627988  aa80c6d2ad4989d747f7df6d79faadf5  CRAI  controlled	Aligned Reads Index
+analysis_194G_001	HG002_GM24385.194G.cram  208264509138	c43b97b07546381562d72ffe89a5669c  CRAM	controlled	Aligned Reads
+analysis_194G_001	HG002_GM24385.194G.cram.crai	99572173	72c41f36eb81bedb5c6df949e63c6aaa	CRAI	controlled	Aligned Reads Index
+analysis_194G_002	HG002_GM24385.194G.cram  208264509138	c43b97b07546381562d72ffe89a5669c  CRAM  controlled	Aligned Reads
+analysis_194G_002	HG002_GM24385.194G.cram.crai	99572173	72c41f36eb81bedb5c6df949e63c6aaa	CRAI  controlled	Aligned Reads Index
+analysis_194G_003	HG002_GM24385.194G.cram  208264509138	c43b97b07546381562d72ffe89a5669c  CRAM  controlled	Aligned Reads
+analysis_194G_003	HG002_GM24385.194G.cram.crai	99572173	72c41f36eb81bedb5c6df949e63c6aaa	CRAI  controlled	Aligned Reads Index
+analysis_194G_004	HG002_GM24385.194G.cram  208264509138	c43b97b07546381562d72ffe89a5669c  CRAM  controlled	Aligned Reads
+analysis_194G_004	HG002_GM24385.194G.cram.crai	99572173	72c41f36eb81bedb5c6df949e63c6aaa	CRAI  controlled	Aligned Reads Index
+analysis_194G_005	HG002_GM24385.194G.cram  208264509138	c43b97b07546381562d72ffe89a5669c  CRAM  controlled	Aligned Reads
+analysis_194G_005	HG002_GM24385.194G.cram.crai	99572173	72c41f36eb81bedb5c6df949e63c6aaa	CRAI  controlled	Aligned Reads Index
+analysis_388G_001	HG002_GM24385.388G.cram	416528915182	d97ac72a6b5ef7d0963862835edb9367	CRAM  controlled	Aligned Reads
+analysis_388G_001	HG002_GM24385.388G.cram.crai	199452838	1d87833bbbcbbba3c0c1f94c61b11680	CRAI  controlled	Aligned Reads Index
+analysis_388G_002	HG002_GM24385.388G.cram	416528915182	d97ac72a6b5ef7d0963862835edb9367	CRAM  controlled	Aligned Reads
+analysis_388G_002	HG002_GM24385.388G.cram.crai	199452838	1d87833bbbcbbba3c0c1f94c61b11680	CRAI  controlled	Aligned Reads Index
+analysis_388G_003	HG002_GM24385.388G.cram	416528915182	d97ac72a6b5ef7d0963862835edb9367	CRAM  controlled	Aligned Reads
+analysis_388G_003	HG002_GM24385.388G.cram.crai	199452838	1d87833bbbcbbba3c0c1f94c61b11680	CRAI  controlled	Aligned Read

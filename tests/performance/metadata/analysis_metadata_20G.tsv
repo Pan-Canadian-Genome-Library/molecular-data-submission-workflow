@@ -1,0 +1,21 @@
+studyId	submitter_analysis_id	analysisType	submitter_participant_id	submitter_specimen_id	submitter_sample_id	submitter_experiment_id	data_category	variant_class	variant_calling_strategy	genome_build	genome_annotation
+TEST-C3G	analysis_20G_001	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_002	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_003	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_004	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_005	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_006	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_007	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_008	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_009	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_010	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_011	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_012	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_013	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_014	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_015	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_016	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_017	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_018	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_019	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
+TEST-C3G	analysis_20G_020	sequenceAlignment	PART_001	SPEC_001	SAMPLE_001	EXP_001	Genomics			GRCh38	
