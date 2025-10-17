@@ -186,7 +186,7 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
                 if debug : print("#map_biospecimen_entitiesE")
                 print("Nothing to map for entity %s in analysis %s" % (entity,analysis))
 
-def map_files(analyses,relational_mapping,data,debug):
+def map_files(analyses,relational_mapping,data,debug,data_directory):
     print("Mapping files to analyses")
     entity="files"
     foreign_entity=relational_mapping.get(entity).get("foreign")[0].get("entity")
@@ -200,6 +200,17 @@ def map_files(analyses,relational_mapping,data,debug):
 
         if len(analyses[analysis][entity]['data'])>0:
             analyses[analysis][entity]['submitted']=True
+
+            for ind in analyses[analysis][entity]['data'].index.values.tolist():
+                file_path="%s/%s" % (data_directory,analyses[analysis][entity]['data'].loc[ind,"fileName"])
+
+                if not os.path.exists(file_path):
+                    if analyses[analysis]['status']:
+                        analyses[analysis]['status']=False
+                        analyses[analysis]['comments'].append("File %s cannot be found." % file_path)  
+                    else:
+                        analyses[analysis]['comments'].append("File %s cannot be found." % file_path)                    
+
         else:
             analyses[analysis][entity]['submitted']=False
             analyses[analysis]['status']=False
@@ -304,7 +315,7 @@ def main(args):
 
     ###This is currently making the assumption that all analyses are mapped to experiment, address this when this changes in the future
     map_biospecimen_entities(analyses,relational_mapping,data,args.debug)
-    map_files(analyses,relational_mapping,data,args.debug)
+    map_files(analyses,relational_mapping,data,args.debug,args.data_directory)
     map_workflows(analyses,relational_mapping,data,args.debug)
     save_outputs(analyses,args.output_directory,args.debug)
 
@@ -322,6 +333,7 @@ if __name__ == "__main__":
     parser.add_argument("-fm", "--file_manager",dest="file_manager", required=True, help="Required file manager URL")
     parser.add_argument("-si", "--study_id",dest="study_id", required=True, help="Required Study ID")
     parser.add_argument("-to", "--token",dest="token", required=False, help="Required Token")
+    parser.add_argument("-dd", "--data-directory",dest="data_directory", required=True, help="Directory where data files can be found")
     parser.add_argument("--debug",action='store_true', default=False, dest="debug", required=False, help="Print Debug messages")
     parser.add_argument("--allow_duplicates",action='store_true', default=False, dest="allow_duplicates", required=False, help="Print Debug messages")
     args = parser.parse_args()

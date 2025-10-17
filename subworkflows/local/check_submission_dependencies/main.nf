@@ -128,7 +128,8 @@ Please fix the above issues and re-run the workflow.
             experiment_metadata, // tuple(val : Spreadsheet)
             specimen_metadata, // tuple(val : Spreadsheet)
             sample_metadata, // tuple(val : Spreadsheet)
-            CHECK_DEPENDENCIES.out.relational_mapping
+            CHECK_DEPENDENCIES.out.relational_mapping,
+            path_to_files_directory
         )
         ch_versions = ch_versions.mix(ANALYSIS_SPLIT.out.versions)
         //Using status file, reform channel to include meta, analysis, clinical, files, CHECK_DEPENDCIES output relational mapping, CHECK_DEPENDCIES output analysis_type, data directory path
