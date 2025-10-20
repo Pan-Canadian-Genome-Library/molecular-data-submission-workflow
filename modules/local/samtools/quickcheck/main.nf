@@ -1,6 +1,6 @@
 process SAMTOOLS_QUICKCHECK {
     tag "$meta.id:$alignment_file.baseName"
-    label 'process_low'
+    label 'process_single'
 
     conda "${moduleDir}/environment.yml"
     container 'quay.io/biocontainers/samtools:1.21--h50ea8bc_0'

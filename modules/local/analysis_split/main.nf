@@ -1,6 +1,6 @@
 process ANALYSIS_SPLIT {
     tag "${study_id}"
-    label 'process_single'
+    label 'process_low'
 
     conda "${moduleDir}/environment.yml"
     container 'quay.io/biocontainers/ampcombi:2.0.1--pyhdfd78af_0'

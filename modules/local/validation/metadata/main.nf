@@ -1,6 +1,6 @@
 process VALIDATION_METADATA {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_single'
 
     conda "${moduleDir}/environment.yml"
     container 'quay.io/biocontainers/python:3.9--1'

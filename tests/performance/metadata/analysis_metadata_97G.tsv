@@ -1,0 +1,11 @@
+studyId	submitter_analysis_id	analysisType	submitter_participant_id	submitter_specimen_id	submitter_sample_id	submitter_experiment_id	data_category	variant_class	variant_calling_strategy	genome_build	genome_annotation
+TEST-C3G	analysis_97G_001	sequenceAlignment	PART_003	SPEC_003	SAMPLE_003	EXP_003	Genomics			GRCh38
+TEST-C3G	analysis_97G_002	sequenceAlignment	PART_003	SPEC_003	SAMPLE_003	EXP_003	Genomics			GRCh38
+TEST-C3G	analysis_97G_003	sequenceAlignment	PART_003	SPEC_003	SAMPLE_003	EXP_003	Genomics			GRCh38
+TEST-C3G	analysis_97G_004	sequenceAlignment	PART_003	SPEC_003	SAMPLE_003	EXP_003	Genomics			GRCh38
+TEST-C3G	analysis_97G_005	sequenceAlignment	PART_003	SPEC_003	SAMPLE_003	EXP_003	Genomics			GRCh38
+TEST-C3G	analysis_97G_006	sequenceAlignment	PART_003	SPEC_003	SAMPLE_003	EXP_003	Genomics			GRCh38
+TEST-C3G	analysis_97G_007	sequenceAlignment	PART_003	SPEC_003	SAMPLE_003	EXP_003	Genomics			GRCh38
+TEST-C3G	analysis_97G_008	sequenceAlignment	PART_003	SPEC_003	SAMPLE_003	EXP_003	Genomics			GRCh38
+TEST-C3G	analysis_97G_009	sequenceAlignment	PART_003	SPEC_003	SAMPLE_003	EXP_003	Genomics			GRCh38
+TEST-C3G	analysis_97G_010	sequenceAlignment	PART_003	SPEC_003	SAMPLE_003	EXP_003	Genomics			GRCh38
