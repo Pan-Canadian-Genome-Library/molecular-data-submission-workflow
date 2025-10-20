@@ -38,16 +38,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
 
     ch_versions = Channel.empty()
     ch_all_status = Channel.empty()  // Collect all [val(meta), *_status.yml] tuples from all processes
-
-    // Catch if dependencies are missing:
-    startup_error_details=[]
-
-    if (params.study_id == null){
-         startup_error_details.add("'study_id' not provided")
-    }
-
-    println(startup_error_details)
-
+    
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/58
     CHECK_SUBMISSION_DEPENDENCIES(
         params.study_id, // string

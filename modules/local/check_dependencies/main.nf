@@ -56,7 +56,7 @@ process CHECK_DEPENDENCIES {
 
     # Capture error details if the command failed
     if [ \$CHECKDEPENDENCIES_EXIT_CODE -ne 0 ]; then
-        ERROR_DETAILS=\$(cat check_dependencies_errors.tmp)
+        ERROR_DETAILS=\$(cat "check_dependencies_errors.tmp" | egrep 'ValueError\\: *.' || cat "check_dependencies_errors.tmp")
 
         # Create empty output files if they don't exist due to failure
         [ ! -f "relational_mapping.json" ] && echo '{}' > relational_mapping.json

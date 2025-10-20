@@ -53,6 +53,20 @@ def parse_status_file(file_path):
         return None
 
 
+def simplfy_error_msg(og_msg):
+    error_code_msg={
+        "403" : "403 - Invalid token found!",
+        "500" : "500 - Error on server end. Please contact PCGL Admin for assistance.",
+        "bio.overture.song.sdk.errors.ServerResponseErrorHandler.handleError" : "Error on sever end (FileManager/FileTrasfer). Please contact PCGL Admin for assistance.",
+        "401" : "401 - User is unauthorized to perform this action. Please contact PCGL Admin for assistance."
+    }
+    for line in og_msg.split("\n"):
+        for key in error_code_msg.keys():
+            if key in line:
+                return(error_code_msg[key])
+
+    return(og_msg)
+
 def generate_individual_receipt(processes, analysis_info, output_file):
     """Generate individual analysis receipt in JSON format."""
     # Determine overall status for this analysis
@@ -63,13 +77,20 @@ def generate_individual_receipt(processes, analysis_info, output_file):
     # Clean up process data for JSON output
     clean_processes = []
     for p in processes:
+
+        if p.get('details'):
+            if p.get('details')!=None:
+                if p.get('details').get('error_details'):
+                    if p.get('details').get('error_details')!=None:
+                        p['details']['error_details']=simplfy_error_msg(p.get('details').get('error_details'))
+
         clean_process = {
             'process': p['process'],
             'status': p['status'],
             'exit_code': p['exit_code'],
             'timestamp': p['timestamp'],
             'work_directory': p.get('work_directory', None),
-            'details': p.get('details', None)
+            'details':   p.get('details', None),
         }
 
         clean_processes.append(clean_process)

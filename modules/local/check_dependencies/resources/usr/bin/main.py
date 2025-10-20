@@ -42,8 +42,25 @@ def check_clinical_health(clinical_url,token):
         raise ValueError('ERROR REACHING %s' % (url))
 
     if response.status_code!=200:
-        raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+        error_message=["Error w/ %s : " % (url)]
+        error_message.append("Code - %s" % (response.status_code)) if response.status_code else None
+        error_message.append("Message - %s" %(response.json().get('message'))) if response.json().get('message') else None
+        raise ValueError(error_message[0] + ",".join(error_message[1:]))
         exit(1)
+
+def simplfy_error_msg(og_msg):
+    error_code_msg={
+        "403" : "403 - Invalid token found!",
+        "500" : "500 - Error on server end. Please contact PCGL Admin for assistance.",
+        "bio.overture.song.sdk.errors.ServerResponseErrorHandler.handleError" : "Error on sever end (FileManager/FileTrasfer). Please contact PCGL Admin for assistance.",
+        "401" : "401 - User is unauthorized to perform this action. Please contact PCGL Admin for assistance."
+    }
+    for line in og_msg.split("\n"):
+        for key in error_code_msg.keys():
+            if key in line:
+                return(error_code_msg[key])
+
+    return(og_msg)
 
 def check_file_manager_health(file_manager,token):
     print("Checking File Manager health")
@@ -58,7 +75,10 @@ def check_file_manager_health(file_manager,token):
         raise ValueError('ERROR REACHING %s' % (url))
 
     if response.status_code!=200:
-        raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+        error_message=["Error w/ %s : " % (url)]
+        error_message.append("Code - %s" % (response.status_code)) if response.status_code else None
+        error_message.append("Message - %s" %(response.json().get('message'))) if response.json().get('message') else None
+        raise ValueError(error_message[0] + ",".join(error_message[1:]))
         exit(1)
 
 def check_clinical_study(clinical_url,study_id,token):
@@ -74,7 +94,10 @@ def check_clinical_study(clinical_url,study_id,token):
         raise ValueError('ERROR REACHING %s' % (url))
 
     if response.status_code!=200:
-        raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+        error_message=["Error w/ %s : " % (url)]
+        error_message.append("Code - %s" % (response.status_code)) if response.status_code else None
+        error_message.append("Message - %s" %(response.json().get('message'))) if response.json().get('message') else None
+        raise ValueError(simplfy_error_msg(error_message[0] + ",".join(error_message[1:])))
         exit(1)
 
 def check_file_manager_study(file_manager_url,study_id,token):
@@ -89,7 +112,12 @@ def check_file_manager_study(file_manager_url,study_id,token):
         raise ValueError('ERROR REACHING %s' % (url))
 
     if response.status_code!=200:
-        raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+        error_message=["Error w/ %s : " % (url)]
+        error_message.append("Code - %s" % (response.status_code)) if response.status_code else None
+        error_message.append("Message - %s" %(response.json().get('message'))) if response.json().get('message') else None
+        print(error_message[0] + ",".join(error_message[1:]))
+        print(simplfy_error_msg(error_message[0] + ",".join(error_message[1:])))
+        raise ValueError(simplfy_error_msg(error_message[0] + ",".join(error_message[1:])))
         exit(1)
 
 def retrieve_category_id(clinical_url,study_id,token):
@@ -104,7 +132,10 @@ def retrieve_category_id(clinical_url,study_id,token):
         raise ValueError('ERROR REACHING %s' % (url))
 
     if response.status_code!=200:
-        raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+        error_message=["Error w/ %s : " % (url)]
+        error_message.append("Code - %s" % (response.status_code)) if response.status_code else None
+        error_message.append("Message - %s" %(response.json().get('message'))) if response.json().get('message') else None
+        raise ValueError(error_message[0] + ",".join(error_message[1:]))
         exit(1)
 
     categories=response.json()
@@ -136,7 +167,10 @@ def check_analysis_types(file_manager_url,study_id,token):
         raise ValueError('ERROR REACHING %s' % (url))
 
     if response.status_code!=200:
-        raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+        error_message=["Error w/ %s : " % (url)]
+        error_message.append("Code - %s" % (response.status_code)) if response.status_code else None
+        error_message.append("Message - %s" %(response.json().get('message'))) if response.json().get('message') else None
+        raise ValueError(error_message[0] + ",".join(error_message[1:]))
         exit(1)
 
     if response.json()['count']<limit:
@@ -151,7 +185,10 @@ def check_analysis_types(file_manager_url,study_id,token):
                 raise ValueError('ERROR REACHING %s' % (url))
 
             if response.status_code!=200:
-                raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+                error_message=["Error w/ %s : " % (url)]
+                error_message.append("Code - %s" % (response.status_code)) if response.status_code else None
+                error_message.append("Message - %s" %(response.json().get('message'))) if response.json().get('message') else None
+                raise ValueError(error_message[0] + ",".join(error_message[1:]))
                 exit(1)
 
             for analysis_type in response.json()['resultSet']:
@@ -171,7 +208,10 @@ def check_analysis_types(file_manager_url,study_id,token):
             raise ValueError('ERROR REACHING %s' % (url))
 
         if response.status_code!=200:
-            raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+            error_message=["Error w/ %s : " % (url)]
+            error_message.append("Code - %s" % (response.status_code)) if response.status_code else None
+            error_message.append("Message - %s" %(response.json().get('message'))) if response.json().get('message') else None
+            raise ValueError(error_message[0] + ",".join(error_message[1:]))
             exit(1)
         if response.json()['name']=='waste_water':
             continue
@@ -213,8 +253,11 @@ def retrieve_clinical_schema(clinical_url,category_id,token):
         raise ValueError('ERROR REACHING %s' % (url))
 
     if response.status_code!=200:
-        raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
-        exit(1)  
+        error_message=["Error w/ %s : " % (url)]
+        error_message.append("Code - %s" % (response.status_code)) if response.status_code else None
+        error_message.append("Message - %s" %(response.json().get('message'))) if response.json().get('message') else None
+        raise ValueError(error_message[0] + ",".join(error_message[1:]))
+        exit(1) 
 
     return(response.json()['schemas'])
 

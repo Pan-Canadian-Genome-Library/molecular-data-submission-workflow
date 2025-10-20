@@ -57,7 +57,7 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
                     
                     if (error_start_index >= 0) {
                         // Get lines after error_details: that start with spaces
-                        def error_lines = lines[(error_start_index + 1)..-1]
+                        def error_lines = lines[(error_start_index+1)..-1]
                             .takeWhile { it.startsWith('    ') || it.trim().isEmpty() }
                             .collect { it.replaceFirst('    ', '') }
                         
@@ -74,13 +74,9 @@ System.err.println """
 ❌ Study: ${study_id}
 
 🔍 Issues found:
---------------------------------------------------------------------------------
-""".stripIndent()
-System.err.println """
-${error_details}
-""".stripIndent()
-System.err.println """
---------------------------------------------------------------------------------
+--------------------------------------------------------------------------------""".stripIndent()
+System.err.println """${error_details}""".stripIndent()
+System.err.println """--------------------------------------------------------------------------------
 
 📋 Common solutions:
    • Ensure that access token with correct submission scope is provided
@@ -101,7 +97,7 @@ Please fix the above issues and re-run the workflow.
                     System.err.flush()
 
                     // Add a small delay to ensure output is displayed
-                    Thread.sleep(100)
+                    Thread.sleep(00)
 
                     // Gracefully exit the workflow
                     System.exit(1)

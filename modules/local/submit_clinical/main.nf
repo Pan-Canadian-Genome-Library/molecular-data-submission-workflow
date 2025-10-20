@@ -57,7 +57,7 @@ process CLINICAL_SUBMISSION {
         if [ \$GENERATION_EXIT_CODE -ne 0 ]; then
             # Read all error details from captured stderr
             if [ -f "generation_errors.tmp" ] && [ -s "generation_errors.tmp" ]; then
-                ERROR_DETAILS=\$(cat "generation_errors.tmp")
+                ERROR_DETAILS=\$(cat "generation_errors.tmp" | egrep 'ValueError\\: *.' || cat "generation_errors.tmp")
             else
                 ERROR_DETAILS="Script execution failed"
             fi

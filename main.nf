@@ -138,8 +138,6 @@ Please fix the above issues and re-run the workflow.
                     // Gracefully exit the workflow
                     System.exit(1)
     }
-
-    println(startup_error_details)
     //
     // WORKFLOW: Run main workflow
     //
