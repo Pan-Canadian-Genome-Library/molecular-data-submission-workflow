@@ -61,15 +61,15 @@ process SCORE_UPLOAD {
         export TRANSPORT_PARALLEL=${transport_parallel}
         export TRANSPORT_MEM=${transport_mem}
 
-        # Execute SCORE upload
-        score-client upload --manifest ${manifest} $args
+        # Execute SCORE upload and capture stderr directly
+        ERROR_OUTPUT=\$(score-client upload --manifest ${manifest} $args 2>&1)
         UPLOAD_EXIT_CODE=\${?}
         
         if [ \${UPLOAD_EXIT_CODE} -ne 0 ]; then
-            # Capture error details, converting carriage returns to newlines and filtering for ERROR lines
-            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
+            # Process the captured error output
+            if [ -n "\${ERROR_OUTPUT}" ]; then
                 # Convert carriage returns to newlines, then get lines containing ERROR
-                ERROR_DETAILS=\$(tr '\\r' '\\n' < ".command.err" | grep "ERROR" || echo "No ERROR lines found")
+                ERROR_DETAILS=\$(echo "\${ERROR_OUTPUT}" | tr '\\r' '\\n' | grep "ERROR" || echo "\${ERROR_OUTPUT}")
             else
                 ERROR_DETAILS="Script execution failed - no error details available"
             fi

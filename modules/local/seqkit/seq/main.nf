@@ -34,14 +34,15 @@ process SEQKIT_SEQ {
         ERROR_DETAILS="Skipped FASTQ validation due to upstream failure"
     else
         echo "Running seqkit seq validation on: ${fastq_file}"
-        # Use seqkit seq to validate FASTQ format - remove redirection to capture errors
-        seqkit seq --validate-seq --quiet "${fastq_file}" > /dev/null
-        if [ \$? -ne 0 ]; then
-            FASTQ_EXIT_CODE=1
-            # Capture error details from .command.err file
-            if [ -f ".command.err" ] && [ -s ".command.err" ]; then
+        # Execute seqkit seq and capture stderr directly
+        ERROR_OUTPUT=\$(seqkit seq --validate-seq --quiet "${fastq_file}" 2>&1)
+        FASTQ_EXIT_CODE=\$?
+        
+        if [ \${FASTQ_EXIT_CODE} -ne 0 ]; then
+            # Process the captured error output
+            if [ -n "\${ERROR_OUTPUT}" ]; then
                 # Remove ANSI color codes and clean up formatting
-                ERROR_DETAILS=\$(tr -d '\\033' < ".command.err" | sed 's/\\[[0-9;]*m//g' | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$')
+                ERROR_DETAILS=\$(echo "\${ERROR_OUTPUT}" | tr -d '\\033' | sed 's/\\[[0-9;]*m//g' | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || echo "\${ERROR_OUTPUT}")
             else
                 ERROR_DETAILS="FASTQ file ${fastq_file}: Failed seqkit seq validation"
             fi

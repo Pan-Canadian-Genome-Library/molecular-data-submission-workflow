@@ -55,16 +55,19 @@ process SONG_SUBMIT {
         export CLIENT_STUDY_ID=${study_id}
         export CLIENT_ACCESS_TOKEN=${accessToken}
 
-        # Execute SONG submit and capture output
-        ANALYSIS_ID=\$(sing submit -f ${payload} $args $allow_duplicates_arg | jq -er .analysisId | tr -d '\\n' 2>&1)
+        # Execute SONG submit and capture stderr directly
+        SUBMIT_OUTPUT=\$(sing submit -f ${payload} $args $allow_duplicates_arg 2>&1)
         SUBMIT_EXIT_CODE=\${?}
         
-        # Create placeholder analysis ID if submission failed
-        if [ \${SUBMIT_EXIT_CODE} -ne 0 ]; then
+        # Process the output
+        if [ \${SUBMIT_EXIT_CODE} -eq 0 ]; then
+            # Extract analysis ID from successful output
+            ANALYSIS_ID=\$(echo "\${SUBMIT_OUTPUT}" | jq -er .analysisId | tr -d '\\n' 2>/dev/null || echo "unavailable")
+        else
             ANALYSIS_ID="unavailable"
-            # Capture error details preserving original formatting
-            if [ -f "song.log" ] && [ -s "song.log" ]; then
-                ERROR_DETAILS=\$(cat "song.log")
+            # Process the captured error output
+            if [ -n "\${SUBMIT_OUTPUT}" ]; then
+                ERROR_DETAILS=\$(echo "\${SUBMIT_OUTPUT}" | tr '\\r' '\\n' | grep "ERROR" || echo "\${SUBMIT_OUTPUT}")
             else
                 ERROR_DETAILS="Script execution failed - no error details available"
             fi
