@@ -88,7 +88,56 @@ workflow {
     log.info "   - skip_upload: ${params.skip_upload}"
     log.info "   - allow_duplicates: ${params.allow_duplicates}"
 
+    // Catch if dependencies are missing:
+    startup_error_details=[]
 
+    if (params.study_id == null){
+         startup_error_details.add("'study_id' was not provided, please provide the variable via the '--study_id' flag or in config.")
+    }
+    if (params.analysis_metadata == null){
+         startup_error_details.add("'analysis_metadata' was not provided, please provide the variable via the '--analysis_metdata' flag or in config.")
+    }
+    if (params.file_metadata == null){
+         startup_error_details.add("'file_metadata' was not provided, please provide the variable via the '--file_metadata' flag or in config.")
+    }
+    if (params.token == null){
+         startup_error_details.add("'token' was not provided, please provide the variable via the '--token' flag or in config.")
+    }
+    if (params.path_to_files_directory == null){
+         startup_error_details.add("'path_to_files_directory' was not provided, please provide the variable via the '--path_to_files_directory' flag or in config.")
+    }
+
+    if (startup_error_details.size()!=0){
+System.err.println """
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        🚨 WORKFLOW STOPPED                                   ║
+║              Minimum requirements for data submission not met!               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+""".stripIndent()
+System.err.println """
+🔍 Issues found:
+--------------------------------------------------------------------------------
+""".stripIndent()
+System.err.println """
+${startup_error_details.join("\n")}
+""".stripIndent()
+System.err.println """
+--------------------------------------------------------------------------------
+
+""".stripIndent()
+System.err.println """
+Please fix the above issues and re-run the workflow.
+                    """.stripIndent()
+                    
+                    // Flush the error stream before exiting
+                    System.err.flush()
+
+                    // Add a small delay to ensure output is displayed
+                    Thread.sleep(100)
+
+                    // Gracefully exit the workflow
+                    System.exit(1)
+    }
     //
     // WORKFLOW: Run main workflow
     //

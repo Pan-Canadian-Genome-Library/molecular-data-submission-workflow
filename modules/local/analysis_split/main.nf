@@ -15,6 +15,7 @@ process ANALYSIS_SPLIT {
         path(specimen_metadata) // Spreadsheet
         path(sample_metadata) // Spreadsheet
         path(relational_mapping) //Json
+        path(path_to_files_directory)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
@@ -43,6 +44,7 @@ process ANALYSIS_SPLIT {
         --file_manager ${params.file_manager_url} \
         --study_id ${study_id} \
         --token ${params.token} \
+        --data-directory ${path_to_files_directory} \
         ${workflow_file} \
         ${sample_file} \
         ${specimen_file} \

@@ -38,7 +38,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
 
     ch_versions = Channel.empty()
     ch_all_status = Channel.empty()  // Collect all [val(meta), *_status.yml] tuples from all processes
-
+    
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/58
     CHECK_SUBMISSION_DEPENDENCIES(
         params.study_id, // string
