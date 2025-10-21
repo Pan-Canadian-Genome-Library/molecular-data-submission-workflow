@@ -1,4 +1,4 @@
 studyId	submitter_analysis_id	analysisType	submitter_participant_id	submitter_specimen_id	submitter_sample_id	submitter_experiment_id	data_category	variant_class	variant_calling_strategy	genome_build	genome_annotation
-TEST-C3G	analysis_388G_001	sequenceAlignment	PART_005	SPEC_005	SAMPLE_005	EXP_006	Genomics			GRCh38
-TEST-C3G	analysis_388G_002	sequenceAlignment	PART_005	SPEC_005	SAMPLE_005	EXP_006	Genomics			GRCh38
-TEST-C3G	analysis_388G_003	sequenceAlignment	PART_005	SPEC_005	SAMPLE_005	EXP_006	Genomics			GRCh38
+TEST-C3G	analysis_388G_001	sequenceAlignment	PART_005	SPEC_005	SAMPLE_005	EXP_005	Genomics			GRCh38
+TEST-C3G	analysis_388G_002	sequenceAlignment	PART_005	SPEC_005	SAMPLE_005	EXP_005	Genomics			GRCh38
+TEST-C3G	analysis_388G_003	sequenceAlignment	PART_005	SPEC_005	SAMPLE_005	EXP_005	Genomics			GRCh38
