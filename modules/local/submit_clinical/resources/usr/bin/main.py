@@ -12,7 +12,8 @@ import glob
 
 def retrieve_category_id(clinical_url,study_id,token):
     print("Retrieve Category ID")
-    url="%s/category" % (clinical_url)
+    url="%s/study/%s" % (clinical_url,study_id)
+
     headers={
             "Authorization" : "Bearer %s" % token
     }
@@ -25,7 +26,13 @@ def retrieve_category_id(clinical_url,study_id,token):
             raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
             exit(1)
 
-    categories=response.json()
+    if response.json().get('categoryId'):
+        if response.json().get('categoryId')!=None:
+            return(str(response.json().get('categoryId')))
+        else:
+            raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
+    else:
+        raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
 
     for cat_id in categories:
         if study_id.lower() in cat_id['name'] or study_id.upper() in cat_id['name']:
@@ -145,7 +152,7 @@ def query_clinical_validator(url,token):
                 raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
                 exit(1)
 
-        if response.json()['message']=='Record found':
+        if response.json()['message']=='Record found.':
             return(True)
         else:
             return(False)
@@ -212,8 +219,9 @@ def check_registered_entities(analysis,clinical_url,category_id,study_id,relatio
         for primary_key in relational_mapping[entity]['primary']:
             ###Should be 1:1 aside from read_group, otherwise if one read_group fails all will be flagged
             for ind in analysis[entity].index.values.tolist():
-                url="%s/validator/category/%s/entity/%s/exists?organization=%s&value=%s" % (clinical_url,category_id,entity,study_id,analysis[entity].loc[ind,primary_key])
-
+                url="%s/validator/entity/%s/field/%s/exists?study=%s&value=%s" % (clinical_url,entity,primary_key,study_id,analysis[entity].loc[ind,primary_key])
+                print(url)
+                #https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/entity/experiment/field/submitter_experiment_id/exists?study={study}&value={value}
                 if query_clinical_validator(url,token):
                     comments,redundant=verify_registered_data(token,clinical_url,category_id,entity,study_id,primary_key,ind,analysis)
 

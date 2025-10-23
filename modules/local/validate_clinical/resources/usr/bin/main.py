@@ -30,31 +30,28 @@ import argparse
 import os
 
 def retrieve_category_id(clinical_url,study_id,token):
-   print("Retrieve Category ID")
-   url="%s/category" % (clinical_url)
-   headers={
+    print("Retrieve Category ID")
+    url="%s/study/%s" % (clinical_url,study_id)
+
+    headers={
             "Authorization" : "Bearer %s" % token
-   }
-   try:
+    }
+    try:
             response=requests.get(url,headers=headers)
-   except:
+    except:
             raise ValueError('ERROR REACHING %s' % (url))
 
-   if response.status_code!=200:
+    if response.status_code!=200:
             raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
             exit(1)
 
-   categories=response.json()
-
-   for cat_id in categories:
-      if study_id.lower() in cat_id['name'] or study_id.upper() in cat_id['name']:
-            return(str(cat_id["id"]))
-
-   for cat_id in categories:
-      if "prod_pcgl_schema" in cat_id['name']:
-            return(str(cat_id["id"]))
-
-   raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
+    if response.json().get('categoryId'):
+        if response.json().get('categoryId')!=None:
+            return(str(response.json().get('categoryId')))
+        else:
+            raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
+    else:
+        raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
 
 def check_analysis_duplicates(analysis):
    if len(analysis['analysis'])>1:
@@ -134,6 +131,7 @@ def check_read_group_exists(analysis,analysisTypes,token,clinical_url,category_i
       }
       comments=[]
       url="%s/data/category/%s/organization/%s/query?entityName=%s" % (clinical_url,category_id,study_id,"read_group")
+      
       payload={
                "op": "and",
                "content": [
