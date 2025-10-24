@@ -122,42 +122,36 @@ def check_file_manager_study(file_manager_url,study_id,token):
 
 def retrieve_category_id(clinical_url,study_id,token):
     print("Retrieve Category ID")
-    url="%s/category" % (clinical_url)
+    url="%s/study/%s" % (clinical_url,study_id)
+
     headers={
-        "Authorization" : "Bearer %s" % token
+            "Authorization" : "Bearer %s" % token
     }
     try:
-        response=requests.get(url,headers=headers)
+            response=requests.get(url,headers=headers)
     except:
-        raise ValueError('ERROR REACHING %s' % (url))
+            raise ValueError('ERROR REACHING %s' % (url))
 
     if response.status_code!=200:
-        error_message=["Error w/ %s : " % (url)]
-        error_message.append("Code - %s" % (response.status_code)) if response.status_code else None
-        error_message.append("Message - %s" %(response.json().get('message'))) if response.json().get('message') else None
-        raise ValueError(error_message[0] + ",".join(error_message[1:]))
-        exit(1)
+            raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
+            exit(1)
 
-    categories=response.json()
-
-    for cat_id in categories:
-        if study_id.lower() in cat_id['name'] or study_id.upper() in cat_id['name']:
-            return(str(cat_id["id"]))
-
-    for cat_id in categories:
-        if "prod_pcgl_schema" in cat_id['name']:
-            return(str(cat_id["id"]))
-
-    raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
+    if response.json().get('categoryId'):
+        if response.json().get('categoryId')!=None:
+            return(str(response.json().get('categoryId')))
+        else:
+            raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
+    else:
+        raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
 
 def check_analysis_types(file_manager_url,study_id,token):
     analysis_types=[]
     required_analysis_fields={}
 
     print("Retrieving analysis Types")
-    # headers={
-    #     "Authorization" : "Bearer %s" % token
-    # }
+    headers={
+        "Authorization" : "Bearer %s" % token
+    }
     limit=20
     url="%s/schemas?hideSchema=true&limit=%s&offset=0&unrenderedOnly=false" % (file_manager_url,str(limit))
 
@@ -317,14 +311,12 @@ def update_relational_mapping(relational_mapping,analysis_types):
         if analysis_types[schema].get('externalValidations'):
             if len(analysis_types[schema]['externalValidations'])==0:
                 continue
-            if analysis_types[schema]['externalValidations'][0]['url'].endswith("health"):
-                analysis_types[schema]['externalValidations'][0]['url']="https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/category/1/entity/experiment/exists?organization={studyId}&value={value}"
-            
+
             relational_mapping['analysis']['analysisTypes'][schema]={
                 "primary":["submitter_analysis_id"],
                 "foreign":{
                     "foreign":analysis_types[schema]['externalValidations'][0]['jsonPath'],
-                    "entity":re.findall(r'(?<=entity\/)([^\/]+)(?=\/exists)',analysis_types[schema]['externalValidations'][0]['url'])[0]
+                    "entity":re.findall(r'(?<=entity\/)([^\/]+)(?=\/field)',analysis_types[schema]['externalValidations'][0]['url'])[0]
                 }
             }
     
