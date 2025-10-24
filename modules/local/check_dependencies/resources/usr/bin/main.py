@@ -143,7 +143,7 @@ def retrieve_category_id(clinical_url,study_id,token):
             raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
     else:
         raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
-        
+
 def check_analysis_types(file_manager_url,study_id,token):
     analysis_types=[]
     required_analysis_fields={}
@@ -311,9 +311,7 @@ def update_relational_mapping(relational_mapping,analysis_types):
         if analysis_types[schema].get('externalValidations'):
             if len(analysis_types[schema]['externalValidations'])==0:
                 continue
-            if analysis_types[schema]['externalValidations'][0]['url'].endswith("health"):
-                analysis_types[schema]['externalValidations'][0]['url']="https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/entity/experiment/field/submitter_experiment_id/exists?study={study}&value={value}"
-            
+
             relational_mapping['analysis']['analysisTypes'][schema]={
                 "primary":["submitter_analysis_id"],
                 "foreign":{
