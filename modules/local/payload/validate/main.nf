@@ -78,6 +78,7 @@ process PAYLOAD_VALIDATE {
             main.py \\
                 --payload "${payload_file}" \\
                 --schema-url "${schema_url}" \\
+                --clinical-url "${params.clinical_url}" \\
                 2>validation_errors.tmp
 
             VALIDATION_EXIT_CODE=\$?
