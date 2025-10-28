@@ -34,12 +34,9 @@ def load_payload(payload_file):
         print(f"Error reading payload file: {e}.", file=sys.stderr)
         return None
 def query_clinical_validator(url,value):
-        headers={
-                #"Authorization" : "Bearer %s" % token
-        }
-
-        response=requests.get(url)
-        response.status_code
+        # headers={
+        #         "Authorization" : "Bearer %s" % token
+        # }
         #https://submission.pcgl-dev.cumulus.genomeinformatics.org/validator/category/1/entity/participant/exists?organization=EXAMPLE-CA&value=DONOR_01
         try:
                 #response=requests.get(url,headers=headers)
