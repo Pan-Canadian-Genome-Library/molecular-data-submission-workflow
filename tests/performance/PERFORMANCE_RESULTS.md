@@ -4,12 +4,6 @@
 
 This document presents the comprehensive performance analysis results for the PCGL molecular data submission workflow, conducted across two test environments (OICR and C3G) with varying file sizes (20GB to 388GB) and execution modes (Sequential, Parallel, Mixed). The analysis provides data-driven insights into workflow performance characteristics, resource utilization patterns, and infrastructure optimization opportunities.
 
-**Key Highlights:**
-- C3G demonstrates **~4.5x better data transfer throughput** compared to OICR for Score Upload operations
-- Sequential execution shows **superior performance** for compute-intensive validation tasks
-- **Near-zero queue wait times** indicate adequate resource provisioning across both infrastructures
-- Batch-level metrics reveal consistent performance patterns across different file sizes
-
 ---
 
 ## Test Environment Configuration
