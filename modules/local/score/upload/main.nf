@@ -61,6 +61,7 @@ process SCORE_UPLOAD {
         export STORAGE_URL=${file_transfer_url}
         export TRANSPORT_PARALLEL=${transport_parallel}
         export TRANSPORT_MEM=${transport_mem}
+        export LOGGING_LEVEL_ROOT=DEBUG
 
         # Execute SCORE upload and capture stderr directly
         ERROR_OUTPUT=\$(score-client upload --manifest ${manifest} $args 2>&1)
