@@ -138,6 +138,22 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     -profile singularity
 ```
 
+### **Compute Cluster Management Options**
+
+#### **Slurm**
+Use Slurm  (recommended for HPC environments where available and required for resource management):
+```bash
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    [... parameters ...] \
+    -profile slurm
+```
+
+Note the config provided in :
+```
+conf/slurm.config
+```
+Is rudimentary and serves as a start/template, likely to not work out of box. Please add in configurations and arguements required (such as specific nodes).
+
 
 ## 📚 Related Documentation
 
