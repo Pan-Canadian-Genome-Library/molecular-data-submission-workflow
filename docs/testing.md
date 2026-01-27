@@ -24,12 +24,17 @@ ls tests/test_data/
 
 ## ⚠️ **Important Notes**
 
-- **Test Environment**: These examples use the `cumulus_dev` profile for development testing in **OICR**. Please use `sd4h_dev` for any testing in **SD4H**.  
+- **Test Environment**: 
+  - These examples use the `cumulus_dev` profile for testing in **OICR Dev**. 
+  - Please use `sd4h_dev` for any testing in **SD4H Dev**, 
+  - Please use `sd4h_staging` for any testing in **SD4H Staging**.  
 - **Authentication**: Replace `"test_token_here"` with your actual authentication token.
 - **Network Requirements**: Ensure access to PCGL submission services in your testing environment.
 - **Data Model**: Please check the latest version of the [PCGL Base Data Model](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB) to ensure your data conforms to the metadata requirements and dependencies.
 - **Entity Registration**: Please make sure that `Study` and `Participant` entities are already registered for all test scenarios.
-- **Test Dataset**: The [provided test data](../tests/test_data/) is pre-formatted and compliant with the latest PCGL Base Data Model. When using your own data, refer to the [Input Documentation](input.md) [**TODO**] for formatting requirements and data preparation guidelines.
+- **Test Dataset**: 
+  - The [provided test data](../tests/test_data/) is pre-formatted and compliant with the latest PCGL Base Data Model. Please remember to replace **studyId** in `tests/test_data/analysis_meta/analysis_metadata.tsv` to **your_study_id**. 
+  - When using your own data, refer to the [Input Documentation](input.md) for formatting requirements and data preparation guidelines.
 
 
 ## 🧪 **Running Tests**
