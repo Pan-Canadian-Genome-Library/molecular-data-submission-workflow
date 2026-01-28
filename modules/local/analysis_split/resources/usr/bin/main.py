@@ -202,7 +202,10 @@ def map_files(analyses,relational_mapping,data,debug,data_directory):
             analyses[analysis][entity]['submitted']=True
 
             for ind in analyses[analysis][entity]['data'].index.values.tolist():
-                file_path="%s/%s" % (data_directory,analyses[analysis][entity]['data'].loc[ind,"fileName"])
+                if data_directory:
+                    file_path="%s/%s" % (data_directory,analyses[analysis][entity]['data'].loc[ind,"fileName"])
+                else:
+                    file_path="%s" % (analyses[analysis][entity]['data'].loc[ind,"fileName"])
 
                 if not os.path.exists(file_path):
                     if analyses[analysis]['status']:
@@ -333,7 +336,7 @@ if __name__ == "__main__":
     parser.add_argument("-fm", "--file_manager",dest="file_manager", required=True, help="Required file manager URL")
     parser.add_argument("-si", "--study_id",dest="study_id", required=True, help="Required Study ID")
     parser.add_argument("-to", "--token",dest="token", required=False, help="Required Token")
-    parser.add_argument("-dd", "--data-directory",dest="data_directory", required=True, help="Directory where data files can be found")
+    parser.add_argument("-dd", "--data-directory",dest="data_directory", required=False,default=False, help="Directory where data files can be found")
     parser.add_argument("--debug",action='store_true', default=False, dest="debug", required=False, help="Print Debug messages")
     parser.add_argument("--allow_duplicates",action='store_true', default=False, dest="allow_duplicates", required=False, help="Print Debug messages")
     args = parser.parse_args()

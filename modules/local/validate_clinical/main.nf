@@ -27,7 +27,7 @@ process VALIDATE_CLINICAL {
     def experiment_file = clinical.experiment!=null ? "--experiment_metadata ${clinical.experiment}" : ""
     def read_group_file = clinical.read_group!=null ? "--read_group_metadata ${clinical.read_group}" : ""
     def workflow_file = analysis.workflow!=null ? "--workflow_metadata ${analysis.workflow}" : ""
-    
+    def data_directory_arg = data_directory!=[] ? "--data_directory ${data_directory}": ""
     """
     # Set error handling to continue on failure for resilient processing
     set +e
@@ -47,6 +47,7 @@ process VALIDATE_CLINICAL {
         ${experiment_file} \
         ${read_group_file} \
         ${workflow_file} \
+        ${data_directory_arg} \
         --file_metadata ${analysis.files} \
         --analysis_metadata ${analysis.analysis} \
         --relational_mapping ${relational_mapping} \
@@ -54,7 +55,6 @@ process VALIDATE_CLINICAL {
         --clinical_url ${params.clinical_url} \
         --file_manager_url ${params.file_manager_url} \
         --token ${params.token} \
-        --data_directory ${data_directory} \
         --study_id ${meta.study} 2>generation_errors.tmp
 
         GENERATION_EXIT_CODE=\$?

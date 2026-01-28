@@ -71,6 +71,24 @@ def external_id_validate(payload,actual_schema,clinical_url):
     #print(payload)
     #print(actual_schema)
 
+def filename_duplicates(payload):
+
+    arr = [file['fileName'] for file in payload['files']]
+    counts = {}
+    message = []
+
+    for item in arr:
+        counts[item] = counts.get(item, 0) + 1
+
+    for count in counts.keys():
+        if counts.get(count)>1:
+            message.append("Multiple files with the simiplified name: '%s' are causing conflicts" % count)
+    
+    if len(message)>0:
+        return(False,".".join(message))
+    else:
+        return(True,None)
+
 def validate_payload(payload, schema):
     """Validate payload against schema using jsonschema library"""
     try:
@@ -130,11 +148,13 @@ def main():
     
     # Validate payload
     messages=[]
-    is_valid, message_a = validate_payload(payload, schema)
-    is_valid, message_b = external_id_validate(payload, schema,args.clinical_url)
+    is_valid, message_a = filename_duplicates(payload)
+    is_valid, message_b = validate_payload(payload, schema)
+    is_valid, message_c = external_id_validate(payload, schema,args.clinical_url)
 
     None if message_a==None else messages.append(message_a)
     None if message_b==None else messages.append(message_b)
+    None if message_c==None else messages.append(message_c)
     
     # Print error message to stderr if validation failed
     if not is_valid:

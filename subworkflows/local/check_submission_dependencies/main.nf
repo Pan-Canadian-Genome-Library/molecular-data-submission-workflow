@@ -127,57 +127,162 @@ Please fix the above issues and re-run the workflow.
             CHECK_DEPENDENCIES.out.relational_mapping,
             path_to_files_directory
         )
+
         ch_versions = ch_versions.mix(ANALYSIS_SPLIT.out.versions)
-        //Using status file, reform channel to include meta, analysis, clinical, files, CHECK_DEPENDCIES output relational mapping, CHECK_DEPENDCIES output analysis_type, data directory path
-        ANALYSIS_SPLIT.out.status.flatten()
-        .combine(CHECK_DEPENDENCIES.out.relational_mapping)
-        .combine(CHECK_DEPENDENCIES.out.analysis_types)
-        .combine(path_to_files_directory)
-        .map{
-            it,relational_mapping,analysis_types,data_directory ->
+
+        // Downstream receipt is only provided if join with files is successful. This check identifies the event where all analyses fail from start, usually b/c files cannot be found
+        ANALYSIS_SPLIT.out.status.flatten().map{
+            it ->
             [
-                meta : [
-                    id : "${it.parent.toString().split('/')[-1]}",
-                    study : "${it.parent.toString().split('/')[-2]}",
-                    status : it.text.contains('status: "FAILED"') ? 'failed' : 'pass'
-                ],
-                analysis : [
-                    analysis : file("${file(it).parent}/*analysis.tsv")[0],
-                    workflow : file("${file(it).parent}/*workflow.tsv")[0],
-                    files : file("${file(it).parent}/*files.tsv")[0]
-                ],
-                clinical : [
-                    specimen : file("${file(it).parent}/*specimen.tsv")[0],
-                    sample : file("${file(it).parent}/*sample.tsv")[0],
-                    experiment : file("${file(it).parent}/*experiment.tsv")[0],
-                    read_group : file("${file(it).parent}/*read_group.tsv")[0]
-                ],
-                status_file : file(it),
-                relational_mapping: relational_mapping,
-                analysis_types: analysis_types,
-                data_directory : data_directory
-            ] 
-        }.map{ //update with file directory paths after, easier this way
-            it -> {
+                it.text.contains('status: "FAILED"') ? "failed" : "pass",
+                "${it}"
+            ]
+        }
+        .collect(flat:false)
+        .transpose()
+        .collect(flat:false)//.subscribe{println "${it}"}
+        .map{
+            it,files ->
+            // Pass as long as one analysis is successful in splitting
+            def is_failed = it.join(',').contains('pass') ? false : true
+
+            if (is_failed==true) {
+                System.err.flush()
+
+                System.err.println """
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        🚨 WORKFLOW STOPPED                                   ║
+║                       No viable analyses found!                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+See the following XMLs for analysis specific errors:
+${files.join('\n')}
+""".stripIndent()
+                    
+                // Flush the error stream before exiting
+                //System.err.flush()
+
+                // Add a small delay to ensure output is displayed
+                Thread.sleep(00)
+
+                // Gracefully exit the workflow
+                System.exit(1)
+            }
+        }
+ 
+
+        if (params.path_to_files_directory){
+            //Using status file, reform channel to include meta, analysis, clinical, files, CHECK_DEPENDCIES output relational mapping, CHECK_DEPENDCIES output analysis_type, data directory path
+            ANALYSIS_SPLIT.out.status.flatten()
+            .combine(CHECK_DEPENDENCIES.out.relational_mapping)
+            .combine(CHECK_DEPENDENCIES.out.analysis_types)
+            .combine(path_to_files_directory)
+            .map{
+                it,relational_mapping,analysis_types,data_directory ->
                 [
                     meta : [
-                        id : it.meta.id,
-                        study : it.meta.study,
-                        type : workflow.stubRun ? "sequencingExperiment" : it.analysis.analysis.splitCsv(sep:'\t',header:true).analysisType[0],
-                        status : it.meta.status
+                        id : "${it.parent.toString().split('/')[-1]}",
+                        study : "${it.parent.toString().split('/')[-2]}",
+                        status : it.text.contains('status: "FAILED"') ? 'failed' : 'pass'
                     ],
-                    analysis : it.analysis,
-                    clinical : it.clinical,
-                    files : workflow.stubRun ? [] : it.meta.status=='pass' ? it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${it.data_directory}/${fname}") } : [],
-                    status_file : it.status_file,
-                    relational_mapping: it.relational_mapping,
-                    analysis_types: it.analysis_types,
-                    data_directory: it.data_directory
-                ]
-            }
-        }.set{analysis_channels}
+                    analysis : [
+                        analysis : file("${file(it).parent}/*analysis.tsv")[0],
+                        workflow : file("${file(it).parent}/*workflow.tsv")[0],
+                        files : file("${file(it).parent}/*files.tsv")[0]
+                    ],
+                    clinical : [
+                        specimen : file("${file(it).parent}/*specimen.tsv")[0],
+                        sample : file("${file(it).parent}/*sample.tsv")[0],
+                        experiment : file("${file(it).parent}/*experiment.tsv")[0],
+                        read_group : file("${file(it).parent}/*read_group.tsv")[0]
+                    ],
+                    status_file : file(it),
+                    relational_mapping: relational_mapping,
+                    analysis_types: analysis_types,
+                    data_directory : data_directory
+                ] 
+            }.map{ //update with file directory paths after, easier this way
+                it -> {
+                    [
+                        meta : [
+                            id : it.meta.id,
+                            study : it.meta.study,
+                            type : workflow.stubRun ? "sequencingExperiment" : it.analysis.analysis.splitCsv(sep:'\t',header:true).analysisType[0],
+                            status : it.meta.status
+                        ],
+                        analysis : it.analysis,
+                        clinical : it.clinical,
+                        //| Condition                                               | Result                               |
+                        //| ------------------------------------------------------- | ------------------------------------ |
+                        //| `workflow.stubRun == true`                              | `[]`                                 |
+                        //| `meta.status != 'pass'`                                 | `[]`                                 |
+                        //| `meta.status == 'pass'` **and** `data_directory exists` | files with `data_directory/filename` |
+                        //| `meta.status == 'pass'` **and** no `data_directory`     | files using filename only            |
+                        //files : workflow.stubRun ? [] : it.meta.status=='pass' ? it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${it.data_directory}/${fname}") } : [],
+                        files : workflow.stubRun ? [] : it.meta.status=='pass' ? it.data_directory ? it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${it.data_directory}/${fname}") } : it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${fname}") }  : [],
+                        status_file : it.status_file,
+                        relational_mapping: it.relational_mapping,
+                        analysis_types: it.analysis_types,
+                        data_directory: it.data_directory
+                    ]
+                }
+            }.set{analysis_channels}
+        } else {
+            ANALYSIS_SPLIT.out.status.flatten()
+            .combine(CHECK_DEPENDENCIES.out.relational_mapping)
+            .combine(CHECK_DEPENDENCIES.out.analysis_types)
+            .map{
+                it,relational_mapping,analysis_types ->
+                [
+                    meta : [
+                        id : "${it.parent.toString().split('/')[-1]}",
+                        study : "${it.parent.toString().split('/')[-2]}",
+                        status : it.text.contains('status: "FAILED"') ? 'failed' : 'pass'
+                    ],
+                    analysis : [
+                        analysis : file("${file(it).parent}/*analysis.tsv")[0],
+                        workflow : file("${file(it).parent}/*workflow.tsv")[0],
+                        files : file("${file(it).parent}/*files.tsv")[0]
+                    ],
+                    clinical : [
+                        specimen : file("${file(it).parent}/*specimen.tsv")[0],
+                        sample : file("${file(it).parent}/*sample.tsv")[0],
+                        experiment : file("${file(it).parent}/*experiment.tsv")[0],
+                        read_group : file("${file(it).parent}/*read_group.tsv")[0]
+                    ],
+                    status_file : file(it),
+                    relational_mapping: relational_mapping,
+                    analysis_types: analysis_types,
+                    data_directory : []
+                ] 
+            }.map{ //update with file directory paths after, easier this way
+                it -> {
+                    [
+                        meta : [
+                            id : it.meta.id,
+                            study : it.meta.study,
+                            type : workflow.stubRun ? "sequencingExperiment" : it.analysis.analysis.splitCsv(sep:'\t',header:true).analysisType[0],
+                            status : it.meta.status
+                        ],
+                        analysis : it.analysis,
+                        clinical : it.clinical,
+                        //| Condition                                               | Result                               |
+                        //| ------------------------------------------------------- | ------------------------------------ |
+                        //| `workflow.stubRun == true`                              | `[]`                                 |
+                        //| `meta.status != 'pass'`                                 | `[]`                                 |
+                        //| `meta.status == 'pass'` **and** `data_directory exists` | files with `data_directory/filename` |
+                        //| `meta.status == 'pass'` **and** no `data_directory`     | files using filename only            |
+                        //files : workflow.stubRun ? [] : it.meta.status=='pass' ? it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${it.data_directory}/${fname}") } : [],
+                        files : workflow.stubRun ? [] : it.meta.status=='pass' ? it.data_directory ? it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${it.data_directory}/${fname}") } : it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${fname}") }  : [],
+                        status_file : it.status_file,
+                        relational_mapping: it.relational_mapping,
+                        analysis_types: it.analysis_types,
+                        data_directory: it.data_directory
+                    ]
+                }
+            }.set{analysis_channels}  
+        }
 
-        //files : it.meta.status=='pass' ? workflow.stubRun ? [] : it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { file("${path_to_files_directory[0]}/$it") } : [],
+
         //Validate clinical and analysis 
         VALIDATE_CLINICAL(
              analysis_channels

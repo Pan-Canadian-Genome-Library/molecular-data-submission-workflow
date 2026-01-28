@@ -4,6 +4,7 @@ import json
 import sys
 import argparse
 import csv
+import re
 from pathlib import Path
 
 def detect_delimiter(file_path):
@@ -111,6 +112,10 @@ def main():
             "fileMd5sum": file_row.get("fileMd5sum", None),
             "fileType": file_row.get("fileType", None)
         }
+
+        if file_info['fileName']!=None:
+            file_info['fileName']=re.findall(r'[^\\/]+$',file_info['fileName'])[0]
+
         files_info.append(file_info)
     
     # Create payload structure based on analysis type

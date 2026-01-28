@@ -36,6 +36,7 @@ process ANALYSIS_SPLIT {
     def workflow_file = workflow_metadata!=null  && workflow_metadata ? "--workflow_metadata ${workflow_metadata}" : ""
     def allow_duplicates_arg  = params.allow_duplicates ? "--allow_duplicates" : ''
     def token_arg  = params.token ? "--token ${params.token}" : ''
+    def path_to_files_directory_arg =  path_to_files_directory!=null && path_to_files_directory ? "--data-directory ${path_to_files_directory}" : ""
     """
     main.py \
         --relational_mapping ${relational_mapping} \
@@ -44,7 +45,7 @@ process ANALYSIS_SPLIT {
         --file_manager ${params.file_manager_url} \
         --study_id ${study_id} \
         --token ${params.token} \
-        --data-directory ${path_to_files_directory} \
+        ${path_to_files_directory_arg} \
         ${workflow_file} \
         ${sample_file} \
         ${specimen_file} \

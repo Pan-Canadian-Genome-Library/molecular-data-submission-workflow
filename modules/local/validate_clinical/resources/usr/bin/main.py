@@ -83,9 +83,14 @@ def check_file_minimum(analysis):
       analysis['comments'].append("At minimum 1 file record expected")       
 def check_file_exists(analysis,data_directory):
    for ind in analysis['files'].index.values.tolist():
-      if not os.path.exists("%s/%s" % (data_directory,analysis['files'].loc[ind,"fileName"])):
-            analysis['status']=False
-            analysis['comments'].append("File %s/%s could not be found" % (data_directory,analysis['files'].loc[ind,"fileName"]))
+      if data_directory:
+         if not os.path.exists("%s/%s" % (data_directory,analysis['files'].loc[ind,"fileName"])):
+               analysis['status']=False
+               analysis['comments'].append("File %s/%s could not be found" % (data_directory,analysis['files'].loc[ind,"fileName"]))
+      else:
+         if not os.path.exists("%s" % (analysis['files'].loc[ind,"fileName"])):
+               analysis['status']=False
+               analysis['comments'].append("File %s could not be found" % (analysis['files'].loc[ind,"fileName"]))       
 def check_workflow_analysis(analysis,analysis_types):
    analysis_types_w_workflows=[]
 
@@ -249,7 +254,7 @@ if __name__ == "__main__":
    parser.add_argument("-si", "--study_id", dest="study_id", required=True, help="study_id")
    parser.add_argument("-t", "--token", dest="token", required=True, help="token")
    parser.add_argument("-od", "--output_directory", default="output", dest="output_directory", required=False, help="output directory")
-   parser.add_argument("-dd", "--data_directory", dest="data_directory", required=True, help="data directory where entity files are saved by analysis",default=os.getcwd())
+   parser.add_argument("-dd", "--data_directory", dest="data_directory", required=False, help="data directory where entity files are saved by analysis",default=False)
    args = parser.parse_args()
 
    main(args)
