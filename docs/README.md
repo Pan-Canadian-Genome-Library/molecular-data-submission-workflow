@@ -5,21 +5,21 @@ Welcome to the comprehensive documentation for the Pan-Canadian Genome Library (
 ---
 
 ## 🚀 Getting Started
-- **[Introduction](Introduction.md)** - Workflow overview, architecture, prerequisites, and getting started guide
+- **[Introduction](introduction.md)** - Workflow overview, architecture, prerequisites, and getting started guide
 - **[Usage](usage.md)** - Command-line usage examples, parameter configurations, and execution instructions
 - **[Testing](testing.md)** - Testing instructions with sample data and validation procedures
 
 ---
 
 ## 📁 Input & Output
-- **[Input](Input.md)** - Required and optional parameters, metadata schemas, file format specifications, and preparation guidelines
+- **[Input](input.md)** - Required and optional parameters, metadata schemas, file format specifications, and preparation guidelines
 - **[Output](output.md)** - Output files description, directory structure, and result interpretation
-- **[Receipt](Receipt.md)** - Understanding batch receipts, submission tracking, and status interpretation
+- **[Receipt](receipt.md)** - Understanding batch receipts, submission tracking, and status interpretation
 
 ---
 
 ## 🛠️ Support & Troubleshooting
-- **[Troubleshooting](Troubleshooting.md)** - Common issues, error solutions, and debugging guidance
+- **[Troubleshooting](troubleshooting.md)** - Common issues, error solutions, and debugging guidance
 - **[GitHub Issues](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/issues)** 
   - Check the GitHub Issues for existing solutions
   - Create a new issue with detailed error messages, system information, and batch receipts when available

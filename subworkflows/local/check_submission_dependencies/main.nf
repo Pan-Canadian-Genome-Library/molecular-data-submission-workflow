@@ -153,9 +153,8 @@ Please fix the above issues and re-run the workflow.
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        🚨 WORKFLOW STOPPED                                   ║
 ║                       No viable analyses found!                              ║
+║                  Associated files could not be found                         ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
-See the following XMLs for analysis specific errors:
-${files.join('\n')}
 """.stripIndent()
                     
                 // Flush the error stream before exiting
