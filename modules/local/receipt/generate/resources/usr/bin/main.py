@@ -76,7 +76,7 @@ def generate_individual_receipt(processes, analysis_info, output_file):
     
     # Clean up process data for JSON output
     clean_processes = []
-    for p in processes:
+    for count,p in enumerate(processes):
 
         if p.get('details'):
             if p.get('details')!=None:
@@ -93,6 +93,11 @@ def generate_individual_receipt(processes, analysis_info, output_file):
             'details':   p.get('details', None),
         }
 
+        if clean_process['status']=='FAILED':
+            if count!=0:
+                if processes[count-1]['status']=='FAILED' or processes[count-1]['status']=='SKIPPED' :
+                    clean_process['status']='SKIPPED'
+ 
         clean_processes.append(clean_process)
     
     # Create individual receipt structure

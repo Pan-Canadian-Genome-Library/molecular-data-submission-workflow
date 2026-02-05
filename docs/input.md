@@ -8,7 +8,7 @@ Before running the workflow, ensure you have:
 - [ ] Data files with corresponding index files in accessible directory
 - [ ] Verified file names in metadata match actual file names 
 
-**New to PCGL?** See [Getting Started](Introduction.md#getting-started) for registration steps.  
+**New to PCGL?** See [Getting Started](introduction.md#getting-started) for registration steps.  
 **Ready to run?** See [Usage Guide](usage.md) for execution commands.
 
 ## Required Parameters
@@ -188,9 +188,9 @@ study/
 ---
 
 For further details, see:
-- [Introduction Guide](Introduction.md) - Workflow overview and architecture
+- [Introduction Guide](introduction.md) - Workflow overview and architecture
 - [Usage Guide](usage.md) - Step-by-step execution instructions
-- [Testing Guide](Testing.md) - Testing instructions with sample data
+- [Testing Guide](testing.md) - Testing instructions with sample data
 - [Receipt Guide](receipt.md) - Understanding submission results
 - [Output Documentation](output.md) - Complete output file descriptions
-- [Troubleshooting Guide](troubleshooting.md) - Common issues and solutions
+- [Troubleshooting Guide (TBD)](troubleshooting.md) - Common issues and solutions

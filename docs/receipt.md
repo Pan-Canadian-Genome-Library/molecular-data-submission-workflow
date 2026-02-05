@@ -147,7 +147,7 @@ analysis_005	SUCCESS	PCGL:MOLECULAR_DATA_SUBMISSION_WORKFLOW:SONG_SUBMISSION:SON
 
 ### **Common Error Patterns**
 
-When reviewing failed processes in your batch receipt, you'll encounter various error patterns. For detailed descriptions of common error types and their solutions, see the [Troubleshooting Guide](troubleshoot.md).
+When reviewing failed processes in your batch receipt, you'll encounter various error patterns. For detailed descriptions of common error types and their solutions, see the [Troubleshooting Guide (TBD)](troubleshoot.md).
 
 ### **Using Work Directories for Debugging**
 

@@ -103,9 +103,10 @@ workflow {
     if (params.token == null){
          startup_error_details.add("'token' was not provided, please provide the variable via the '--token' flag or in config.")
     }
-    if (params.path_to_files_directory == null){
-         startup_error_details.add("'path_to_files_directory' was not provided, please provide the variable via the '--path_to_files_directory' flag or in config.")
-    }
+    // Removed in dev1.0.6
+    //if (params.path_to_files_directory == null){
+    //     startup_error_details.add("'path_to_files_directory' was not provided, please provide the variable via the '--path_to_files_directory' flag or in config.")
+    //}
 
     if (startup_error_details.size()!=0){
 System.err.println """
@@ -149,7 +150,7 @@ Please fix the above issues and re-run the workflow.
         params.experiment_metadata ? channel.fromPath(params.experiment_metadata) : [],
         params.specimen_metadata ? channel.fromPath(params.specimen_metadata) : [],
         params.sample_metadata ? channel.fromPath(params.sample_metadata) : [],
-        channel.fromPath(params.path_to_files_directory)
+        params.path_to_files_directory ? channel.fromPath(params.path_to_files_directory) : []
     )
     //
     // SUBWORKFLOW: Run completion tasks

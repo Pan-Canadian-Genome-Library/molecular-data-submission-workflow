@@ -4,7 +4,7 @@
 
 **Pan-Canadian-Genome-Library/molecular-data-submission-workflow** is a Nextflow pipeline that automates the validation, packaging, and submission of molecular genomics data and associated metadata to the Pan-Canadian Genome Library (PCGL) data repository. The pipeline ensures data integrity, validates metadata compliance, handles file uploads, and generates comprehensive submission receipts for tracking and audit purposes. The workflow has adopted [nf-core](https://nf-co.re/) framework and best practice guidelines to ensure reproducibility, portability and scalability.
 
-For detailed information about workflow components, prerequisites, and system architecture, see **[Complete Introduction Guide](docs/Introduction.md)** with comprehensive workflow overview, subworkflows, modules and technical details.
+For detailed information about workflow components, prerequisites, and system architecture, see **[Complete Introduction Guide](docs/introduction.md)** with comprehensive workflow overview, subworkflows, modules and technical details.
 
 ## Pipeline Overview
 ### PCGL Submission Workflow Diagram

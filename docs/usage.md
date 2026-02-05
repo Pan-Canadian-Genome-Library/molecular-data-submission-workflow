@@ -9,7 +9,7 @@ Before running the workflow, ensure you have:
 - [ ] Study registered in PCGL (Contact: helpdesk@genomelibrary.ca)
 - [ ] All participants registered (Coordinate with your Study data coordinator)
 - [ ] API token obtained (Contact: helpdesk@genomelibrary.ca)
-- [ ] Prepared metadata files (see **[Input Documentation](Input.md)** for requirements and formats)
+- [ ] Prepared metadata files (see **[Input Documentation](input.md)** for requirements and formats)
 - [ ] Data files organized in accessible directory
 - [ ] Nextflow installed (version 22.04.2 or later)
 - [ ] Container engine installed (Docker or Singularity)
@@ -138,11 +138,27 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     -profile singularity
 ```
 
+### **Compute Cluster Management Options**
+
+#### **Slurm**
+Use Slurm  (recommended for HPC environments where available and required for resource management):
+```bash
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    [... parameters ...] \
+    -profile slurm
+```
+
+Note the config provided in :
+```
+conf/slurm.config
+```
+Is rudimentary and serves as a start/template, likely to not work out of box. Please add in configurations and arguements required (such as specific nodes).
+
 
 ## 📚 Related Documentation
 
-- **[Input Documentation](Input.md)** - Parameter requirements, metadata schemas, and file formats
+- **[Input Documentation](input.md)** - Parameter requirements, metadata schemas, and file formats
 - **[Testing Documentation](testing.md)** - Testing procedures with sample data
 - **[Output Documentation](output.md)** - Understanding workflow results and receipts
-- **[Troubleshooting Documentation](troubleshooting.md)** - Common issues and solutions
+- **[Troubleshooting Documentation (TBD)](troubleshooting.md)** - Common issues and solutions
 - **[Receipt Documentation](receipt.md)** - Interpreting batch receipts and status information

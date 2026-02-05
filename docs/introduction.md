@@ -121,7 +121,7 @@ This workflow currently supports submission of **short-read sequencing data** an
 🚀 **Follow these steps to submit your data successfully:**
 
 1. **📋 Prepare Your Data**
-   - Organize files according to [Input Requirements](Input.md)
+   - Organize files according to [Input Requirements](input.md)
    - Validate metadata files match required formats
    - Ensure all data files are accessible and properly named
 
@@ -142,7 +142,7 @@ This workflow currently supports submission of **short-read sequencing data** an
 
 5. **📊 Review Results**
    - Understand your outputs using [Output Documentation](output.md)
-   - Interpret submission status with [Receipt Guide](Receipt.md)
+   - Interpret submission status with [Receipt Guide](Rrceipt.md)
    - Keep receipts for audit trails and future reference
 
 > 💡 **Pro Tip**: Always test with a small batch before submitting large datasets. This helps identify any issues early and ensures you understand the process.
@@ -268,19 +268,19 @@ Built on **Nextflow DSL2**, this workflow delivers enterprise-grade data submiss
 ## Next Steps
 
 ### Ready to Submit Data?
-1. **[Input Documentation](Input.md)**: Review to understand data and metadata requirements
+1. **[Input Documentation](input.md)**: Review to understand data and metadata requirements
 2. **[Testing Guide](testing.md)**: Validate your environment with provided test data
 2. **[Usage Guide](usage.md)**: Follow step-by-step submission instructions
 
 
 ### Need Help?
-1. **[Troubleshooting Guide](Troubleshooting.md)**: Provides solutions to frequent problems and common issues.
-2. **[Receipt Guide](Receipt.md)**: Interprets submission outcomes
+1. **[Troubleshooting Guide (TBD)](Troubleshooting.md)**: Provides solutions to frequent problems and common issues.
+2. **[Receipt Guide](receipt.md)**: Interprets submission outcomes
 3. **[Output Documentation](output.md)**: Describes workflow outputs
 
 ### Support
 
-If you encounter issues not covered in the [Troubleshooting Guide](Troubleshooting.md), please:
+If you encounter issues not covered in the [Troubleshooting Guide (TBD)](Troubleshooting.md), please:
 1. Check the [GitHub Issues](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/issues) for existing solutions
 2. Create a new issue with detailed error messages, system information, and batch receipts when available
 3. Contact the PCGL administrator by Email: helpdesk@genomelibrary.ca
