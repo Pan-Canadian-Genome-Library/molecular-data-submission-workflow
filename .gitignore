@@ -175,3 +175,4 @@ out/
 work/
 .nextflow*
 .nf-test/*
+test_results/*
