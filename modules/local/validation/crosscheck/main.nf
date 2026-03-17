@@ -9,7 +9,7 @@ process VALIDATION_CROSSCHECK {
     tuple val(meta), path(payload), path(payload_files)
 
     output:
-    tuple val(meta), path(payload), path(payload_files), emit: ch_payload_files
+    tuple val(meta), path("updated*.json"), path(payload_files), emit: ch_payload_files
     tuple val(meta), path("*_status.yml"), emit: status
     path "versions.yml", emit: versions
 
@@ -30,6 +30,7 @@ process VALIDATION_CROSSCHECK {
     # Check if upstream process was successful by checking meta.status
     if [ "${meta.status ?: 'pass'}" != "pass" ]; then
         echo "Upstream process failed (meta.status: ${meta.status ?: 'pass'}), skipping MD5 checksum validation"
+        touch updated_${payload}.json
         CROSSCHECK_EXIT_CODE=1
         ERROR_DETAILS="Skipped MD5 checksum validation due to upstream failure"
     elif grep -q '"error".*"payload_generation_failed"' "${payload}" 2>/dev/null; then
