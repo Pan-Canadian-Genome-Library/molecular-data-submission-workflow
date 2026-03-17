@@ -2,7 +2,8 @@
 process SONG_SUBMIT {
     tag "$meta.id"
     label 'process_single'
-
+    maxForks params.fork_limit
+    
     container "${params.file_manager_container}:${params.file_manager_container_tag}"
     containerOptions {
         workflow.containerEngine == 'singularity' ? 
