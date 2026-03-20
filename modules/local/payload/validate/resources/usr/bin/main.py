@@ -148,9 +148,13 @@ def main():
     
     # Validate payload
     messages=[]
-    is_valid, message_a = filename_duplicates(payload)
-    is_valid, message_b = validate_payload(payload, schema)
-    is_valid, message_c = external_id_validate(payload, schema,args.clinical_url)
+    is_valid_a, message_a = filename_duplicates(payload)
+    is_valid_b, message_b = validate_payload(payload, schema)
+    is_valid_c, message_c = external_id_validate(payload, schema,args.clinical_url)
+    
+    
+    # Combine all validation results - all must pass for overall validity
+    is_valid = is_valid_a and is_valid_b and is_valid_c
 
     None if message_a==None else messages.append(message_a)
     None if message_b==None else messages.append(message_b)
