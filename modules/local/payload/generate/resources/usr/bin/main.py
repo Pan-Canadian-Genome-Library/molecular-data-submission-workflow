@@ -5,7 +5,38 @@ import sys
 import argparse
 import csv
 import re
+import os
 from pathlib import Path
+import hashlib
+
+def calculate_md5(file_path):
+    """Calculate MD5 checksum of a file."""
+    hash_md5 = hashlib.md5()
+
+    print("calculating MD5 for %s" % file_path)
+    try:
+        with open(file_path, 'rb') as f:
+            for chunk in iter(lambda: f.read(4096), b''):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    except Exception as e:
+        print(f'ERROR: Failed to calculate MD5 for {file_path}: {e}', file=sys.stderr)
+        return None
+
+
+def calculate_filesize(file_path):
+    """Calculate MD5 checksum of a file."""
+    return(os.path.getsize(file_path))
+
+def verify_md5sum(file_path,provided_md5):
+    """Calculate MD5 checksum of a file."""
+
+    calculated_md5=calculate_md5(file_path)
+    if calculated_md5!=provided_md5:
+        print(f'ERROR: Mismatching MD5 detected for {file_path}. Provided \'{provided_md5}\' vs Calculated \'{calculated_md5}\'', file=sys.stderr)
+        sys.exit(1)
+
+    return(provided_md5)
 
 def detect_delimiter(file_path):
     """Detect delimiter by examining the first few lines of the file"""
@@ -104,12 +135,24 @@ def main():
     # Process files from file metadata (TSV or CSV format)
     files_info = []
     for file_row in file_data:
+
+        file_name=file_row.get("fileName", None)
+
+        if file_row.get("fileName", None)!=None:
+            file_name=re.findall(r'[^\\/]+$',file_row.get("fileName"))[0]
+
+        file_path="%s/%s" % (os.getcwd(),file_name)
+
+        if not os.path.exists(file_path):
+            print(f"Error: File {file_path} is missing")
+            sys.exit(1)
+
         file_info = {
-            "fileName": file_row.get("fileName", None),
-            "fileSize": int(file_row.get("fileSize")) if file_row.get("fileSize") and file_row.get("fileSize").isdigit() else None,
+            "fileName": file_name,
+            "fileSize": int(file_row.get("fileSize")) if file_row.get("fileSize") and file_row.get("fileSize").isdigit() else calculate_filesize(file_path),
             "dataType": file_row.get("dataType", None),
             "fileAccess": file_row.get("fileAccess", "controlled"),
-            "fileMd5sum": file_row.get("fileMd5sum", None),
+            "fileMd5sum": verify_md5sum(file_path,file_row.get("fileMd5sum")) if file_row.get("fileMd5sum") else calculate_md5(file_path),
             "fileType": file_row.get("fileType", None)
         }
 

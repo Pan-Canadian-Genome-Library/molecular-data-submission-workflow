@@ -6,3 +6,4 @@ analysis_003	test_file_003_1.vcf	124	02b4359d79feb76d67b0ea66fbbc2c86	VCF	contro
 analysis_004	test_rg_3.v2.bam			BAM	controlled	Aligned reads
 analysis_005	test_sample_R1.fastq.gz	85	a1505aad2f04bd9594f43745ee5ee4a5	FASTQ	controlled	Raw Sequencing Reads
 analysis_005	test_sample_R2.fastq.gz	87	38a41f5dbf5f1e1e09fb3024555ede4e	FASTQ	controlled	Raw Sequencing Reads
+analysis_006	test_file1.bam	311	02b4359d79feb76d67b0ea66fbbc2c86	BAM	controlled	Aligned reads

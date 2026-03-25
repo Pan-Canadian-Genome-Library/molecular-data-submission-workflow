@@ -6,7 +6,7 @@
 
 include { FILE_INTEGRITY         } from '../file_integrity/main'
 include { VALIDATION_METADATA      } from '../../../modules/local/validation/metadata/main'
-include { VALIDATION_CROSSCHECK    } from '../../../modules/local/validation/crosscheck/main'
+
 
 workflow DATA_VALIDATION {
 
@@ -26,26 +26,10 @@ workflow DATA_VALIDATION {
     VALIDATION_METADATA ( ch_payload_files_biospecimen )
     ch_versions = ch_versions.mix(VALIDATION_METADATA.out.versions.first())
 
-    // Step 2: MD5 checksum cross-check validation
-    // Update meta.status based on metadata validation result before passing to crosscheck
-    ch_crosscheck_input = VALIDATION_METADATA.out.ch_payload_files
-        .join(VALIDATION_METADATA.out.status, by: 0)
-        .map { meta, payload, payload_files, status_file ->
-            // Read status from YAML file and update meta
-            def status_content = status_file.text
-            def status_value = status_content.contains('status: "FAILED"') ? 'failed' : 'pass'
-            def updated_meta = meta.clone()
-            updated_meta.status = status_value
-            [updated_meta, payload, payload_files]
-        }
-    
-    VALIDATION_CROSSCHECK ( ch_crosscheck_input )
-    ch_versions = ch_versions.mix(VALIDATION_CROSSCHECK.out.versions.first())
-
-    // Step 3: Validate file integrity (BAM, CRAM, VCF, FASTQ format checks)
+    // Step 2: Validate file integrity (BAM, CRAM, VCF, FASTQ format checks)
     // Update meta.status based on crosscheck validation result before passing to file integrity
-    ch_integrity_input = VALIDATION_CROSSCHECK.out.ch_payload_files
-        .join(VALIDATION_CROSSCHECK.out.status, by: 0)
+    ch_integrity_input = VALIDATION_METADATA.out.ch_payload_files
+        .join(VALIDATION_METADATA.out.status, by: 0)
         .map { meta, payload, files, status_file ->
             // Read status from YAML file and update meta
             def status_content = status_file.text
@@ -108,8 +92,8 @@ workflow DATA_VALIDATION {
     // Use original FILE_INTEGRITY status files since we only update meta.status internally
     ch_all_status = Channel.empty()
         .mix(VALIDATION_METADATA.out.status)
-        .mix(VALIDATION_CROSSCHECK.out.status)
         .mix(FILE_INTEGRITY.out.status)
+
 
     emit:
     // Output channels as specified
