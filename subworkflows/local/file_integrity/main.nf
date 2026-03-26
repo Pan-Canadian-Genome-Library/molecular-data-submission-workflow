@@ -17,33 +17,50 @@ workflow FILE_INTEGRITY {
     ch_status = Channel.empty()
     ch_validated_files = Channel.empty()
 
+
     // Flatten files for individual parallel processing
     // Each file will be processed separately for maximum parallelization  
-    // Map from [meta, payload, [files]] to [meta.id, meta, payload, individual_file]
+    // Map from [meta, payload, [files]] to [meta.id, meta, payload, individual_file, ext_counts]
     ch_individual_files = ch_payload
         .flatMap { meta, payload, files ->
             // Handle case where files might be a single file or list of files
             def fileList = files instanceof List ? files : [files]
-            fileList.collect { file -> [meta.id, meta, payload, file] }
+
+            def ext_counts = fileList.count { 
+                it.name.endsWith('.bam') ||
+                it.name.endsWith('.cram') ||
+                it.name.endsWith('.vcf') ||
+                it.name.endsWith('.vcf.gz') ||
+                it.name.endsWith('.bcf') ||
+                it.name.endsWith('.fastq.gz') ||
+                it.name.endsWith('.fastq') ||
+                it.name.endsWith('.fq.gz') ||
+                it.name.endsWith('.fq')
+                }
+
+            fileList.collect { file -> [meta.id, meta, payload, file, ext_counts] }
         }
-    
+
     // Separate individual files by type for dedicated validation processes
     // Group files with their associated index files for validation tools that need them
     
     // Store original file lists for index file lookup
     ch_original_files = ch_payload
         .map { meta, _payload, files ->
-            [meta.id, files instanceof List ? files.flatten() : [files]]
+            [
+                meta.id, 
+                files instanceof List ? files.flatten() : [files]
+            ]
         }
-    
+
     // BAM/CRAM files with their index files (.bai, .csi)
     ch_bam_cram_files = ch_individual_files
-        .filter { _meta_id, _meta, _payload, file -> 
+        .filter { _meta_id, _meta, _payload, file, ext_counts -> 
             def name = file.name.toLowerCase()
             name.endsWith('.bam') || name.endsWith('.cram')
         }
         .combine(ch_original_files, by: 0)
-        .map { _meta_id, meta, payload, main_file, all_files ->
+        .map { _meta_id, meta, payload, main_file, ext_counts, all_files ->
             // Find associated index files for this BAM/CRAM file
             def index_files = all_files.findAll { index_file ->
                 def index_name = index_file.name.toLowerCase()
@@ -53,18 +70,18 @@ workflow FILE_INTEGRITY {
                 (index_name == main_name + '.bai') || (index_name == main_name + '.csi') || (index_name == main_name + '.crai')
             }
             
-            [meta, payload, main_file, index_files]
+            [meta, payload, main_file, index_files , ext_counts ]
         }
 
     // VCF files with their index files (.tbi, .csi)
     ch_vcf_files = ch_individual_files
-        .filter { _meta_id, _meta, _payload, file -> 
+        .filter { _meta_id, _meta, _payload, file, ext_counts ->
             def name = file.name.toLowerCase()
             (name.endsWith('.vcf') || name.endsWith('.vcf.gz') || name.endsWith('.bcf')) && 
             !(name.endsWith('.tbi') || name.endsWith('.csi'))
         }
         .combine(ch_original_files, by: 0)
-        .map { _meta_id, meta, payload, main_file, all_files ->
+        .map { _meta_id, meta, payload, main_file, ext_counts, all_files ->
             // Find associated index files for this VCF file
             def index_files = all_files.findAll { index_file ->
                 def index_name = index_file.name.toLowerCase()
@@ -74,23 +91,23 @@ workflow FILE_INTEGRITY {
                 (index_name == main_name + '.tbi') || (index_name == main_name + '.csi')
             }
             
-            [meta, payload, main_file, index_files]
+            [meta, payload, main_file, index_files , ext_counts ]
         }
 
     // FASTQ files (no index files)
     ch_fastq_files = ch_individual_files
-        .filter { _meta_id, _meta, _payload, file -> 
+        .filter { _meta_id, _meta, _payload, file, ext_counts  -> 
             def name = file.name.toLowerCase()
             name.endsWith('.fastq') || name.endsWith('.fastq.gz') || 
             name.endsWith('.fq') || name.endsWith('.fq.gz')
         }
-        .map { _meta_id, meta, payload, file -> [meta, payload, file] }
+        .map { _meta_id, meta, payload, file , ext_counts -> [meta, payload, file, ext_counts] }
 
     // Identify files that don't need validation (other files not covered above)
     // These will be passed through without validation
     // Note: Index files (.bai, .csi, .tbi) are now handled with their main files
     ch_passthrough_files = ch_individual_files
-        .filter { _meta_id, _meta, _payload, file -> 
+        .filter { _meta_id, _meta, _payload, file, ext_counts ->
             def name = file.name.toLowerCase()
             // Files that are NOT BAM/CRAM/VCF/FASTQ and NOT index files (since index files are handled with main files)
             !(name.endsWith('.bam') || 
@@ -100,7 +117,7 @@ workflow FILE_INTEGRITY {
               name.endsWith('.fq') || name.endsWith('.fq.gz') ||
               name.endsWith('.bai') || name.endsWith('.csi') || name.endsWith('.tbi') || name.endsWith('.crai'))
         }
-        .map { _meta_id, meta, payload, file -> [meta, payload, file] }
+        .map { _meta_id, meta, payload, file, ext_counts  -> [meta, payload, file,ext_counts] }
 
     // Run validation processes for individual files in parallel
     // Nextflow processes will handle empty channels gracefully
@@ -123,21 +140,21 @@ workflow FILE_INTEGRITY {
     // Combine validated files with passthrough files (other files)
     // All files need to be regrouped together for downstream processing
     // Handle different output structures from validation modules:
-    // - BAM/CRAM: [meta, payload, main_file, index_files[]]
-    // - VCF: [meta, payload, main_file, index_files[]] 
-    // - FASTQ: [meta, payload, file]
-    // - Passthrough: [meta, payload, file]
+    // - BAM/CRAM: [meta, payload, main_file, index_files[], ext_counts]
+    // - VCF: [meta, payload, main_file, index_files[], ext_counts] 
+    // - FASTQ: [meta, payload, file, ext_counts]
+    // - Passthrough: [meta, payload, file, ext_counts]
     
     // Flatten validated files back to individual files
     ch_validated_flattened = ch_validated_files
         .flatMap { output ->
-            if (output.size() == 4) {
-                // BAM/CRAM/VCF with index files: [meta, payload, main_file, index_files[]]
+            if (output.size() == 5) {
+                // BAM/CRAM/VCF with index files: [meta, payload, main_file, index_files[], ext_counts]
                 def meta = output[0]
                 def payload = output[1]
                 def main_file = output[2]
                 def index_files = output[3] ?: []  // Handle null or empty index files
-                
+                def file_count = output[4]
                 // Start with main file, then add index files if they exist
                 def all_files = [main_file]
                 
@@ -153,9 +170,9 @@ workflow FILE_INTEGRITY {
                 }
 
                 // Return all files as individual tuples
-                all_files.collect { file -> [meta, payload, file] }
+                all_files.collect { file -> [meta, payload, file, file_count] }
             } else {
-                // FASTQ: [meta, payload, file]
+                // FASTQ: [meta, payload, file, ext_counts]
                 [output]
             }
         }
@@ -164,17 +181,20 @@ workflow FILE_INTEGRITY {
 
     // Group all files (validated + passthrough) back by sample/meta for downstream processing
     // All files are now in format: [meta, payload, individual_file]
-    // Need to collect all files back to: [meta, payload, [files]]
+    // Need to collect all files back to: [meta, payload, [files], ext_counts]
     ch_grouped_files = ch_all_files
-        .map { meta, payload, file -> [meta.id, meta, payload, file] }
-        .groupTuple(by: 0)
-        .map { _id, metas, payloads, files ->
+        .map { 
+            meta, payload, file, ext_counts -> 
+            [groupKey(meta.id,ext_counts), meta, payload, file, ext_counts]
+         }
+        .groupTuple(by:0)
+        .map { _id, metas, payloads, files, ext_counts->
             // Use first meta and payload (should be identical for same sample)
             def meta = metas[0]
             def payload = payloads[0] 
             // Handle case where files might be nested arrays
             def flatFiles = files instanceof List ? files.flatten() : [files]
-            [meta, payload, flatFiles]
+            [meta, payload, flatFiles, ext_counts]
         }
 
     emit:

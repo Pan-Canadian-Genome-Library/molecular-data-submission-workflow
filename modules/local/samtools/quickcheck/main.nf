@@ -6,11 +6,11 @@ process SAMTOOLS_QUICKCHECK {
     container 'quay.io/biocontainers/samtools:1.21--h50ea8bc_0'
 
     input:
-    tuple val(meta), path(payload), path(alignment_file), path(index_files)
+    tuple val(meta), path(payload), path(alignment_file), path(index_files), val(file_count)
 
     output:
-    tuple val(meta), path(payload), path(alignment_file), path(index_files), emit: ch_validated_file
-    tuple val(meta), path("*_status.yml"), emit: status
+    tuple val(meta), path(payload), path(alignment_file), path(index_files), val(file_count), emit: ch_validated_file
+    tuple val(meta), path("*_status.yml"), val(file_count), emit: status
     path "versions.yml", emit: versions
 
     when:

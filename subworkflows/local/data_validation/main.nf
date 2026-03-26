@@ -45,10 +45,11 @@ workflow DATA_VALIDATION {
 
     // Aggregate status from FILE_INTEGRITY validation which may contain multiple status files
     // Group status files by meta.id to aggregate all validation results per sample
+
     ch_file_integrity_aggregated_status = FILE_INTEGRITY.out.status
-        .map { meta, status_file -> [meta.id, meta, status_file] }
-        .groupTuple(by: 0)
-        .map { _id, metas, status_files ->
+        .map { meta, status_file,ext_counts -> [groupKey(meta.id,ext_counts), meta, status_file,ext_counts] }
+        .groupTuple(by:0)
+        .map { _id, metas, status_files,ext_counts ->
             // Use first meta (should be identical for same sample)
             def meta = metas[0]
             
@@ -75,13 +76,13 @@ workflow DATA_VALIDATION {
             def updated_meta = meta.clone()
             updated_meta.status = overall_status
 
-            [updated_meta.id, updated_meta]
+            [groupKey(meta.id,ext_counts[0]), updated_meta]
         }
 
     // Reconstruct validated_payload_files channel with final aggregated meta.status
     // Get final results from file integrity validation with updated meta.status
     ch_validated_payload_files = FILE_INTEGRITY.out.ch_payload_files
-        .map { meta, payload, files -> [meta.id, meta, payload, files] }
+        .map { meta, payload, files , ext_count -> [groupKey(meta.id,ext_count[0]), meta, payload, files] }
         .join(ch_file_integrity_aggregated_status, by: 0)
         .map { _id, _original_meta, payload, files, updated_meta ->
             // Use the updated meta with aggregated status
@@ -92,7 +93,7 @@ workflow DATA_VALIDATION {
     // Use original FILE_INTEGRITY status files since we only update meta.status internally
     ch_all_status = Channel.empty()
         .mix(VALIDATION_METADATA.out.status)
-        .mix(FILE_INTEGRITY.out.status)
+        .mix(FILE_INTEGRITY.out.status.map{ meta, status, ext_counts -> [meta,status]})
 
 
     emit:

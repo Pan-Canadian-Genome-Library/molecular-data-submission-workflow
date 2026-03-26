@@ -6,11 +6,11 @@ process SEQKIT_SEQ {
     container 'quay.io/biocontainers/seqkit:2.8.2--h9ee0642_0'
 
     input:
-    tuple val(meta), path(payload), path(fastq_file)
+    tuple val(meta), path(payload), path(fastq_file), val(file_count)
 
     output:
-    tuple val(meta), path(payload), path(fastq_file), emit: ch_validated_file
-    tuple val(meta), path("*_status.yml"), emit: status
+    tuple val(meta), path(payload), path(fastq_file), val(file_count), emit: ch_validated_file
+    tuple val(meta), path("*_status.yml"), val(file_count), emit: status
     path "versions.yml", emit: versions
 
     when:

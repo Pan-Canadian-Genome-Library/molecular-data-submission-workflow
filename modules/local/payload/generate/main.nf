@@ -121,6 +121,11 @@ process PAYLOAD_GENERATE {
         echo "Continuing workflow regardless of generation result (exit_on_error=${exit_on_error_str})"
         exit 0
     fi
+    #### REMOVE ME AFTER TESTING
+    if [ "${meta.id}" != "analysis_004" ]; then
+        sleep 300s
+    fi
+
     """
 
     stub:
