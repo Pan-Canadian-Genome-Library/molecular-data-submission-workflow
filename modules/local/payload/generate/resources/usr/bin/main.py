@@ -25,11 +25,21 @@ def calculate_md5(file_path):
 
 
 def calculate_filesize(file_path):
-    """Calculate MD5 checksum of a file."""
+    """Calculate file size of a file."""
     return(os.path.getsize(file_path))
 
+
+def verify_filesize(file_path,provided_filesize):
+    """Verify file size of a file."""
+    calculated_filesize=calculate_filesize(file_path)
+    if calculated_filesize!=provided_filesize:
+        print(f'ERROR: Mismatching filesize detected for {file_path}. Provided \'{str(provided_filesize)}\' vs Calculated \'{str(calculated_filesize)}\'', file=sys.stderr)
+        sys.exit(1)
+
+    return(provided_filesize)
+
 def verify_md5sum(file_path,provided_md5):
-    """Calculate MD5 checksum of a file."""
+    """Verify MD5 checksum of a file."""
 
     calculated_md5=calculate_md5(file_path)
     if calculated_md5!=provided_md5:
@@ -149,7 +159,7 @@ def main():
 
         file_info = {
             "fileName": file_name,
-            "fileSize": int(file_row.get("fileSize")) if file_row.get("fileSize") and file_row.get("fileSize").isdigit() else calculate_filesize(file_path),
+            "fileSize": verify_filesize(file_path,int(float(file_row.get("fileSize")))) if file_row.get("fileSize") else calculate_filesize(file_path),
             "dataType": file_row.get("dataType", None),
             "fileAccess": file_row.get("fileAccess", "controlled"),
             "fileMd5sum": verify_md5sum(file_path,file_row.get("fileMd5sum")) if file_row.get("fileMd5sum") else calculate_md5(file_path),
