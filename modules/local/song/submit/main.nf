@@ -33,7 +33,8 @@ process SONG_SUBMIT {
     def VERSION = params.file_manager_container_tag
     def study_id = "${meta.study}"
     def status_file_name = "${meta.id}_" + (task.process.toLowerCase().replace(':', '_')) + "_status.yml"
-    def allow_duplicates_arg  = params.allow_duplicates ? "--allow-duplicates" : ''
+    //def allow_duplicates_arg  = params.allow_duplicates ? "--allow-duplicates" : ''
+    def allow_duplicates_arg  = "--allow-duplicates"
     def analysis_id_file = "${meta.id}_analysis_id.txt"
     """
     # Set error handling to continue on failure for resilient processing
