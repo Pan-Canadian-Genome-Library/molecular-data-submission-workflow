@@ -68,8 +68,9 @@ def check_file_filename_duplicates(analysis):
          analysis['status']=False
          analysis['comments'].append("Multiple entries with the same fileName %s detected" % fileName)
 def check_file_filename_filem5d(analysis):
-   if len(analysis['files'].groupby("fileMd5sum").count().query('fileName>1'))>1:
-      for fileName in analysis['files'].groupby("fileMd5sum").count().query('fileName>1').index.values.tolist():
+   ###Exclude empty Md5
+   if len(analysis['files'].replace(np.nan,0).query("fileMd5sum!=0").groupby("fileMd5sum").count().query('fileName>1'))>1:
+      for fileName in analysis['files'].replace(np.nan,0).query("fileMd5sum!=0").groupby("fileMd5sum").count().query('fileName>1').index.values.tolist():
          analysis['status']=False
          analysis['comments'].append("Multiple entries with the same fileMd5sum %s detected" % fileMd5sum)
 def check_study_id(analysis,study_id):

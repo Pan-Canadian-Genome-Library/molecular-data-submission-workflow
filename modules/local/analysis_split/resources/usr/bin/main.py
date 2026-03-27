@@ -112,6 +112,11 @@ def map_analysis_dependencies(analyses,relational_mapping,data,debug):
     for analysis in analyses:
         if debug: print("#%s" % analysis)
         for analysisType in analyses.get(analysis).get("analysis").get('data')['analysisType'].unique().tolist():
+            print("#1",relational_mapping.get("analysis"))
+            print("#2",relational_mapping.get("analysis").get("analysisType"))
+            print("#3",relational_mapping.get("analysis").get("analysisTypes").get(analysisType))
+            print("#4",relational_mapping.get("analysis").get("analysisTypes").get(analysisType).get("foreign"))
+            print("#5",relational_mapping.get("analysis").get("analysisTypes").get(analysisType).get("foreign").get("entity"))
             foreign_entity=relational_mapping.get("analysis").get("analysisTypes").get(analysisType).get("foreign").get("entity")
             foreign_key=relational_mapping.get("analysis").get("analysisTypes").get(analysisType).get("foreign").get("foreign")
             foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key].values.tolist()

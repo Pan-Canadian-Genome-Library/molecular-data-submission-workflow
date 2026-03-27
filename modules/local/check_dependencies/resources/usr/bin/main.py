@@ -413,7 +413,7 @@ def main(args):
 
     check_minimum_columns(
         args.file_metadata,
-        ["fileName","dataType",'fileMd5sum']
+        ["fileName","dataType"]
     )
 
     update_relational_mapping(relational_mapping,analysis_types)
