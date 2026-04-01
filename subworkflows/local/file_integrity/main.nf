@@ -25,7 +25,7 @@ workflow FILE_INTEGRITY {
         .flatMap { meta, payload, files ->
             // Handle case where files might be a single file or list of files
             def fileList = files instanceof List ? files : [files]
-            updated_meta = meta.clone()
+            def updated_meta = meta.clone()
             updated_meta.num_files=fileList.size()
 
             updated_meta.num_validated_files = fileList.count { 
