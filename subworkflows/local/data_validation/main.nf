@@ -19,7 +19,7 @@ workflow DATA_VALIDATION {
     ch_versions = Channel.empty()
 
     // TODO nf-core: substitute modules here for the modules of your subworkflow
-    // Validation execution order: 1. metadata → 2. crosscheck → 3. fileintegrity
+    // Validation execution order: 1. metadata → 2. fileintegrity
 
     // Step 1: Validate metadata consistency with analysis payload
     // Pass the two input channels directly to VALIDATION_METADATA
@@ -45,9 +45,12 @@ workflow DATA_VALIDATION {
 
     // Aggregate status from FILE_INTEGRITY validation which may contain multiple status files
     // Group status files by meta.id to aggregate all validation results per sample
+
+    //FILE_INTEGRITY.out.status.collect().subscribe{println "DEBUG #0 ${it}"}
+
     ch_file_integrity_aggregated_status = FILE_INTEGRITY.out.status
-        .map { meta, status_file -> [meta.id, meta, status_file] }
-        .groupTuple(by: 0)
+        .map { meta, status_file -> [groupKey(meta.id,meta.num_validated_files), meta, status_file] }
+        .groupTuple(by:0)
         .map { _id, metas, status_files ->
             // Use first meta (should be identical for same sample)
             def meta = metas[0]
@@ -78,15 +81,21 @@ workflow DATA_VALIDATION {
             [updated_meta.id, updated_meta]
         }
 
+    //ch_file_integrity_aggregated_status.collect().subscribe{println "DEBUG #1 ${it}"}
+
     // Reconstruct validated_payload_files channel with final aggregated meta.status
     // Get final results from file integrity validation with updated meta.status
+
     ch_validated_payload_files = FILE_INTEGRITY.out.ch_payload_files
         .map { meta, payload, files -> [meta.id, meta, payload, files] }
-        .join(ch_file_integrity_aggregated_status, by: 0)
+        .join(ch_file_integrity_aggregated_status, by: 0, remainder : true)
         .map { _id, _original_meta, payload, files, updated_meta ->
             // Use the updated meta with aggregated status
-            [updated_meta, payload, files]
+            [updated_meta ?: _original_meta, payload, files]
         }
+
+    //ch_validated_payload_files.collect().subscribe{println "DEBUG #2 ${it}"}
+    
 
     // Collect all status files from all validation steps
     // Use original FILE_INTEGRITY status files since we only update meta.status internally

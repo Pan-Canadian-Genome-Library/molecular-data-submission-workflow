@@ -200,11 +200,11 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
             // Remove meta.status before grouping to ensure proper grouping by meta
             def clean_meta = meta.clone()
             clean_meta.remove('status')
+            clean_meta.remove('num_files')
+            clean_meta.remove('num_validated_files')
             [clean_meta, status_file]
         }
         .groupTuple(by: 0) // Group by clean_meta (first element)
-        
-    // ch_grouped_status.subscribe { println "Grouped status: $it" }
     
     // Left join the grouped status with analysis JSON - keep all grouped status records
     // When skip_upload is true, ch_analysis will be empty, so all records will have null analysis_json
@@ -214,6 +214,8 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
                 // Remove meta.status before joining
                 def clean_meta = meta.clone()
                 clean_meta.remove('status')
+                clean_meta.remove('num_files')
+                clean_meta.remove('num_validated_files')
                 [clean_meta, analysis_json]
             },
             by: 0, // Join by clean_meta (first element)
