@@ -7,7 +7,7 @@ This guide provides practical instructions and command-line examples for running
 ### **Prerequisites Checklist**
 Before running the workflow, ensure you have:
 - [ ] Study registered in PCGL (Contact: helpdesk@genomelibrary.ca)
-- [ ] All participants registered (Coordinate with your Study data coordinator)
+- [ ] All participants in the submission batch registered (Coordinate with your Study data coordinator)
 - [ ] API token obtained (Contact: helpdesk@genomelibrary.ca)
 - [ ] Prepared metadata files (see **[Input Documentation](input.md)** for requirements and formats)
 - [ ] Data files organized in accessible directory
@@ -15,7 +15,7 @@ Before running the workflow, ensure you have:
 - [ ] Container engine installed (Docker or Singularity)
 
 ### **Minimal Required Command**
-Submission with only the essential metadata files required to start a submission:
+Submission with only the essential metadata files required to start a submission (`path_to_files_directory` is optional when `fileName` in `file_metadata.tsv` contains absolute paths):
 ```bash
 nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     --study_id "your_pcgl_study_id" \
@@ -26,6 +26,10 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     --outdir "/path/to/submission_results" \
     -profile [docker|singularity],sd4h_prod
 ```
+
+> **File pathing**: `path_to_files_directory` can be omitted when the `fileName` column in `file_metadata.tsv` contains absolute paths or subdirectory-relative paths that already resolve to accessible files. See [Input Documentation](input.md#molecular-data-files) for the full set of supported pathing options.
+
+> **Checksums**: `fileSize` and `fileMd5sum` columns in `file_metadata.tsv` are **optional**. The workflow calculates them automatically from the actual files and embeds the values in the submission payload.
 
 ## 🏭 Production Usage Examples
 
@@ -90,11 +94,32 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     -profile [docker|singularity],sd4h_prod 
 ```
 
+### **5. Submission Using Absolute File Paths (no `path_to_files_directory`)**
+When data files are stored at absolute paths (e.g., on a shared storage mount), you can omit `--path_to_files_directory` and reference them directly in `file_metadata.tsv`:
+```bash
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    --study_id "your_pcgl_study_id" \
+    --token "your_pcgl_token_here" \
+    --file_metadata "/path/to/file_metadata" \
+    --analysis_metadata "/path/to/analysis_metadata" \
+    --outdir "/path/to/submission_results" \
+    -profile [docker|singularity],sd4h_prod
+    # Note: fileName in file_metadata.tsv must contain absolute paths, e.g. /mnt/storage/sample001.cram
+```
+
 ## ⚙️ Environment Configuration
 
 ### **PCGL Environment Profiles**
 
 The workflow supports different PCGL environments through configuration profiles:
+
+#### **PCGL SD4H Production Environment**
+Connect to the production environment for live data submissions:
+```bash
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    [... parameters ...] \
+    -profile sd4h_prod
+```
 
 #### **PCGL SD4H Development Environment**
 Connect to the development environment for testing and validation:
@@ -110,14 +135,6 @@ Connect to the quality assurance environment for pre-production testing:
 nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     [... parameters ...] \
     -profile sd4h_qa
-```
-
-#### **PCGL SD4H Production Environment**
-Connect to the production environment for live data submissions:
-```bash
-nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
-    [... parameters ...] \
-    -profile sd4h_prod
 ```
 
 ### **Container Engine Options**

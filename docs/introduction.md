@@ -38,7 +38,9 @@ The Pan-Canadian Genome Library (PCGL) [Molecular Data Submission Workflow](http
 ✅ **Validates your data** before submission to catch errors early  
 ✅ **Automates complex submission steps** reducing manual work from days to hours  
 ✅ **Ensures compliance** with PCGL data model and requirements  
-✅ **Provides clear feedback** with detailed reports on success/failure status  
+✅ **Calculates file properties automatically** — `fileSize` and `fileMd5sum` are computed from actual files, so you don't need to supply them  
+✅ **Flexible file ingestion** — reference files by name, subdirectory path, or absolute path  
+✅ **Provides clear feedback** with detailed reports on success/failure status and aggregated per-analysis error details  
 ✅ **Handles large-scale submissions** efficiently with batch and parallel processing  
 ✅ **Maintains audit trails** for regulatory compliance and tracking  
 
@@ -219,7 +221,7 @@ Built on **Nextflow DSL2**, this workflow delivers enterprise-grade data submiss
 
 - ✅ Verifies study and participant registration status
 - ✅ Checks biospecimen entity requirements (samples, specimens, experiments and read groups)
-- ✅ Validates file accessibility and permissions
+- ✅ Validates file accessibility and permissions — supports plain file names, subdirectory paths, and absolute file paths in `file_metadata.tsv`
 - ✅ Cross-checks metadata consistency with PCGL records
 - ✅ Registers missing biospecimen entities when needed
 
@@ -231,8 +233,9 @@ Built on **Nextflow DSL2**, this workflow delivers enterprise-grade data submiss
 - 🔄 Transforms TSV files to standardized JSON payloads
 - ✅ Validates against PCGL data model schemas
 - 🔧 Handles format conversions and data type validation
+- 📐 **Automatically calculates `fileSize` and `fileMd5sum`** from actual data files; optionally verifies them when pre-computed values are supplied in `file_metadata.tsv`
 
-**User benefit**: Ensures your molecular metadata meets PCGL standards before submission
+**User benefit**: Ensures your molecular metadata meets PCGL standards before submission, without requiring manual checksum computation
 
 ### 🧪 3. Data Validation 
 **What it does**: Comprehensive quality checks on your data and metadata
@@ -258,10 +261,11 @@ Built on **Nextflow DSL2**, this workflow delivers enterprise-grade data submiss
 
 - 📊 Real-time status tracking throughout submission
 - 📄 Generates detailed batch receipts (JSON and TSV formats)
-- 📈 Summarizes success/failure statistics with error details
+- 📈 Summarizes success/failure statistics per analysis
+- 🐛 **Aggregates per-analysis error details** — each failed analysis includes `error_message` fields from all failed steps in the receipt for faster debugging
 - 🔍 Provides audit trails for compliance and troubleshooting
 
-**User benefit**: Clear understanding of submission results with actionable feedback
+**User benefit**: Clear understanding of submission results with actionable error details for each failed analysis
 
 ---
 

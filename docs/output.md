@@ -25,10 +25,9 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [analysis_split](#analysis_split) - runs workflow per record of input `analysis.tsv`
 - [validate_clinical](#validate_clinical) - checks biospecimen content for discrepancies and dependencies
 - [clinical_submission](#clinical_submission) - submits biospecimen data to clinical-submission service
-- [payload_generate](#payload_generate) - aggregates analysis, file and workflow metadata into JSON payload
+- [payload_generate](#payload_generate) - aggregates analysis, file and workflow metadata into JSON payload; **automatically calculates `fileSize` and `fileMd5sum`** from actual data files, and verifies them against any pre-computed values provided in `file_metadata.tsv`
 - [payload_validate](#payload_validate) - validates payload against file manager schema
 - [validation_metadata](#validation_metadata) - validates file data with read group and payload
-- [validation_crosscheck](#validation_crosscheck) - check md5 between payload and files
 - [seqkit_seq](#seqkit_seq) - validates compressed/uncompressed FASTQ per file
 - [samtools_quickcheck](#samtools_quickcheck) - validates BAM/CRAM format per file
 - [bcftools_view](#bcftools_view) - validates VCF/BCF format per file
@@ -77,11 +76,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
    - see [example](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/blob/main/tests/test_data/status/test_status1.yml)
 ### validation_metadata
 - `{submitterAnalysisId}_pcgl_molecular_data_submission_workflow_data_validation_validation_metadata_status.yml`
-   - occurs per `Analysis`
-   - for contents breakdown see : [URL](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/blob/main/docs/receipt.md#3-process-level)
-   - see [example](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/blob/main/tests/test_data/status/test_status1.yml)
-### validation_crosscheck
-- `{submitterAnalysisId}_pcgl_molecular_data_submission_workflow_data_validation_validation_crosscheck_status.yml`
    - occurs per `Analysis`
    - for contents breakdown see : [URL](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/blob/main/docs/receipt.md#3-process-level)
    - see [example](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/blob/main/tests/test_data/status/test_status1.yml)
@@ -147,13 +141,16 @@ f27e60ae-b25e-537e-947b-7bed6246a963    C0HVY.2_r1.fq.gz       64cf635dbc54f53ca
 - `{submitterAnalysisId}_receipt.json`
    - occurs per `Analysis`
    - for contents breakdown see : [URL](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/blob/main/docs/receipt.md#2-analysis-level)
+   - includes **aggregated per-analysis `error_message` fields** from all failed steps, enabling faster debugging without inspecting Nextflow work directories
 ### receipt_aggregate
 - `{timestamp}_batch_receipt.json`
    - occurs per `Analysis`
    - for contents breakdown see : [URL](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/blob/main/docs/receipt.md#2-analysis-level) breakdown and [JSON format](https:https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/blob/main/docs/receipt.md#json-format-_batch_receiptjson)
+   - includes **aggregated per-analysis `error_message`** for every failed analysis in the batch
 - `{timestamp}_batch_receipt.tsv`
    - occurs per `Analysis`
    - for contents breakdown see : [URL](https://github.com/Pan-Canadian-Genome-Library/molecular-data-submission-workflow/blob/main/docs/receipt.md#json-format-_batch_receiptjson)
+   - includes an **`error_message`** column surfacing aggregated per-analysis failure reasons at a glance
 ### pipeline_info
 - `pipeline_software_versions.yml`
   - `yml` file containing the software version of each process

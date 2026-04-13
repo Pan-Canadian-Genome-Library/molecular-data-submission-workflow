@@ -34,6 +34,7 @@ ls tests/test_data/
 - **Entity Registration**: Please make sure that `Study` and `Participant` entities are already registered for all test scenarios.
 - **Test Dataset**: 
   - The [provided test data](../tests/test_data/) is pre-formatted and compliant with the latest PCGL Base Data Model. Please remember to replace **studyId** in `tests/test_data/analysis_meta/analysis_metadata.tsv` to **your_study_id**. 
+  - The test `file_metadata.tsv` includes pre-computed `fileSize` and `fileMd5sum` values. During the run, the `payload_generate` step will calculate these from the actual genomic files and verify them against the provided values. These columns are **optional** — omitting them causes the workflow to auto-calculate and embed the values without verification.
   - When using your own data, refer to the [Input Documentation](input.md) for formatting requirements and data preparation guidelines.
 
 
@@ -313,7 +314,7 @@ When running the workflow, you may encounter these common issues across any test
 ### **Analysis and File Issues**  
 - **Missing workflow metadata**: Required `workflow_metadata.tsv` file not provided for analysis types that mandate workflow provenance information (e.g., variant calling pipelines, assembly workflows)
 - **Analysis type validation errors**: Analysis metadata values fail schema validation for the specified analysis type - check required fields, controlled vocabulary terms, and data type constraints in `analysis_metadata.tsv`
-- **File validation failures**: Genomic file metadata contains formatting errors, missing mandatory fields, or invalid values; alternatively, genomic files referenced in `file_metadata.tsv` are missing from the specified directory path or fail checksum verification
+- **File validation failures**: Genomic file metadata contains formatting errors, missing mandatory fields, or invalid values; alternatively, genomic files referenced in `file_metadata.tsv` are missing from the specified directory path (or absolute path when `path_to_files_directory` is omitted), or fail `fileSize`/`fileMd5sum` verification during `payload_generate` when pre-computed values are provided
 - **File transfer errors**: Genomic file upload to PCGL object storage fails due to network issues, authentication problems, or object storage service unavailability
 
 ### **System Issues**
