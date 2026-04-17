@@ -106,6 +106,7 @@ def generate_individual_receipt(processes, analysis_info, output_file):
         'file_manager_analysis_id': analysis_info.get('file_manager_analysis_id', None),
         'overall_status': overall_status,
         'process_failure_point':  [process.get('process') for process in clean_processes if process.get('status')=='FAILED'][0] if overall_status=='FAILED' else None,
+        "error_summary": [process.get('details').get('error_details') if process.get('details').get('error_details') else process.get('details').get('error_message') for process in clean_processes if process.get('status')=='FAILED'][0] if overall_status=='FAILED' else None,
         'analysis_type': analysis_info.get('analysis_type', None),
         'study_id': analysis_info.get('study_id', None),
         'analysis_state': analysis_info.get('file_manager_analysis_state', None),
