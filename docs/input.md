@@ -64,6 +64,7 @@ Before running the workflow, ensure you have:
     - A plain file name (e.g., `sample001.bam`) — file is looked up relative to `path_to_files_directory`
     - A subdirectory path (e.g., `wgs/sample001.bam`) — resolved under `path_to_files_directory`
     - An absolute path (e.g., `/data/submissions/sample001.bam`) — used directly, `path_to_files_directory` is ignored for that file
+  - Regardless of the path format used, **only the base filename is retained** by the workflow (directory components are stripped). For example, both `lane1/sample.bam` and `/data/lane2/sample.bam` resolve to `sample.bam`. Therefore, **all files within a single analysis must have unique base filenames** to avoid collisions.
   - No spaces or special characters in file names
   - Case-sensitive matching between metadata and actual files
 - **Location**: Files must be accessible from the workflow execution environment. `path_to_files_directory` is optional when absolute paths are provided in `fileName`.
@@ -83,7 +84,7 @@ Before running the workflow, ensure you have:
 | Column                | Description                        | Example                | Required |
 |-----------------------|------------------------------------|------------------------|----------|
 | submitter_analysis_id | Unique analysis identifier         | analysis_001           | Yes      |
-| fileName              | Name, relative subpath, or absolute path of the data file | sample001.bam or data/wgs/sample001.bam or /absolute/path/sample001.bam | Yes      |
+| fileName              | File name, subdirectory-relative path, or absolute path of the data file. | sample001.bam or data/wgs/sample001.bam or /absolute/path/sample001.bam | Yes      |
 | fileSize              | Size in bytes (auto-calculated if omitted) | 123456789       | No       |
 | fileMd5sum            | MD5 checksum of the file (auto-calculated if omitted) | 1a2b3c4d5e6f... | No       |
 | fileType              | Type of file (CRAM/BAM/VCF/BCF)    | BAM                    | Yes      |

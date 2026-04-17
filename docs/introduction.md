@@ -84,13 +84,13 @@ This workflow currently supports submission of **short-read sequencing data** an
 
 **PCGL Registration Requirements:**
 - [ ] Study registered in PCGL *(Contact: helpdesk@genomelibrary.ca)*
-- [ ] All participants registered *(Coordinate with your Study data coordinator)*
-- [ ] API token obtained *(Request from PCGL administrator)*
-- [ ] Data files ready and accessible *(See [Input Documentation](Input.md))*
-- [ ] Metadata prepared in required format *(Templates URLs to be added)*
+- [ ] All participants registered *(Coordinate with your Study Data Coordinator)*
+- [ ] API token obtained *(Contact: helpdesk@genomelibrary.ca)*
+- [ ] Metadata prepared in required format *(See [Input Documentation](input.md))*
+- [ ] Data files ready and accessible *(Organized in a readable directory or referenced by absolute paths)*
 
 **System Requirements:**
-- [ ] **Nextflow**: v22.04.0+ (DSL2)
+- [ ] **Nextflow**: v22.04.2+ (DSL2)
 - [ ] **Container Engine**: Docker (recommended), Singularity/Apptainer
 - [ ] **Java**: 17 or newer
 - [ ] **Bash**: 3.2 or newer

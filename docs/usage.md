@@ -5,14 +5,14 @@ This guide provides practical instructions and command-line examples for running
 ## 🚀 Quick Start
 
 ### **Prerequisites Checklist**
-Before running the workflow, ensure you have:
-- [ ] Study registered in PCGL (Contact: helpdesk@genomelibrary.ca)
-- [ ] All participants in the submission batch registered (Coordinate with your Study data coordinator)
-- [ ] API token obtained (Contact: helpdesk@genomelibrary.ca)
-- [ ] Prepared metadata files (see **[Input Documentation](input.md)** for requirements and formats)
-- [ ] Data files organized in accessible directory
-- [ ] Nextflow installed (version 22.04.2 or later)
-- [ ] Container engine installed (Docker or Singularity)
+Before running the workflow, ensure the following are in place:
+- [ ] **Study registered** — Your study is registered in PCGL (contact [helpdesk@genomelibrary.ca](mailto:helpdesk@genomelibrary.ca))
+- [ ] **Participants registered** — All participants in the submission batch are registered (coordinate with your Study Data Coordinator)
+- [ ] **API token obtained** — A valid API token has been issued for your study (contact [helpdesk@genomelibrary.ca](mailto:helpdesk@genomelibrary.ca))
+- [ ] **Metadata files prepared** — All required metadata files conform to the data model (see **[Input Documentation](input.md)** for schemas and formatting requirements)
+- [ ] **Data files accessible** — Molecular data files are organized in a readable directory or referenced by absolute paths
+- [ ] **Nextflow installed** — Version 22.04.2 or later ([installation guide](https://www.nextflow.io/docs/latest/install.html))
+- [ ] **Container engine installed** — Docker or Singularity is available on the target system
 
 ### **Minimal Required Command**
 Submission with only the essential metadata files required to start a submission (`path_to_files_directory` is optional when `fileName` in `file_metadata.tsv` contains absolute paths):
