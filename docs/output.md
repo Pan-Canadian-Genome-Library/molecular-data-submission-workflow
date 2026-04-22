@@ -36,7 +36,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [score_upload](#score_upload) - upload data on File Transfer
 - [song_publish](#song_publish) - uploaded data is made live and discoverable
 - [song_getanalysis](#song_getanalysis) - return generated analysisId
-- [receipt_generate](#receipt_generate) - combines `status.yml` from previous steps into a single `status.yml` per analyis
+- [receipt_generate](#receipt_generate) - combines `status.yml` from previous steps into a single `status.yml` per analysis
 - [receipt_aggregate](#receipt_aggregate) - combines `status.yml` from all analyses into a single batch `status.yml`
 - [pipeline_info](#pipeline_info) - Reports metrics 
 
@@ -155,9 +155,9 @@ f27e60ae-b25e-537e-947b-7bed6246a963    C0HVY.2_r1.fq.gz       64cf635dbc54f53ca
 - `pipeline_software_versions.yml`
   - `yml` file containing the software version of each process
 - `pipeline_dag_{timestamp}.html`
-  - directed acylic graph of nextflow processes, input and output
+  - directed acyclic graph of nextflow processes, input and output
 - `execution_trace_{timestamp}.txt`
-  - TSV summary of processes wih nextflow task IDs, duration, resource usage, and summary status
+  - TSV summary of processes with nextflow task IDs, duration, resource usage, and summary status
 - `execution_timeline_{timestamp}.html`
   - timeline chart of each the pipeline breaking down duration of each process and I/O speed
 - `execution_report_{timestamp}.html`

@@ -37,14 +37,14 @@ The workflow consists of five main subworkflows:
 
 ### Access Requirements
 
-- **PCGL API Token**: Valid authentication token with submission permissions for your study by login to the [Clinical Submission System](https://submission.genomelibrary.ca/auth/login)
+- **PCGL API Token**: Valid authentication to get access token with submission permissions for your study by login to the [Clinical Submission Login](https://submission.genomelibrary.ca/auth/login)
 - **Network Access**: Connectivity to PCGL submission endpoints:
   - [File Manager service](https://file-manager.submission.genomelibrary.ca/swagger-ui.html)
   - [File Transfer service](https://file-transfer.submission.genomelibrary.ca/swagger-ui.html)  
   - [Clinical submission service](https://submission.genomelibrary.ca/api-docs/) 
 
 ### Submission Dependencies
-- **Study Registration**: Your study must be registered in the PCGL system. Please contact PCGL Admin for more info.
+- **Study Registration**: Your study must be registered in the PCGL system. Please *Contact: helpdesk@genomelibrary.ca* for more info.
 - **Participant Registration**: The participants in your submission batch must be registered in the PCGL system.
 - **Biospecimen Entities**: Please provide the metadata for relevant dependent Biospecimen Entities if they were not yet submitted.
 
@@ -52,8 +52,8 @@ The workflow consists of five main subworkflows:
 Please refer to **[Input Documentation](docs/input.md)** for the comprehensive parameter descriptions and file format specifications.
 
 - **Molecular Data Files**: 
-  - Supported formats: CRAM, BAM, VCF, BCF
-  - Files must include appropriate index files (e.g., .crai, .bai, .tbi, .csi)
+  - Supported formats: FASTQ, CRAM, BAM, VCF, BCF
+  - Include appropriate index files if applicable (e.g., .crai, .bai, .tbi, .csi)
   - File location is determined by the `fileName` column in `file_metadata.tsv`, which accepts:
     - A plain file name — resolved relative to `--path_to_files_directory`
     - A subdirectory path (e.g., `wgs/sample001.bam`) — resolved under `--path_to_files_directory`
@@ -61,12 +61,22 @@ Please refer to **[Input Documentation](docs/input.md)** for the comprehensive p
 
 - **Metadata Files**: 
   - **Required**: `file_metadata.tsv`, `analysis_metadata.tsv`
-  - **Optional**: 
-    - Biospecimen: `specimen_metadata.tsv`, `sample_metadata.tsv`, `experiment_metadata.tsv`, `read_group_metadata.tsv`
-    - Analysis: `workflow_metadata.tsv`
+  - **Conditionally Required**:
+    - Biospecimen: `specimen_metadata.tsv`, `sample_metadata.tsv`, `experiment_metadata.tsv` - required if they were not yet submitted through clinical submission system
+    - `read_group_metadata.tsv` — required when `analysisType` is `sequenceExperiment`
+    - `workflow_metadata.tsv` — required when `analysisType` is `sequenceAlignment` or `variantCall`
   - All metadata files must be in tab-separated (TSV) format
-  - `fileSize` and `fileMd5sum` columns in `file_metadata.tsv` are **optional** — the workflow calculates them automatically from the actual files. If provided, they are verified against the calculated values.
-  - Files must comply with the Custom data model of your study, which is the combination of PCGL Base and Extentions Data Model. For the latest version of the PCGL Base Data Model, please see the [**latest release folder**](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB).
+  - `fileSize` and `fileMd5sum` columns in `file_metadata.tsv` are **optional** — the submission workflow calculates them automatically from the actual files. If provided, they are verified against the calculated values.
+  - Metadata files must comply with the Custom data model of your study, which is the combination of PCGL Base and your study Extentions. For the latest version of the PCGL Base Data Model, please see the [**latest release folder**](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB).
+
+### Analysis Type Requirements
+The following table summarizes the expected values for `fileType` and `dataType` based on the `analysisType`, along with which optional metadata files are required:
+
+| `analysisType` | Primary `fileType` | Index `fileType` | Primary `dataType` | Index `dataType` | Requires `read_group_metadata` | Requires `workflow_metadata` | Requires `experiment_metadata`
+|---|---|---|---|---|---|---|---|
+| `sequenceExperiment` | FASTQ | — | Sequencing Reads | — | Yes | No |Yes |
+| `sequenceAlignment` | BAM, CRAM | BAI, CRAI | Aligned Reads | Aligned Reads Index | No | Yes |Yes |
+| `variantCall` | VCF, BCF | TBI |Single Nucleotide Variants (SNVs), Insertions and Deletions (InDels), Structural Variations (SVs), Copy Number Variations (CNVs) | Variant Calls Index | No | Yes |Yes |
 
 ### Environment Setup
 
@@ -88,7 +98,7 @@ Please refer to **[Input Documentation](docs/input.md)** for the comprehensive p
 
 4. **Obtain PCGL API Token**:
    - Contact the PCGL administrator by Email: helpdesk@genomelibrary.ca to begin registration for your submission role
-   - Login into to the Clinical Submission System to get your access token
+   - Provide valid authentication to get access token by login to the [Clinical Submission Login](https://submission.genomelibrary.ca/auth/login)
    - Ensure the token has appropriate permissions for your study
 
 

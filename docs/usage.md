@@ -169,7 +169,7 @@ Note the config provided in :
 ```
 conf/slurm.config
 ```
-Is rudimentary and serves as a start/template, likely to not work out of box. Please add in configurations and arguements required (such as specific nodes).
+Is rudimentary and serves as a start/template, likely to not work out of box. Please add in configurations and arguments required (such as specific nodes).
 
 
 ## 📚 Related Documentation

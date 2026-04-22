@@ -24,16 +24,18 @@ Before running the workflow, ensure you have:
 
 ## Optional Parameters
 
-| Parameter                  | Description                                           | Type  |
-|----------------------------|-------------------------------------------------------|----------|
-| `workflow_metadata`        | Tab-separated file containing workflow information    | file     |
-| `read_group_metadata`      | Tab-separated file containing read group information  | file     |
-| `experiment_metadata`      | Tab-separated file containing experiment information  | file     |
-| `specimen_metadata`        | Tab-separated file containing specimen information    | file     |
-| `sample_metadata`          | Tab-separated file containing sample information      | file     |
-| `path_to_files_directory`  | Path to directory containing files to be uploaded    | string     |
+| Parameter                  | Description                                                                                      | Type     |
+|----------------------------|--------------------------------------------------------------------------------------------------|----------|
+| `workflow_metadata`        | Tab-separated file containing workflow information. **Required** for `sequenceAlignment` and `variantCall` analysis types. | file     |
+| `read_group_metadata`      | Tab-separated file containing read group information. **Required** when `analysisType = sequenceExperiment`. | file     |
+| `experiment_metadata`      | Tab-separated file containing experiment information. **Required** if it was not yet submitted through clinical submission system                                            | file     |
+| `specimen_metadata`        | Tab-separated file containing specimen. **Required** if it was not yet submitted through clinical submission system  information                                               | file     |
+| `sample_metadata`          | Tab-separated file containing sample. **Required** if it was not yet submitted through clinical submission system  information                                                 | file     |
+| `path_to_files_directory`  | Path to directory containing files to be uploaded                                               | string   |
 
 > **Note on file pathing**: `path_to_files_directory` is optional. When omitted, the `fileName` column in `file_metadata.tsv` must contain the absolute path to each file.
+
+> **Pre-registration requirement**: The Study, Dac and Participant entities referenced in your metadata must already be registered in PCGL **before** running the workflow. Contact your study administrator to confirm these dependencies are in place.
 
 ## Advanced Configuration Parameters
 
@@ -57,8 +59,8 @@ Before running the workflow, ensure you have:
 ## File Requirements and Specifications
 
 ### Molecular Data Files
-- **Supported formats**: CRAM, BAM, VCF, BCF
-- **Index files**: Required for each data file (e.g., .crai, .bai, .tbi, .csi)
+- **Supported formats**: FASTQ, CRAM, BAM, VCF, BCF
+- **Index files if applicable**: .crai, .bai, .tbi, .csi
 - **Naming / path requirements**:
   - The `fileName` column in `file_metadata.tsv` accepts:
     - A plain file name (e.g., `sample001.bam`) — file is looked up relative to `path_to_files_directory`
@@ -76,6 +78,16 @@ Before running the workflow, ensure you have:
 - **Required columns**: Each metadata file must include all required columns as specified in schemas below
 - **Consistency**: Analysis IDs must be consistent across all metadata files
 - **Relationships**: Foreign key relationships must be maintained between entities
+
+### Analysis Type Requirements
+The following table summarizes the expected values for `fileType` and `dataType` based on the `analysisType`, along with which optional metadata files are required:
+
+| `analysisType` | Primary `fileType` | Index `fileType` | Primary `dataType` | Index `dataType` | Requires `read_group_metadata` | Requires `workflow_metadata` | Requires `experiment_metadata`
+|---|---|---|---|---|---|---|---|
+| `sequenceExperiment` | FASTQ | — | Sequencing Reads | — | Yes | No |Yes |
+| `sequenceAlignment` | BAM, CRAM | BAI, CRAI | Aligned Reads | Aligned Reads Index | No | Yes |Yes |
+| `variantCall` | VCF, BCF | TBI |Single Nucleotide Variants (SNVs), Insertions and Deletions (InDels), Structural Variations (SVs), Copy Number Variations (CNVs) | Variant Calls Index | No | Yes |Yes |
+
 
 ### Metadata File Schema Examples
 
@@ -109,6 +121,7 @@ Before running the workflow, ensure you have:
 | variant_calling_strategy   | Strategy used for variant calling  | Tumour normal                    | No       |
 | genome_build               | Reference genome build             | GRCh38                 | No       |
 | genome_annotation          | Genome annotation version          | GENCODE v29            | No       |
+
 
 #### `workflow_metadata.tsv` (Optional)
 
