@@ -83,10 +83,10 @@ Before running the workflow, ensure you have:
 The following table summarizes the expected values for `fileType` and `dataType` based on the `analysisType`, along with which optional metadata files are required:
 
 | `analysisType` | Primary `fileType` | Index `fileType` | Primary `dataType` | Index `dataType` | Requires `read_group_metadata` | Requires `workflow_metadata` | Requires `experiment_metadata`
-|---|---|---|---|---|---|---|---|
+|:---|:---|:---|:---|:---|:---|:---|:---|
 | `sequenceExperiment` | FASTQ | — | Sequencing Reads | — | Yes | No |Yes |
-| `sequenceAlignment` | BAM, CRAM | BAI, CRAI | Aligned Reads | Aligned Reads Index | No | Yes |Yes |
-| `variantCall` | VCF, BCF | TBI |Single Nucleotide Variants (SNVs), Insertions and Deletions (InDels), Structural Variations (SVs), Copy Number Variations (CNVs) | Variant Calls Index | No | Yes |Yes |
+| `sequenceAlignment` | <nobr>BAM, CRAM</nobr> | <nobr>BAI, CRAI</nobr> | Aligned Reads | <nobr>Aligned Reads Index</nobr> | No | Yes |Yes |
+| `variantCall` | <nobr>VCF, BCF</nobr> | TBI |<nobr>Single Nucleotide Variants (SNVs),</nobr> <nobr>Insertions and Deletions (InDels),</nobr> <nobr>Structural Variations (SVs),</nobr> <nobr>Copy Number Variations (CNVs)</nobr> | <nobr>Variant Calls Index</nobr> | No | Yes |Yes |
 
 
 ### Metadata File Schema Examples
