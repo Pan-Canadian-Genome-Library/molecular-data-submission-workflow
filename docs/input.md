@@ -17,19 +17,25 @@ Before running the workflow, ensure you have:
 |----------------------------|-------------------------------------------------------|----------|
 | `study_id`                 | PCGL study identifier                                 | string   |
 | `token`                    | Authentication token with PCGL submission scope      | string   |
-| `path_to_files_directory`  | Path to directory containing files to be uploaded    | path     |
 | `file_metadata`            | Tab-separated file containing file information        | file     |
 | `analysis_metadata`        | Tab-separated file containing analysis information    | file     |
 
+
+
 ## Optional Parameters
 
-| Parameter                  | Description                                           | Default  |
-|----------------------------|-------------------------------------------------------|----------|
-| `workflow_metadata`        | Tab-separated file containing workflow information    | null     |
-| `read_group_metadata`      | Tab-separated file containing read group information  | null     |
-| `experiment_metadata`      | Tab-separated file containing experiment information  | null     |
-| `specimen_metadata`        | Tab-separated file containing specimen information    | null     |
-| `sample_metadata`          | Tab-separated file containing sample information      | null     |
+| Parameter                  | Description                                                                                      | Type     |
+|----------------------------|--------------------------------------------------------------------------------------------------|----------|
+| `workflow_metadata`        | Tab-separated file containing workflow information. **Required** for `sequenceAlignment` and `variantCall` analysis types. | file     |
+| `read_group_metadata`      | Tab-separated file containing read group information. **Required** when `analysisType = sequenceExperiment`. | file     |
+| `experiment_metadata`      | Tab-separated file containing experiment information. **Required** if it was not yet submitted through clinical submission system                                            | file     |
+| `specimen_metadata`        | Tab-separated file containing specimen. **Required** if it was not yet submitted through clinical submission system  information                                               | file     |
+| `sample_metadata`          | Tab-separated file containing sample. **Required** if it was not yet submitted through clinical submission system  information                                                 | file     |
+| `path_to_files_directory`  | Path to directory containing files to be uploaded                                               | string   |
+
+> **Note on file pathing**: `path_to_files_directory` is optional. When omitted, the `fileName` column in `file_metadata.tsv` must contain the absolute path to each file.
+
+> **Pre-registration requirement**: The Study, Dac and Participant entities referenced in your metadata must already be registered in PCGL **before** running the workflow. Contact your study administrator to confirm these dependencies are in place.
 
 ## Advanced Configuration Parameters
 
@@ -53,14 +59,19 @@ Before running the workflow, ensure you have:
 ## File Requirements and Specifications
 
 ### Molecular Data Files
-- **Supported formats**: CRAM, BAM, VCF, BCF
-- **Index files**: Required for each data file (e.g., .crai, .bai, .tbi, .csi)
-- **Naming requirements**: 
-  - File names must match entries in `file_metadata.tsv`
+- **Supported formats**: FASTQ, CRAM, BAM, VCF, BCF
+- **Index files if applicable**: .crai, .bai, .tbi, .csi
+- **Naming / path requirements**:
+  - The `fileName` column in `file_metadata.tsv` accepts:
+    - A plain file name (e.g., `sample001.bam`) — file is looked up relative to `path_to_files_directory`
+    - A subdirectory path (e.g., `wgs/sample001.bam`) — resolved under `path_to_files_directory`
+    - An absolute path (e.g., `/data/submissions/sample001.bam`) — used directly, `path_to_files_directory` is ignored for that file
+  - Regardless of the path format used, **only the base filename is retained** by the workflow (directory components are stripped). For example, both `lane1/sample.bam` and `/data/lane2/sample.bam` resolve to `sample.bam`. Therefore, **all files within a single analysis must have unique base filenames** to avoid collisions.
   - No spaces or special characters in file names
   - Case-sensitive matching between metadata and actual files
-- **Location**: All files must be accessible from the specified `path_to_files_directory`
+- **Location**: Files must be accessible from the workflow execution environment. `path_to_files_directory` is optional when absolute paths are provided in `fileName`.
 - **Integrity**: Files should be properly formatted and not corrupted
+- **Checksums**: `fileSize` and `fileMd5sum` are auto-calculated by the workflow; supply them in `file_metadata.tsv` only if you want the workflow to verify them against the actual files
 
 ### Metadata Files
 - **Format**: Tab-separated values (TSV) with UTF-8 encoding
@@ -68,23 +79,33 @@ Before running the workflow, ensure you have:
 - **Consistency**: Analysis IDs must be consistent across all metadata files
 - **Relationships**: Foreign key relationships must be maintained between entities
 
+### Analysis Type Requirements
+The following table summarizes the expected values for `fileType` and `dataType` based on the `analysisType`, along with which optional metadata files are required:
+
+| `analysisType` | Primary `fileType` | Index `fileType` | Primary `dataType` | Index `dataType` | Requires `read_group_metadata` | Requires `workflow_metadata` | Requires `experiment_metadata`
+|---|---|---|---|---|---|---|---|
+| `sequenceExperiment` | FASTQ | — | Sequencing Reads | — | Yes | No |Yes |
+| `sequenceAlignment` | BAM, CRAM | BAI, CRAI | Aligned Reads | Aligned Reads Index | No | Yes |Yes |
+| `variantCall` | VCF, BCF | TBI |Single Nucleotide Variants (SNVs), Insertions and Deletions (InDels), Structural Variations (SVs), Copy Number Variations (CNVs) | Variant Calls Index | No | Yes |Yes |
+
+
 ### Metadata File Schema Examples
 
 #### `file_metadata.tsv` (Required)
-**📄 [Download Template](TBD) TBD**
 
 | Column                | Description                        | Example                | Required |
 |-----------------------|------------------------------------|------------------------|----------|
 | submitter_analysis_id | Unique analysis identifier         | analysis_001           | Yes      |
-| fileName              | Name of the data file              | sample001.bam          | Yes      |
-| fileSize              | Size in bytes                      | 123456789              | Yes      |
-| fileMd5sum            | MD5 checksum of the file           | 1a2b3c4d5e6f...        | Yes      |
+| fileName              | File name, subdirectory-relative path, or absolute path of the data file. | sample001.bam or data/wgs/sample001.bam or /absolute/path/sample001.bam | Yes      |
+| fileSize              | Size in bytes (auto-calculated if omitted) | 123456789       | No       |
+| fileMd5sum            | MD5 checksum of the file (auto-calculated if omitted) | 1a2b3c4d5e6f... | No       |
 | fileType              | Type of file (CRAM/BAM/VCF/BCF)    | BAM                    | Yes      |
 | fileAccess            | File access level                  | controlled             | Yes      |
 | dataType              | Type of data content               | Aligned Reads          | Yes      |
 
+> **Note on `fileSize` and `fileMd5sum`**: These values are **automatically calculated** from the actual data files during payload generation if not provided. If supplied, they are verified against the calculated values and an error is raised on mismatch. Omitting them removes the need to pre-compute checksums manually.
+
 #### `analysis_metadata.tsv` (Required)
-**📄 [Download Template](TBD) TBD**
 
 | Column                     | Description                        | Example                | Required |
 |----------------------------|------------------------------------|------------------------|----------|
@@ -97,12 +118,12 @@ Before running the workflow, ensure you have:
 | submitter_experiment_id    | Experiment identifier              | EXP_001                | No       |
 | data_category              | Category of data                   | Sequencing Reads       | Yes      |
 | variant_class              | Class of variants                  | SNV                    | No       |
-| variant_calling_strategy   | Strategy used for variant calling  | WGS                    | No       |
+| variant_calling_strategy   | Strategy used for variant calling  | Tumour normal                    | No       |
 | genome_build               | Reference genome build             | GRCh38                 | No       |
 | genome_annotation          | Genome annotation version          | GENCODE v29            | No       |
 
+
 #### `workflow_metadata.tsv` (Optional)
-**📄 [Download Template](TBD) TBD**
 
 | Column                 | Description                        | Example                | Required |
 |------------------------|------------------------------------|------------------------|----------|
@@ -113,7 +134,6 @@ Before running the workflow, ensure you have:
 | workflow_url           | URL to workflow repository         | github.com/...         | No       |
 
 #### Biospecimen Metadata Files (Optional)
-**📄 [Download Biospecimen Templates](TBD) TBD**
 
 For biospecimen metadata files (`specimen_metadata.tsv`, `sample_metadata.tsv`, `experiment_metadata.tsv`, `read_group_metadata.tsv`):
 - Each file must include unique entity IDs as primary keys
@@ -126,9 +146,9 @@ For biospecimen metadata files (`specimen_metadata.tsv`, `sample_metadata.tsv`, 
 ### Pre-submission Validation Checklist
 
 **📁 File Validation:**
-- [ ] **File Existence**: All files listed in `file_metadata.tsv` exist in `path_to_files_directory`
+- [ ] **File Existence**: All files listed in `file_metadata.tsv` are accessible (via `path_to_files_directory`, subdirectory path, or absolute path)
 - [ ] **Index Files**: Each data file has its corresponding index (.crai, .bai, .tbi, .csi) alongside
-- [ ] **File Integrity**: MD5 checksums match `fileMd5sum` column values
+- [ ] **File Integrity**: If `fileMd5sum` / `fileSize` are provided in `file_metadata.tsv`, they will be verified; otherwise the workflow calculates them automatically
 - [ ] **File Access**: All files are readable by the workflow execution environment
 
 **📊 Metadata Validation:**
@@ -145,6 +165,9 @@ For biospecimen metadata files (`specimen_metadata.tsv`, `sample_metadata.tsv`, 
 > 💡 **Quick Validation**: The workflow automatically performs these validations, but checking beforehand prevents submission failures.
 
 ### Generating MD5 Checksums
+Pre-computing checksums is **no longer required**. The workflow automatically calculates `fileSize` and `fileMd5sum` for each file during the payload generation step. If you do provide these values in `file_metadata.tsv`, they will be verified against the calculated values; a mismatch will cause the analysis to fail.
+
+If you still want to pre-compute checksums (e.g., for an audit trail before submission):
 ```bash
 # For single file
 md5sum sample001.cram
@@ -159,31 +182,50 @@ find /path/to/data -name "*.cram" -exec md5sum {} \; > checksums.txt
 
 ### Recommended Directory Structure
 
-This suggested organization separates metadata files from data files, making it easier to manage and reference your submission components:
+The workflow supports several file organization patterns. Choose the one that best fits your setup.
 
+#### Option A — Flat directory
+All data files in a single directory, `fileName` contains the file name only:
 ```
 study/
 ├── metadata/
-│   ├── file_metadata.tsv          # Required: File information
-│   ├── analysis_metadata.tsv      # Required: Analysis information
-│   ├── workflow_metadata.tsv      # Optional: Workflow information
-│   ├── read_group_metadata.tsv    # Optional: Read group information
-│   ├── experiment_metadata.tsv    # Optional: Experiment information
-│   ├── specimen_metadata.tsv      # Optional: Specimen information
-│   └── sample_metadata.tsv        # Optional: Sample information
-└── data/                          # path_to_files_directory
+│   ├── file_metadata.tsv          # fileName column: "sample1.cram"
+│   └── analysis_metadata.tsv
+└── data/                          # --path_to_files_directory
     ├── sample1.cram
     ├── sample1.cram.crai
     ├── sample2.cram
     └── sample2.cram.crai
 ```
 
-**Benefits of this structure:**
-- **Clear separation**: Metadata and data files are organized in separate directories
-- **Easy maintenance**: All TSV metadata files are centralized in one location
-- **Simple referencing**: The `data/` directory serves as your `path_to_files_directory` parameter
-- **Scalability**: Easy to add more files without cluttering the project root
-- **Index file co-location**: Data files and their corresponding index files are kept together
+#### Option B — Subdirectory pathing
+Data files organised in subdirectories; `fileName` contains the relative sub-path from `path_to_files_directory`:
+```
+study/
+├── metadata/
+│   ├── file_metadata.tsv          # fileName column: "wgs/sample1.cram"
+│   └── analysis_metadata.tsv
+└── data/                          # --path_to_files_directory
+    └── wgs/
+        ├── sample1.cram
+        ├── sample1.cram.crai
+        ├── sample2.cram
+        └── sample2.cram.crai
+```
+
+#### Option C — Absolute paths (no `path_to_files_directory`)
+`fileName` contains an absolute path to each file; `--path_to_files_directory` can be omitted:
+```
+study/
+└── metadata/
+    ├── file_metadata.tsv          # fileName column: "/mnt/storage/data/sample1.cram"
+    └── analysis_metadata.tsv
+```
+
+**Benefits of flexible pathing:**
+- **Flat directory**: Simplest setup when all files reside in one place
+- **Subdirectory pathing**: Organise large batches hierarchically without changing `path_to_files_directory`
+- **Absolute pathing**: Ideal when files are spread across different storage systems or mount points
 
 ---
 
