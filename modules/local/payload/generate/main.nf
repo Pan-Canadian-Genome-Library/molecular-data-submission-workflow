@@ -19,6 +19,7 @@ process PAYLOAD_GENERATE {
     tag "$meta.id"
     label 'process_single'
     label 'process_short'
+    maxForks params.fork_limit
 
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda "${moduleDir}/environment.yml"
