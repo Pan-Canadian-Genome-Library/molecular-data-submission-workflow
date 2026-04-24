@@ -63,16 +63,17 @@ def check_workflows_duplicates(analysis):
          analysis['status']=False
          analysis['comments'].append("Multiple entries with the same submitter_workflow_id %s detected" % ";".join(analysis['workflow']['submitter_workflow_id'].unqiue().tolist()))
 def check_file_filename_duplicates(analysis):
-   if len(analysis['files'].groupby("fileName").count().query('fileMd5sum>1'))>1:
-      for fileName in analysis['files'].groupby("fileName").count().query('fileMd5sum>1').index.values.tolist():
+   if len(analysis['files'].groupby("fileName").count().query('dataType>1'))>1:
+      for fileName in analysis['files'].groupby("fileName").count().query('dataType>1').index.values.tolist():
          analysis['status']=False
          analysis['comments'].append("Multiple entries with the same fileName %s detected" % fileName)
 def check_file_filename_filem5d(analysis):
    ###Exclude empty Md5
-   if len(analysis['files'].replace(np.nan,0).query("fileMd5sum!=0").groupby("fileMd5sum").count().query('fileName>1'))>1:
-      for fileName in analysis['files'].replace(np.nan,0).query("fileMd5sum!=0").groupby("fileMd5sum").count().query('fileName>1').index.values.tolist():
-         analysis['status']=False
-         analysis['comments'].append("Multiple entries with the same fileMd5sum %s detected" % fileMd5sum)
+   if "fileMd5sum" in analysis['files'].columns.values.tolist():
+      if len(analysis['files'].replace(np.nan,0).query("fileMd5sum!=0").groupby("fileMd5sum").count().query('fileName>1'))>1:
+         for fileMd5sum in analysis['files'].replace(np.nan,0).query("fileMd5sum!=0").groupby("fileMd5sum").count().query('fileName>1').index.values.tolist():
+            analysis['status']=False
+            analysis['comments'].append("Multiple entries with the same fileMd5sum %s detected" % fileMd5sum)
 def check_study_id(analysis,study_id):
    for ind in analysis['analysis'].index.values.tolist():
       if analysis['analysis'].loc[ind,"studyId"] != study_id:
@@ -219,6 +220,7 @@ def main(args):
 
    ###Check for duplicate ['fileName',"fileMd5sum"]:
    check_file_filename_duplicates(analysis)
+
    check_file_filename_filem5d(analysis)
    ###Check for study ID
    check_study_id(analysis,args.study_id)
