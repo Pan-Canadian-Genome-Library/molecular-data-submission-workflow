@@ -137,6 +137,15 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     -profile sd4h_qa
 ```
 
+#### **Adjusting max forks**
+Resource management is important when submitting a batch of files. By default we conservatitely limit the number of `PAYLOAD_GENERATE` and `SCORE_UPLOAD` tasks to the default value of `1`. This means only 1 of each task can be running at a time.\n
+This is to reduce I/O overhead and ensure efficient transfer.  If the data is local and not constrained, the number can increased.
+```bash
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    [... parameters ...] \
+    --fork_limit 1
+```
+
 ### **Container Engine Options**
 
 #### **Docker**
