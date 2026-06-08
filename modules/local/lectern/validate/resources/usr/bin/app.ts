@@ -89,6 +89,12 @@ const loadAllTSVs = async (files: string[]): Promise<Record<string, object[]>> =
 
 // Remove submitter_participant_id foreign key restriction
 const removeParticipantRestrictions = (response: typeof apiResponse) => {
+  if (!response?.data?.schemas) {
+    console.error('removeParticipantRestrictions: response.data.schemas is undefined');
+    console.error('Response received:', JSON.stringify(response, null, 2));
+    process.exit(1);
+  }
+  
   return {
     ...response,
     data: {
