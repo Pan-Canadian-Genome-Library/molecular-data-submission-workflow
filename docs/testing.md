@@ -17,41 +17,25 @@ git clone https://github.com/Pan-Canadian-Genome-Library/molecular-data-submissi
 
 # Navigate to the repository directory
 cd molecular-data-submission-workflow
-
-# Verify test data is available
-ls tests/test_data/
 ```
 
 ## ⚠️ **Important Notes**
 
-- **Test Environment**: 
-  - These examples use the `cumulus_dev` profile for testing in **OICR Dev**. 
-  - Please use `sd4h_dev` for any testing in **SD4H Dev**, 
-  - Please use `sd4h_staging` for any testing in **SD4H Staging**.  
 - **Authentication**: Replace `"test_token_here"` with your actual authentication token.
 - **Network Requirements**: Ensure access to PCGL submission services in your testing environment.
 - **Data Model**: Please check the latest version of the [PCGL Base Data Model](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB) to ensure your data conforms to the metadata requirements and dependencies.
-- **Entity Registration**: Please make sure that `Study` and `Participant` entities are already registered for all test scenarios.
+- **Entity Registration**: Please make sure that `Study` entities are already registered for all test scenarios.
 - **Test Dataset**: 
   - The [provided test data](../tests/test_data/) is pre-formatted and compliant with the latest PCGL Base Data Model. Please remember to replace **studyId** in `tests/test_data/analysis_meta/analysis_metadata.tsv` to **your_study_id**. 
   - The test `file_metadata.tsv` includes pre-computed `fileSize` and `fileMd5sum` values. During the run, the `payload_generate` step will calculate these from the actual genomic files and verify them against the provided values. These columns are **optional** — omitting them causes the workflow to auto-calculate and embed the values without verification.
   - When using your own data, refer to the [Input Documentation](input.md) for formatting requirements and data preparation guidelines.
 
 
-## 🧪 **Running Tests**
+## 🧪 **Dry Run Testing**
 
-The repository includes comprehensive test datasets that you can use to verify the workflow functionality. Please be noted that the Submission Dependencies such as Study and Participant have already been registered beforehand. 
-[**TODO**: add links to Study and Participant registration section when the full submission docs is available.]
+The dry run test allows users to validate their data and connection with the PCGL production environment without committing to upload.
 
-
-### **Test Scenario 1: No Pre-submitted Biospecimen Entities**
-**Purpose**: Test the workflow when we assume no biospecimen entities (samples, specimens, experiments, read groups) have been submitted to PCGL in advance. This scenario requires the workflow to create and submit all biospecimen entities during submission.
-
-**What this tests**: 
-- Complete biospecimen entity creation and submission
-- Full metadata validation for all biospecimen data
-- End-to-end submission process including biospecimen submission to clinical system, analysis and file metadata submission to file-manager, and genomic files submission to object storage
-
+To test the workflow, run the following code:
 ```bash
 nextflow run . \
     --study_id "TEST-CA" \
@@ -64,58 +48,33 @@ nextflow run . \
     --specimen_metadata "tests/test_data/biospecimen/specimen_metadata.tsv" \
     --sample_metadata "tests/test_data/biospecimen/sample_metadata.tsv" \
     --outdir test_results \
-    -profile test,docker,cumulus_dev \
-    --token "test_token_here"
+    -profile docker,sd4h_prod \
+    --token "test_token_here" \
+    --skip_upload
 ```
 
-### **Test Scenario 2: All Biospecimen Entities Pre-submitted**
+The dry run workflow consists of three sections:
 
-**Purpose**: Test the workflow when we assume all biospecimen entities (samples, specimens, experiments, read groups) have already been submitted to PCGL in advance. This scenario only requires file and analysis metadata for submission.
+### 1. Connection Check Against Resources
+- The workflow will check to ensure the various required services and connection to them are available
+- Ensure the study was properly registered with all services.
+- It will not check token viability.
+  - In the dry-run mode, token arguement will be optional with a warning flag.
+  - In live submission, the token will be a required
 
-**What this tests**:
-- Workflow's behavior when biospecimen dependencies are already satisfied
-- Validation against existing biospecimen metadata
-- Error handling for missing optional metadata
-- Analysis-only submission pathway when biospecimen entities already exist in PCGL clinical system, analysis and file metadata submission to file-manager, and genomic files submission to object storage
+### 2. Clinical validation
+- Instead of submitting the clinical data to server for check, clinical data will be validated locally and errors will be returned.
+- Participants records will not be checked. In live production, these records are expected to be submitted before hand.
+  - In production, the existence of these records will be checked.
+- Since the check is done locally, the workflow will not check previously submitted records and will expect all records as part of local batch
+  - As such, the check will expect all dependencies to be present in a batch including `experiment` , `sample` , `specimen` and optionally `read_group`. `Partcipants` are not included.
 
-```bash
-nextflow run . \
-    --study_id "TEST-CA" \
-    --path_to_files_directory "tests/test_data/genomics" \
-    --file_metadata "tests/test_data/analysis_meta/file_metadata.tsv" \
-    --analysis_metadata "tests/test_data/analysis_meta/analysis_metadata.tsv" \
-    --outdir test_minimal \
-    -profile test,docker,cumulus_dev \
-    --token "test_token_here"
-```
-
-### **Test Scenario 3: Partial Biospecimen Entities Pre-submitted**
-
-**Purpose**: Test the workflow when we assume some biospecimen entities have been submitted to PCGL in advance, but others have not. This tests the workflow's ability to handle mixed biospecimen entity states.
-
-**What this tests**:
-- Mixed biospecimen entity states (some pre-submitted, some new)
-- Workflow's ability to handle partial metadata scenarios and entity dependencies
-- Selective biospecimen metadata processing based on existing entity states
-- Hybrid submission pathway combining existing and new entity submission to clinical system, analysis and file metadata submission to file-manager, and genomic files submission to object storage
-
-```bash
-nextflow run . \
-    --study_id "TEST-CA" \
-    --path_to_files_directory "tests/test_data/genomics" \
-    --file_metadata "tests/test_data/analysis_meta/file_metadata.tsv" \
-    --analysis_metadata "tests/test_data/analysis_meta/analysis_metadata.tsv" \
-    --experiment_metadata "tests/test_data/biospecimen/experiment_metadata.tsv" \
-    --sample_metadata "tests/test_data/biospecimen/sample_metadata.tsv" \
-    --outdir test_partial \
-    -profile test,docker,cumulus_dev \
-    --token "test_token_here"
-    # workflow_metadata, read_group_metadata, specimen_metadata omitted
-```
+### 3. Molecular Validation
+- Molecular validation will behave as normal including file type check and md5sum check.
 
 ## 📊 **Expected Terminal Output**
 
-When you run any test scenario, the workflow will display input parameters, execute pipeline processes in real-time, and conclude with either a successful completion summary or an early termination message if critical issues are detected.
+The workflow will display input parameters, execute pipeline processes in real-time, and conclude with either a successful completion summary or an early termination message if critical issues are detected.
 
 ### **Input Parameters Display**
 
@@ -327,9 +286,7 @@ When running the workflow, you may encounter these common issues across any test
 
 ## 💡 **Testing Best Practices**
 - **Understand Submission Dependencies**: Review entity hierarchy (Study → Participant → Sample → Specimen → Experiment → Read Group) and analysis requirements before test execution
-- **Start with Scenario 1 (No Pre-submitted Biospecimen)**: Execute complete end-to-end workflow testing including biospecimen entity creation, validation, and submission to verify full pipeline functionality
-- **Progress to Scenario 2 (All Pre-submitted)**: Test analysis-only submission pathway when biospecimen dependencies are satisfied - validates workflow behavior with existing entity references
-- **Test Scenario 3 (Partial Pre-submitted)**: Validate hybrid submission mode handling mixed biospecimen entity states and selective metadata processing
+- **Start with Clinical**: Workflow will not progress to molecular file validation until, clinical data is successfully validated.
 - **Nextflow Process Status Interpretation**: Nextflow processes show completion status due to error handling mechanisms. Therefore failed processes still appear "completed" but with error exit codes captured in batch receipt
 - **Review Batch Receipts**: Examine JSON or TSV receipt files after each test execution to analyze submission status and failure diagnostics. Failed processes trigger automatic skipping of dependent downstream processes. Please analyze the process entries which were captured in chronological execution order in the JSON receipt to identify the root cause of the failed submission.
 - **Use Different Output Directories**: Maintain separate `--outdir` paths for each test scenario to prevent result contamination and enable parallel testing
