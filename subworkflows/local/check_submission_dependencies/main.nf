@@ -10,7 +10,7 @@ include {CHECK_DEPENDENCIES} from '../../../modules/local/check_dependencies'
 include {ANALYSIS_SPLIT} from '../../../modules/local/analysis_split'
 include {VALIDATE_CLINICAL} from '../../../modules/local/validate_clinical'
 include {CLINICAL_SUBMISSION} from '../../../modules/local/submit_clinical'
-
+include {LECTERN_VALIDATE} from '../../../modules/local/lectern/validate'
 
 workflow CHECK_SUBMISSION_DEPENDENCIES {
 
@@ -27,7 +27,7 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
 
     main:
     
-        ch_versions = Channel.empty()
+        ch_versions = channel.empty()
         // Check analysis and clinical files to ensure dependencies are met. Hard stop 
         CHECK_DEPENDENCIES(
             study_id, // tuple (val:study_id)
@@ -45,21 +45,21 @@ workflow CHECK_SUBMISSION_DEPENDENCIES {
         // Check if minimum requirements are met - graceful stop if not
         // Update status channel with CHECK_DEPENDENCIES output
         CHECK_DEPENDENCIES.out.status
-            .subscribe { study, status_file ->
+            .subscribe { _study, status_file ->
                 def status_content = status_file.text
                 def is_failed = status_content.contains('status: "FAILED"')
                 
                 if (is_failed) {
                     // Extract error details using functional approach
                     def lines = status_content.split('\n')
-                    def error_start_index = lines.findIndexOf { it.trim().startsWith('error_details:') }
+                    def error_start_index = lines.findIndexOf { item -> item.trim().startsWith('error_details:') }
                     def error_details = ""
                     
                     if (error_start_index >= 0) {
                         // Get lines after error_details: that start with spaces
                         def error_lines = lines[(error_start_index+1)..-1]
-                            .takeWhile { it.startsWith('    ') || it.trim().isEmpty() }
-                            .collect { it.replaceFirst('    ', '') }
+                            .takeWhile { item -> item.startsWith('    ') || item.trim().isEmpty() }
+                            .collect { item -> item.replaceFirst('    ', '') }
                         
                         error_details = error_lines.join('\n').trim()
                     }                  
@@ -106,7 +106,7 @@ Please fix the above issues and re-run the workflow.
 
         // Continue with the rest of the workflow only if dependencies check passed
         CHECK_DEPENDENCIES.out.status
-            .filter { study, status_file -> 
+            .filter { _study, status_file -> 
                 !status_file.text.contains('status: "FAILED"')
             }
             .subscribe {
@@ -142,7 +142,7 @@ Please fix the above issues and re-run the workflow.
         .transpose()
         .collect(flat:false)//.subscribe{println "${it}"}
         .map{
-            it,files ->
+            it,_files ->
             // Pass as long as one analysis is successful in splitting
             def is_failed = it.join(',').contains('pass') ? false : true
 
@@ -282,7 +282,7 @@ Please fix the above issues and re-run the workflow.
         }
 
 
-        //Validate clinical and analysis 
+        //Validate clinical and analysis required entities co-exist
         VALIDATE_CLINICAL(
              analysis_channels
         )
@@ -307,30 +307,54 @@ Please fix the above issues and re-run the workflow.
             ]
         }.set{validated_analysis_channels}
 
-        //Submit data to clinical.submission
-        CLINICAL_SUBMISSION(validated_analysis_channels)
+        ////validated_analysis_channels.subscribe{println "validated_analysis_channels: $it"}
+        if (params.skip_upload){
+            //validated_analysis_channels.subscribe{println "${it}"}
 
-        //Update channel status based on CLINICAL_SUBMISSION outcome
-         CLINICAL_SUBMISSION.out.status.map{
-            meta, analysis, clinical , files, status_file ->
-            def status_value = status_file.text.contains('status: "FAILED"') ? 'failed' : 'pass'
-            def updated_meta = meta.clone()
+            LECTERN_VALIDATE(validated_analysis_channels)
+            ////LECTERN_VALIDATE.out.status.subscribe{println "LECTERN_VALIDATE: $it"}
+            //Update channel status based on CLINICAL_SUBMISSION outcome
+            LECTERN_VALIDATE.out.status.map{
+                meta, analysis, clinical , files, status_file ->
+                def status_value = status_file.text.contains('status: "FAILED"') ? 'failed' : 'pass'
+                def updated_meta = meta.clone()
 
-            updated_meta.status = (status_value == 'pass' && meta.status == 'pass') ? 'pass' : 'failed'
-            def updated_clinical = [
-                specimen : file("${file(status_file).parent}/*/retrieved/specimen.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/specimen.tsv")[0],
-                sample : file("${file(status_file).parent}/*/retrieved/sample.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/sample.tsv")[0],
-                experiment : file("${file(status_file).parent}/*/retrieved/experiment.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/experiment.tsv")[0],
-                read_group : file("${file(status_file).parent}/*/retrieved/read_group.tsv").size()==0 ? null : file("${file(status_file).parent}/*/retrieved/read_group.tsv")[0]
-            ]
-            [
-                meta : updated_meta,
-                analysis : analysis,
-                clinical :  updated_clinical,
-                files : files,
-                status_file : status_file
-            ]
-        }.set{submitted_analysis_channels}
+                updated_meta.status = (status_value == 'pass' && meta.status == 'pass') ? 'pass' : 'failed'
+                [
+                    meta : updated_meta,
+                    analysis : analysis,
+                    clinical :  clinical,
+                    files : files,
+                    status_file : status_file
+                ]
+            }.set{submitted_analysis_channels}
+        } else {
+            //Submit data to clinical.submission
+            CLINICAL_SUBMISSION(validated_analysis_channels)
+
+            //Update channel status based on CLINICAL_SUBMISSION outcome
+            CLINICAL_SUBMISSION.out.status.map{
+                meta, analysis, clinical , files, status_file ->
+                def status_value = status_file.text.contains('status: "FAILED"') ? 'failed' : 'pass'
+                def updated_meta = meta.clone()
+
+                updated_meta.status = (status_value == 'pass' && meta.status == 'pass') ? 'pass' : 'failed'
+                def updated_clinical = [
+                    specimen : file("${file(status_file).parent}/*/retrieved/specimen.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/specimen.tsv")[0],
+                    sample : file("${file(status_file).parent}/*/retrieved/sample.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/sample.tsv")[0],
+                    experiment : file("${file(status_file).parent}/*/retrieved/experiment.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/experiment.tsv")[0],
+                    read_group : file("${file(status_file).parent}/*/retrieved/read_group.tsv").size()==0 ? null : file("${file(status_file).parent}/*/retrieved/read_group.tsv")[0]
+                ]
+                [
+                    meta : updated_meta,
+                    analysis : analysis,
+                    clinical :  updated_clinical,
+                    files : files,
+                    status_file : status_file
+                ]
+            }.set{submitted_analysis_channels}
+        }
+
 
         analysis_channels.map{
             it ->
@@ -362,6 +386,6 @@ Please fix the above issues and re-run the workflow.
         versions = ch_versions
         analysis_channels = analysis_channels//format checked
         validated_analysis_channels = validated_analysis_channels //format checked and validated
-        submitted_analysis_channels = submitted_analysis_channels//format checked, validated and submitted to clinical service
+        submitted_analysis_channels = submitted_analysis_channels//format checked, validated and submitted to clinical service (only if skip upload is false)
         status = status_files //format checked, validated and submitted to clinical service
 }

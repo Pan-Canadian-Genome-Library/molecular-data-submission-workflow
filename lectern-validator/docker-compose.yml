@@ -1,0 +1,10 @@
+services:
+  validator:
+    build: .
+    image: lectern-validator:latest
+    entrypoint: ["/bin/bash"]
+    volumes:
+      - ./bin:/app/bin
+      - ./data:/data
+    environment:
+      - NODE_PATH=/app/node_modules

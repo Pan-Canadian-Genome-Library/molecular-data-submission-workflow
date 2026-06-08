@@ -1,0 +1,10 @@
+{
+  "name": "lectern-validator",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@overture-stack/lectern-client": "2.0.0",
+    "csv-parser": "^3.0.0",
+    "minimist": "^1.2.8"
+  }
+}

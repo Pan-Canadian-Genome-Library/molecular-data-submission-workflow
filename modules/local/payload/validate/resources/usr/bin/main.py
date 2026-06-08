@@ -122,6 +122,7 @@ def main():
     parser.add_argument('--payload', required=True, help='Path to JSON payload file')
     parser.add_argument('--schema-url', required=True, help='URL to download JSON schema')
     parser.add_argument('--clinical-url', required=True, help='URL to verify clinical data')
+    parser.add_argument('--skip-external', required=False, help='Flag to disable external check',default=False,action='store_true')
     
     args = parser.parse_args()
     
@@ -150,7 +151,7 @@ def main():
     messages=[]
     is_valid_a, message_a = filename_duplicates(payload)
     is_valid_b, message_b = validate_payload(payload, schema)
-    is_valid_c, message_c = external_id_validate(payload, schema,args.clinical_url)
+    is_valid_c, message_c = [True,None] if args.skip_external else external_id_validate(payload, schema,args.clinical_url)
     
     
     # Combine all validation results - all must pass for overall validity

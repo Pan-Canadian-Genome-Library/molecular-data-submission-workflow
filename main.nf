@@ -101,7 +101,11 @@ workflow {
          startup_error_details.add("'file_metadata' was not provided, please provide the variable via the '--file_metadata' flag or in config.")
     }
     if (params.token == null){
+        if (params.skip_upload == false ){
          startup_error_details.add("'token' was not provided, please provide the variable via the '--token' flag or in config.")
+        } else {
+            log.info "'token' was not provided, not checked when `--skip_upload` flag is in use, however ensure to provide the variable via the '--token' flag for real runs."
+        }
     }
     // Removed in dev1.0.6
     //if (params.path_to_files_directory == null){

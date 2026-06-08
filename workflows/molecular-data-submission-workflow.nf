@@ -72,6 +72,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     }
 
     // Manipulate the output channel from CHECK_SUBMISSION_DEPENDENCIES
+    
     CHECK_SUBMISSION_DEPENDENCIES.out.submitted_analysis_channels
     .map { item ->
         def meta = item.meta
@@ -97,9 +98,10 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
     }.set{ ch_biospecimen_entity_input}
 
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/63
+
     METADATA_PAYLOAD_GENERATION(
         ch_metadata_payload_input
-            .filter { meta, _file_meta, _analysis_meta, _workflow_meta, _data_files -> 
+            .filter { meta, file_meta, analysis_meta, workflow_meta, data_files -> 
                 (meta.status ?: 'pass') == 'pass' 
             } //channel: [val(meta), path(file_meta.tsv), path(analysis_meta.tsv), path(workflow_meta.tsv), [data_files]] per analysis
     )
@@ -129,7 +131,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
                 .map { meta, entity_files -> [meta.id, meta, entity_files] }, // Extract meta.id as join key
             by: 0 // Join by meta.id (first element)
         )
-        .map { _id, meta_payload, payload, payload_files, meta_entity, entity_files ->
+        .map { id, meta_payload, payload, payload_files, meta_entity, entity_files ->
             // Now we have both meta objects separately
             // Check status from both channels
             def payload_status = meta_payload.status ?: 'pass'
@@ -151,7 +153,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
             
             return [updated_meta, payload, payload_files, specimen, sample, experiment, read_group]
         }
-        .filter { meta, _payload, _payload_files, _specimen, _sample, _experiment, _read_group ->
+        .filter { meta, payload, payload_files, specimen, sample,experiment, read_group ->
             (meta.status ?: 'pass') == 'pass'
         }
 
@@ -169,7 +171,6 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
         }
     }
 
-    // DATA_VALIDATION.out.validated_payload_files.subscribe{println "data-validated: $it"}
 
 
     //https://github.com/Pan-Canadian-Genome-Library/Roadmap/issues/64
@@ -225,7 +226,7 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
             // analysis_json will be null for records that don't have matches in ch_analysis
             [meta, status_files, analysis_json ?: []]
         }
-    // ch_status_analysis.subscribe{println "status_analysis: $it"}
+
     BATCH_RECEIPT_GENERATION(ch_status_analysis)
     ch_versions = ch_versions.mix(BATCH_RECEIPT_GENERATION.out.versions)
 

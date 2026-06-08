@@ -38,7 +38,7 @@ process PAYLOAD_VALIDATE {
     def exit_on_error = task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error.toString()
     def schema_url = "${params.file_manager_url}/schemas"
-    
+    def skip_external = params.skip_upload!=null ? "--skip-external" : ""
     if (!schema_url) {
         error "schema_url must be provided via task.ext.schema_url"
     }
@@ -79,6 +79,7 @@ process PAYLOAD_VALIDATE {
                 --payload "${payload_file}" \\
                 --schema-url "${schema_url}" \\
                 --clinical-url "${params.clinical_url}" \\
+                ${skip_external} \\
                 2>validation_errors.tmp
 
             VALIDATION_EXIT_CODE=\$?
