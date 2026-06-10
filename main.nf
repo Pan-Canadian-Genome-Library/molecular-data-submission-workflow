@@ -87,7 +87,18 @@ workflow {
     log.info "   - path_to_files_directory: ${params.path_to_files_directory}"
     log.info "   - skip_upload: ${params.skip_upload}"
     log.info "   - allow_duplicates: ${params.allow_duplicates}"
-
+    // Notify user if running in validation-only mode
+    if (params.skip_upload) {
+        log.info """
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     🧪 VALIDATION-ONLY MODE ENABLED                          ║
+║         '--skip_upload' is enabled — no data will be submitted.              ║
+║         The workflow will perform local validation steps only.               ║
+║         To run a real submission, omit the '--skip_upload' flag              ║
+║         and provide a valid token via '--token'.                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+""".stripIndent()
+    }
     // Catch if dependencies are missing:
     startup_error_details=[]
 
