@@ -184,15 +184,15 @@ Please fix the above issues and re-run the workflow.
                         status : it.text.contains('status: "FAILED"') ? 'failed' : 'pass'
                     ],
                     analysis : [
-                        analysis : file("${file(it).parent}/*analysis.tsv")[0],
-                        workflow : file("${file(it).parent}/*workflow.tsv")[0],
-                        files : file("${file(it).parent}/*files.tsv")[0]
+                        analysis : files("${file(it).parent}/*analysis.tsv")[0],
+                        workflow : files("${file(it).parent}/*workflow.tsv")[0],
+                        files : files("${file(it).parent}/*files.tsv")[0]
                     ],
                     clinical : [
-                        specimen : file("${file(it).parent}/*specimen.tsv")[0],
-                        sample : file("${file(it).parent}/*sample.tsv")[0],
-                        experiment : file("${file(it).parent}/*experiment.tsv")[0],
-                        read_group : file("${file(it).parent}/*read_group.tsv")[0]
+                        specimen : files("${file(it).parent}/*specimen.tsv")[0],
+                        sample : files("${file(it).parent}/*sample.tsv")[0],
+                        experiment : files("${file(it).parent}/*experiment.tsv")[0],
+                        read_group : files("${file(it).parent}/*read_group.tsv")[0]
                     ],
                     status_file : file(it),
                     relational_mapping: relational_mapping,
@@ -238,15 +238,15 @@ Please fix the above issues and re-run the workflow.
                         status : it.text.contains('status: "FAILED"') ? 'failed' : 'pass'
                     ],
                     analysis : [
-                        analysis : file("${file(it).parent}/*analysis.tsv")[0],
-                        workflow : file("${file(it).parent}/*workflow.tsv")[0],
-                        files : file("${file(it).parent}/*files.tsv")[0]
+                        analysis : files("${file(it).parent}/*analysis.tsv")[0],
+                        workflow : files("${file(it).parent}/*workflow.tsv")[0],
+                        files : files("${file(it).parent}/*files.tsv")[0]
                     ],
                     clinical : [
-                        specimen : file("${file(it).parent}/*specimen.tsv")[0],
-                        sample : file("${file(it).parent}/*sample.tsv")[0],
-                        experiment : file("${file(it).parent}/*experiment.tsv")[0],
-                        read_group : file("${file(it).parent}/*read_group.tsv")[0]
+                        specimen : files("${file(it).parent}/*specimen.tsv")[0],
+                        sample : files("${file(it).parent}/*sample.tsv")[0],
+                        experiment : files("${file(it).parent}/*experiment.tsv")[0],
+                        read_group : files("${file(it).parent}/*read_group.tsv")[0]
                     ],
                     status_file : file(it),
                     relational_mapping: relational_mapping,
@@ -334,25 +334,32 @@ Please fix the above issues and re-run the workflow.
 
             //Update channel status based on CLINICAL_SUBMISSION outcome
             CLINICAL_SUBMISSION.out.status.map{
-                meta, analysis, clinical , files, status_file ->
+                //Briefly rename files to genomic files to avoid collision with files()
+                meta, analysis, clinical , genomic_files, status_file ->
                 def status_value = status_file.text.contains('status: "FAILED"') ? 'failed' : 'pass'
                 def updated_meta = meta.clone()
 
                 updated_meta.status = (status_value == 'pass' && meta.status == 'pass') ? 'pass' : 'failed'
+                def parentDir = file(status_file).parent
+                def specimen_files   = files("${parentDir}/*/retrieved/specimen.tsv")
+                def sample_files     = files("${parentDir}/*/retrieved/sample.tsv")
+                def experiment_files = files("${parentDir}/*/retrieved/experiment.tsv")
+                def read_group_files  = files("${parentDir}/*/retrieved/read_group.tsv")
+
                 def updated_clinical = [
-                    specimen : file("${file(status_file).parent}/*/retrieved/specimen.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/specimen.tsv")[0],
-                    sample : file("${file(status_file).parent}/*/retrieved/sample.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/sample.tsv")[0],
-                    experiment : file("${file(status_file).parent}/*/retrieved/experiment.tsv").size()==0 ? null :  file("${file(status_file).parent}/*/retrieved/experiment.tsv")[0],
-                    read_group : file("${file(status_file).parent}/*/retrieved/read_group.tsv").size()==0 ? null : file("${file(status_file).parent}/*/retrieved/read_group.tsv")[0]
+                    specimen : specimen_files.size()==0 ? null :  specimen_files[0],
+                    sample : sample_files.size()==0 ? null :  sample_files[0],
+                    experiment : experiment_files==0 ? null :  experiment_files[0],
+                    read_group : read_group_files.size()==0 ? null : read_group_files[0]
                 ]
                 [
                     meta : updated_meta,
                     analysis : analysis,
                     clinical :  updated_clinical,
-                    files : files,
+                    files : genomic_files,
                     status_file : status_file
                 ]
-            }.set{submitted_analysis_channels}
+            }.set{submitted_analysis_channels}          
         }
 
 

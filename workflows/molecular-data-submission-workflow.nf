@@ -276,38 +276,38 @@ workflow MOLECULAR_DATA_SUBMISSION_WORKFLOW {
             """.stripIndent()
             
         }
-        .subscribe { meta, batch_receipt_file_json, batch_receipt_file_tsv, total_analyses, successful_analyses, failed_analyses ->
+        // .subscribe { meta, batch_receipt_file_json, batch_receipt_file_tsv, total_analyses, successful_analyses, failed_analyses ->
 
-            // Print completion message with batch receipt location
-            def receipt_path_json = batch_receipt_file_json.toAbsolutePath()
-            def receipt_path_tsv = batch_receipt_file_tsv.toAbsolutePath()
-            def total_count = total_analyses.text
-            def success_count = successful_analyses.text
-            def failed_count = failed_analyses.text
-            log.info """
-            ╔══════════════════════════════════════════════════════════════════════════════════╗
-            ║                       🎉 WORKFLOW COMPLETED! 🎉                      
-            ╠══════════════════════════════════════════════════════════════════════════════════╣
-            ║  Study: ${params.study_id}
-            ║  Batch ID: ${meta.batch_id ?: meta.id}                                           
-            ║  Total in this batch:    ${total_count}                                           
-            ║  ✅ Successful submissions: ${success_count}                                   
-            ║  ❌ Failed submissions:     ${failed_count}  
-            ║                                      
-            ║  📋 BATCH RECEIPT GENERATED:                                                     
-            ║  📁 JSON RECEIPT Location: ${receipt_path_json}                                  
-            ║  📁 TSV RECEIPT Location: ${receipt_path_tsv}                                   
-            ║                                                                                  
-            ║                                                                                  
-            ║  ℹ️  The batch receipt contains:                                                 
-            ║     • Summary of all processed analyses                                          
-            ║     • Status of each submission step                                             
-            ║     • Upload results and analysis IDs                                            
-            ║     • Error details for any failed analyses                                      
-            ╚══════════════════════════════════════════════════════════════════════════════════╝
-            """.stripIndent()
+        //     // Print completion message with batch receipt location
+        //     def receipt_path_json = batch_receipt_file_json.toAbsolutePath()
+        //     def receipt_path_tsv = batch_receipt_file_tsv.toAbsolutePath()
+        //     def total_count = total_analyses.text
+        //     def success_count = successful_analyses.text
+        //     def failed_count = failed_analyses.text
+        //     log.info """
+        //     ╔══════════════════════════════════════════════════════════════════════════════════╗
+        //     ║                       🎉 WORKFLOW COMPLETED! 🎉                      
+        //     ╠══════════════════════════════════════════════════════════════════════════════════╣
+        //     ║  Study: ${params.study_id}
+        //     ║  Batch ID: ${meta.batch_id ?: meta.id}                                           
+        //     ║  Total in this batch:    ${total_count}                                           
+        //     ║  ✅ Successful submissions: ${success_count}                                   
+        //     ║  ❌ Failed submissions:     ${failed_count}  
+        //     ║                                      
+        //     ║  📋 BATCH RECEIPT GENERATED:                                                     
+        //     ║  📁 JSON RECEIPT Location: ${receipt_path_json}                                  
+        //     ║  📁 TSV RECEIPT Location: ${receipt_path_tsv}                                   
+        //     ║                                                                                  
+        //     ║                                                                                  
+        //     ║  ℹ️  The batch receipt contains:                                                 
+        //     ║     • Summary of all processed analyses                                          
+        //     ║     • Status of each submission step                                             
+        //     ║     • Upload results and analysis IDs                                            
+        //     ║     • Error details for any failed analyses                                      
+        //     ╚══════════════════════════════════════════════════════════════════════════════════╝
+        //     """.stripIndent()
             
-        }
+        // }
 
     //
     // Collate and save software versions
