@@ -254,7 +254,7 @@ Please fix the above issues and re-run the workflow.
                     data_directory : []
                 ] 
             }.map{ //update with file directory paths after, easier this way
-                it -> {
+                it ->
                     [
                         meta : [
                             id : it.meta.id,
