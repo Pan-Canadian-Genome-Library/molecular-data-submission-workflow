@@ -277,7 +277,7 @@ Please fix the above issues and re-run the workflow.
                         analysis_types: it.analysis_types,
                         data_directory: it.data_directory
                     ]
-                }
+                
             }.set{analysis_channels}  
         }
 
