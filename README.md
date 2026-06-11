@@ -155,6 +155,24 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     --outdir results \
     -profile docker,sd4h_prod
 ```
+### Dry-run to check clinical and molecular
+The following step will validate files and their corresponding analysis and biospecimen metadata. Records will not be submitted. Certain checks will not be peformed. For more details see **[Testing Guide](docs/testing.md)**.
+
+```bash
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    --study_id "YOUR_STUDY_ID" \
+    --token "YOUR_ACCESS_TOKEN" \
+    --path_to_files_directory "/path/to/data" \
+    --file_metadata "metadata/file_metadata.tsv" \
+    --analysis_metadata "metadata/analysis_metadata.tsv" \
+    --workflow_metadata "metadata/workflow_metadata.tsv" \
+    --read_group_metadata "metadata/read_group_metadata.tsv" \
+    --experiment_metadata "metadata/experiment_metadata.tsv" \
+    --specimen_metadata "metadata/specimen_metadata.tsv" \
+    --sample_metadata "metadata/sample_metadata.tsv" \
+    --outdir results \
+    -profile docker,sd4h_prod
+```
 
 ## Output
 

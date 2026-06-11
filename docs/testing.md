@@ -56,18 +56,22 @@ nextflow run . \
 The dry run workflow consists of three sections:
 
 ### 1. Connection Check Against Resources
-- The workflow will check to ensure the various required services and connection to them are available
-- Ensure the study was properly registered with all services.
+- The workflow will check to ensure the various required services and connections to them are available
+- Ensure the study was properly registered across all services (clinical submission and file manager).
 - It will not check token viability.
   - In the dry-run mode, token arguement will be optional with a warning flag.
   - In live submission, the token will be a required
+  - Contact PCGL admin to troubleshoot token issues.
 
 ### 2. Clinical validation
-- Instead of submitting the clinical data to server for check, clinical data will be validated locally and errors will be returned.
+- Instead of submitting the clinical data to server side check, clinical data will be validated locally and errors will be returned.
 - Participants records will not be checked. In live production, these records are expected to be submitted before hand.
-  - In production, the existence of these records will be checked.
-- Since the check is done locally, the workflow will not check previously submitted records and will expect all records as part of local batch
-  - As such, the check will expect all dependencies to be present in a batch including `experiment` , `sample` , `specimen` and optionally `read_group`. `Partcipants` are not included.
+  - In production, the existence of these records will be checked to ensure proper record referencing
+- Since check is done locally, the workflow will only detect conflicting within batch
+  - In production, records in batch will be checked against submitted records to detect duplicates.
+  - All dependencies to be present in a batch including `experiment` , `sample` , `specimen` and optionally `read_group`. `Partcipants` are not included.
+- Since check is done locally, referenced biospecimen records will need to be part of local batch
+  - In production, refeferenced biospecimens records can be submitted as a part of local or be part of submitted records
 
 ### 3. Molecular Validation
 - Molecular validation will behave as normal including file type check and md5sum check.
@@ -101,7 +105,17 @@ At the start of workflow execution, you'll see a summary of all input parameters
 - **File paths validation**: Shows the exact paths to metadata files being used
 - **Parameter settings**: Displays key workflow behavior settings like `skip_upload` and `allow_duplicates`
 
-
+### **Validation Mode Message**
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     🧪 VALIDATION-ONLY MODE ENABLED                          ║
+║         '--skip_upload' is enabled — no data will be submitted.              ║
+║         The workflow will perform local validation steps only.               ║
+║         To run a real submission, omit the '--skip_upload' flag              ║
+║         and provide a valid token via '--token'.                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+A visual reminder that the current run is for validation only and no data is submitted.
 ### **Pipeline Process Execution**
 
 After the input parameters, you'll see Nextflow executing individual pipeline processes in real-time, for example:
