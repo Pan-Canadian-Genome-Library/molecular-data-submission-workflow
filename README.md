@@ -171,7 +171,8 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     --specimen_metadata "metadata/specimen_metadata.tsv" \
     --sample_metadata "metadata/sample_metadata.tsv" \
     --outdir results \
-    -profile docker,sd4h_prod
+    -profile docker,sd4h_prod \
+    --skip_upload 
 ```
 
 ## Output

@@ -75,6 +75,7 @@ The dry run workflow consists of three sections:
 
 ### 3. Molecular Validation
 - Molecular validation will behave as normal including file type check and md5sum check.
+- Are not uploaded following successful check
 
 ## 📊 **Expected Terminal Output**
 
