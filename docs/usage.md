@@ -107,36 +107,6 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     # Note: fileName in file_metadata.tsv must contain absolute paths, e.g. /mnt/storage/sample001.cram
 ```
 
-## ⚙️ Environment Configuration
-
-### **PCGL Environment Profiles**
-
-The workflow supports different PCGL environments through configuration profiles:
-
-#### **PCGL SD4H Production Environment**
-Connect to the production environment for live data submissions:
-```bash
-nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
-    [... parameters ...] \
-    -profile sd4h_prod
-```
-
-#### **PCGL SD4H Development Environment**
-Connect to the development environment for testing and validation:
-```bash
-nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
-    [... parameters ...] \
-    -profile sd4h_dev
-```
-
-#### **PCGL SD4H QA Environment**
-Connect to the quality assurance environment for pre-production testing:
-```bash
-nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
-    [... parameters ...] \
-    -profile sd4h_qa
-```
-
 #### **Adjusting max forks**
 Resource management is important when submitting a batch of files. By default we conservatitely limit the number of `PAYLOAD_GENERATE` and `SCORE_UPLOAD` tasks to the default value of `1`. This means only 1 of each task can be running at a time.\n
 This is to reduce I/O overhead and ensure efficient transfer.  If the data is local and not constrained, the number can increased.

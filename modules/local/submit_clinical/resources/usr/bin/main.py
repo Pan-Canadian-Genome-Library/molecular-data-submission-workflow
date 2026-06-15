@@ -304,6 +304,7 @@ def submit_clinical(clinical_url,category_id,study_id,output_directory,token):
 def validation_status(clinical_url,submission_id,token):
     print("Verifying successful submission and submission does not break schema rules")
     url="%s/submission/%s" % (clinical_url,submission_id)
+    error_count={}
     headers={
             "Authorization" : "Bearer %s" % token,
             'accept': 'application/json'
@@ -332,16 +333,47 @@ def validation_status(clinical_url,submission_id,token):
         exit(1)
 
     if response.json()['status']=='INVALID':
-        comments=[]
 
         for entity in response.json()['errors']['inserts'].keys():
-            for error in response.json()['errors']['inserts'][entity]:
-                if error.get('fieldValue'):
-                    comments.append("Entity - %s:%s, field:%s, value:%s" % (entity,error['reason'],error['fieldName'],error['fieldValue']))
-                else:
-                    comments.append("Entity - %s:%s, field:%s" % (entity,error['reason'],error['fieldName']))
+             error_count[entity]={
+                  "recordsCount": response.json()['errors']['inserts'][entity]["recordsCount"],
+                  "auditCount": 0
+             }
+    if len(error_count.keys())>0:
+        for entity in error_count.keys():
+            page=1
+            comments=[]
+            while (error_count[entity]["recordsCount"]!=error_count[entity]["auditCount"]):
+                #submission/233/details?actionTypes=inserts&entityNames=specimen&page=1&pageSize=20
+                url="%s/submission/%s/details?actionTypes=inserts&entityNames=%s&page=%s&pageSize=20" % (clinical_url,submission_id,entity,str(page))
+                headers={
+                        "Authorization" : "Bearer %s" % token,
+                        'accept': 'application/json'
+                } 
+
+                try:
+                    response = requests.get(url, headers=headers)
+                except:
+                    comments=[]
+                    comments.append('ERROR REACHING %s' % (url))
+
+                    comments.append(response.json().get('error')) if response.json().get('error') else comments
+                    comments.append("message : %s " % response.json().get('message')) if response.json().get('message') else comments
+                    
+                    raise ValueError("\n".join(comments))
+                    exit(1)
+
+                for error in response.json()['errors']:
+                    if error.get('fieldValue'):
+                        comments.append("Entity - %s:%s, field:%s, value:%s" % (entity,error['reason'],error['fieldName'],error['fieldValue']))
+                    else:
+                        comments.append("Entity - %s:%s, field:%s" % (entity,error['reason'],error['fieldName']))
+                    error_count[entity]["auditCount"]+=1
+                    page+=1
+
         raise ValueError("\n".join(comments))
         exit(1)
+
     return(True)
 
 def commit_clinical(clinical_url,category_id,submission_id,token):

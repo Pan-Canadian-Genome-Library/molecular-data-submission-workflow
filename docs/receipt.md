@@ -43,6 +43,8 @@ For each analysis in the batch:
 | `submitter_analysis_id` | Your unique identifier for the analysis | `"analysis_004"` |
 | `file_manager_analysis_id` | PCGL system assigned analysis ID (if successful) | `"0fe74e99-f30e-40b3-a74e-99f30eb0b302"` or `"Not applicable"` |
 | `overall_status` | Final status of the entire analysis | `"SUCCESS"` or `"FAILED"` |
+| `process_failure_point` | The task where the workflow failed during the process| `null` or `PCGL:MOLECULAR_DATA_SUBMISSION_WORKFLOW:CHECK_SUBMISSION_DEPENDENCIES:LECTERN_VALIDATE`
+| `error_summary` | Error encountered resulting the task failure | `"403 - Invalid token found!"`
 | `analysis_type` | Type of genomic analysis performed | `"sequenceAlignment"`, `"variantCall"` |
 | `study_id` | Study identifier | `"TEST-CA"` |
 | `analysis_state` | Current state in PCGL system (if successful)| `"PUBLISHED"` or `"Not applicable"` |
@@ -76,6 +78,8 @@ Each analysis contains detailed information about individual workflow processes:
       "submitter_analysis_id": "analysis_004",
       "file_manager_analysis_id": "Not applicable",
       "overall_status": "FAILED",
+      "process_failure_point": "METADATA_PAYLOAD_GENERATION:PAYLOAD_GENERATE",
+      "error_summary": "Error: workflow-meta is required for analysis type 'sequenceAlignment'",
       "analysis_type": "sequenceAlignment",
       "study_id": "TEST-CA",
       "analysis_state": "Not applicable",

@@ -176,3 +176,4 @@ work/
 .nextflow*
 .nf-test/*
 test_results/*
+lectern-validator/notes.txt

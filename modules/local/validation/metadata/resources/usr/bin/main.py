@@ -29,6 +29,7 @@ def load_analysis_payload(payload_file):
 
 def load_biospecimen_data(file_path, file_type):
     """Load biospecimen data from TSV file (assumes upstream validation)."""
+    print(file_path,file_type)
     try:
         data = []
         with open(file_path, 'r') as f:
