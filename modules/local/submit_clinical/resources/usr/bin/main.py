@@ -124,7 +124,7 @@ def read_data(sample_metadata,specimen_metadata,experiment_metadata,read_group_m
     analysis['comments']=[]
     for metadata,entity in zip([sample_metadata,specimen_metadata,experiment_metadata,read_group_metadata],["sample","specimen","experiment","read_group"]):
         if metadata:
-            tmp=pd.read_csv(metadata,sep='\t')
+            tmp=pd.read_csv(metadata,sep='\t',index_col=False)
             analysis[entity]=tmp.copy()
 
             for col in analysis[entity].columns.values.tolist():
@@ -247,7 +247,7 @@ def rename_input(output_directory,sample_metadata,specimen_metadata,experiment_m
     for metadata,entity in zip([sample_metadata,specimen_metadata,experiment_metadata,read_group_metadata],["sample","specimen","experiment","read_group"]):
         ###We only submit entities that present and not redundant (i.e. submitted before)
         if metadata and usability[entity]:
-            tmp=pd.read_csv(metadata,sep='\t')
+            tmp=pd.read_csv(metadata,sep='\t',index_col=False)
             rename=os.path.basename(entity).lower().capitalize()
             print("Renaming %s to %s" % (metadata,rename))
             tmp.to_csv("%s/submit/%s.tsv" % (output_directory,rename),sep='\t',index=False)
@@ -446,7 +446,7 @@ def return_submitted_data(
 ):
     print("Check if submitted clinical data is needed for downstream molecular validation")
 
-    data=pd.read_csv(analysis,sep='\t')
+    data=pd.read_csv(analysis,sep='\t',index_col=False)
     output={}
 
     for ind in data.index.values.tolist():

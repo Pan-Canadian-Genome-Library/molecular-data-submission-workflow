@@ -287,7 +287,7 @@ def generate_relational_mapping(schema,check_entities):
     return(relational_mappings)     
 def check_minimum_columns(metadata_file,cols):
     print("Checking minimum columns for %s" % metadata_file)
-    data=pd.read_csv(metadata_file,sep='\t')
+    data=pd.read_csv(metadata_file,sep='\t',index_col=False)
 
     for col in cols :
         if col not in data.columns.values.tolist():
@@ -326,7 +326,23 @@ def update_relational_mapping(relational_mapping,analysis_types):
         if analysis_types[schema].get("fields").get("workflow"):
             relational_mapping['workflow']['analysisTypes'][schema]={}
 
+def check_token(clinical_url,category_id,token):
+    if not token:
+        print("Dry-run and token was not provided, skipping checking")
+    else:
+        print("Checking Token")
+
+    url="%s/data/category/%s" % (clinical_url,category_id)
+    headers={
+        "Authorization" : "Bearer %s" % token
+    }
+    try:
+        response=requests.get(url,headers=headers)
+    except:
+        raise ValueError('ERROR REACHING %s' % (url))
     
+    if response.status_code!=200:
+        raise ValueError('Token did not successfully retrieve data. Error code : %s' % (str(response.status_code)))
 
 def main(args):
     if args.file_metadata: print("input:",args.file_metadata)
@@ -339,7 +355,7 @@ def main(args):
     if args.clinical_url: print("input:",args.clinical_url)
     if args.file_manager_url: print("input:",args.file_manager_url)
     if args.study_id: print("input:",args.study_id)
-    if args.token: print("input:",args.token)
+
 
     ###Preflight checks
     check_clinical_health(
@@ -416,6 +432,12 @@ def main(args):
         ["fileName","dataType"]
     )
 
+    check_token(
+        args.clinical_url,
+        category_id,
+        args.token
+    )
+
     update_relational_mapping(relational_mapping,analysis_types)
 
     with open('relational_mapping.json', 'w') as f:
@@ -436,7 +458,7 @@ if __name__ == "__main__":
     parser.add_argument("-cu", "--clinical_url", dest="clinical_url", required=True, help="Clinical URL")
     parser.add_argument("-fm", "--file_manager_url", dest="file_manager_url", required=True, help="File Manager URL")
     parser.add_argument("-si", "--study_id", dest="study_id", required=True, help="study_id")
-    parser.add_argument("-t", "--token", dest="token", required=True, help="token")
+    parser.add_argument("-t", "--token", dest="token", default=False, help="token")
 
     args = parser.parse_args()
 

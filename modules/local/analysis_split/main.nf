@@ -34,7 +34,7 @@ process ANALYSIS_SPLIT {
     def experiment_file = experiment_metadata!=null && experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
     def read_group_file = read_group_metadata!=null && read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
     def workflow_file = workflow_metadata!=null  && workflow_metadata ? "--workflow_metadata ${workflow_metadata}" : ""
-    def allow_duplicates_arg  = params.allow_duplicates ? "--allow_duplicates" : ''
+    def allow_duplicates_arg  = params.allow_duplicates || params.skip_upload ? "--allow_duplicates" : ''
     def token_arg  = params.token ? "--token ${params.token}" : ''
     def path_to_files_directory_arg =  path_to_files_directory!=null && path_to_files_directory ? "--data-directory ${path_to_files_directory}" : ""
     """
@@ -44,7 +44,6 @@ process ANALYSIS_SPLIT {
         --analysis_metadata ${analysis_metadata} \
         --file_manager ${params.file_manager_url} \
         --study_id ${study_id} \
-        --token ${params.token} \
         ${path_to_files_directory_arg} \
         ${workflow_file} \
         ${sample_file} \
