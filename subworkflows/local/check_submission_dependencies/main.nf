@@ -124,8 +124,7 @@ Please fix the above issues and re-run the workflow.
             specimen_metadata, // tuple(val : Spreadsheet)
             sample_metadata, // tuple(val : Spreadsheet)
             CHECK_DEPENDENCIES.out.relational_mapping,
-            //file_metadata.splitCsv(sep:'\t',header: true).map{ row -> file(row.fileName.parent) }
-            params.path_to_files_directory ? \
+            params.path_to_files_directory ? //Mount provided data directory path or absolute file paths
                 file_metadata.splitCsv(sep:'\t',header: true).filter { !it.fileName.startsWith('s3') }.map{ row -> file("${params.path_to_files_directory}/${row.fileName}").parent }.unique().collect() :\
                 file_metadata.splitCsv(sep:'\t',header: true).filter { !it.fileName.startsWith('s3') }.map{ row -> file(row.fileName).parent }.unique().collect()
         )

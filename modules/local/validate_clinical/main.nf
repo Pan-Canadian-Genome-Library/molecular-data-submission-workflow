@@ -54,7 +54,6 @@ process VALIDATE_CLINICAL {
         --analysis_types ${analysis_types} \
         --clinical_url ${params.clinical_url} \
         --file_manager_url ${params.file_manager_url} \
-        --token ${params.token} \
         --study_id ${meta.study} 2>generation_errors.tmp
 
         GENERATION_EXIT_CODE=\$?

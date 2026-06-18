@@ -122,8 +122,10 @@ def comprehensive_validation(payload_file, specimen_file, sample_file, experimen
         
         # Load read groups if required or if file is provided
         read_groups = []
-        if read_group_required or (read_group_file and os.path.exists(read_group_file) and os.path.getsize(read_group_file) > 0):
-            read_groups = load_biospecimen_data(read_group_file, 'read_group')
+        if read_group_required :
+            if read_group_file:
+                if os.path.exists(read_group_file) and os.path.getsize(read_group_file) > 0:
+                    read_groups = load_biospecimen_data(read_group_file, 'read_group')
         
         # Validate read group requirement
         if read_group_required and not read_groups:
@@ -156,7 +158,7 @@ def main():
     parser.add_argument('--specimen-file', required=False, help='Path to specimen TSV file')
     parser.add_argument('--sample-file', required=False, help='Path to sample TSV file')
     parser.add_argument('--experiment-file', required=False, help='Path to experiment TSV file')
-    parser.add_argument('--read-group-file', required=False, help='Path to read group TSV file (analysis type dependent)')
+    parser.add_argument('--read-group-file',default=False, required=False, help='Path to read group TSV file (analysis type dependent)')
     parser.add_argument('--analysis-type', required=True, help='Analysis type from metadata (optional, will be extracted from payload if available)')
     
     args = parser.parse_args()

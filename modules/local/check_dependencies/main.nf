@@ -31,6 +31,7 @@ process CHECK_DEPENDENCIES {
     def experiment_file = experiment_metadata!=null &&  experiment_metadata ? "--experiment_metadata ${experiment_metadata}" : ""
     def read_group_file = read_group_metadata!=null && read_group_metadata ? "--read_group_metadata ${read_group_metadata}" : ""
     def workflow_file = workflow_metadata!=null && workflow_metadata ?  "--workflow_metadata ${workflow_metadata}" : ""
+    def token_arg  = params.token ? "--token ${params.token}" : '' 
     """
     # Set error handling to continue on failure for resilient processing
     set +e
@@ -45,7 +46,7 @@ process CHECK_DEPENDENCIES {
         --clinical_url ${params.clinical_url} \
         --file_manager_url ${params.file_manager_url} \
         --study_id  ${study_id} \
-        --token ${params.token} \
+        ${token_arg} \
         ${sample_file} \
         ${specimen_file} \
         ${experiment_file} \

@@ -31,25 +31,38 @@ import minimist from 'minimist';
 
 //Declare user defined variables
 interface Args {
-  path: string;
   url: string;
   dictionary: string;
+  tsv : Array<string>;
   molecular : boolean;
+  version : number;
 }
 
-const args = minimist<Args>(process.argv.slice(2));
+const args = minimist<Args>(process.argv.slice(2), {
+  boolean: ['molecular'],
+  string: ['url', 'dictionary', 'tsv'],
+  default: {
+    molecular: false,
+    tsv: [],
+  }
+});
 
-const { url, dictionary, tsv , version, molecular} = args;
+const { url, dictionary, tsv, molecular, version} = args;
 // If not part of molecular workflow, do not suppress participant foreign key check
 const remove_participant = molecular ?? false;
 // Read TSV files as an array
 const tsvFiles: string[] = Array.isArray(tsv) ? tsv : tsv ? [tsv] : [];
 
 //Error out if these keys are not supplied
-if (!url || !dictionary || tsvFiles.length === 0) {
+if (!url || !dictionary) {
   console.error('Error: missing required arguments');
   console.error('Usage: ts app.ts --url https://dictionary-manager.submission.genomelibrary.ca --study \'PCTLST000000 custom schema\' --version 1.1 --tsv tsv1.tsv tsv2.tsv tsv3.tsv');
   process.exit(1);
+}
+
+if (tsvFiles.length === 0){
+  console.log('No Files To Check');
+  process.exit(0)
 }
 
 //Read TSVs from filePath, removing null values, and save under entity named after file

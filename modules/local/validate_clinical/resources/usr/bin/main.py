@@ -29,15 +29,15 @@ import json
 import argparse
 import os
 
-def retrieve_category_id(clinical_url,study_id,token):
+def retrieve_category_id(clinical_url,study_id):
     print("Retrieve Category ID")
     url="%s/study/%s" % (clinical_url,study_id)
 
-    headers={
-            "Authorization" : "Bearer %s" % token
-    }
+   #  headers={
+   #          "Authorization" : "Bearer %s" % token
+   #  }
     try:
-            response=requests.get(url,headers=headers)
+            response=requests.get(url)
     except:
             raise ValueError('ERROR REACHING %s' % (url))
 
@@ -120,57 +120,57 @@ def check_workflow_datatypes(analysis,analysis_types):
             ",".join(analysis_types[analysisType]['dataTypes'])
             )
          )
-def check_read_group_exists(analysis,analysisTypes,token,clinical_url,category_id,study_id):
-   analysisType=analysis.get('analysis')["analysisType"].values.tolist()[0]
-   experiment_id=analysis.get('analysis')["submitter_experiment_id"].values.tolist()[0]
-   internal_check=False
-   external_check=False
-   if analysisType!='sequenceExperiment' and analysis.get('read_groups'):
-      analysis['status']=False
-      analysis['comments'].append("AnalysisType %s does not require read_group info, but read_group records found" % (analysis.get('analysis')["analysisType"].values.tolist()[0]))
+# def check_read_group_exists(analysis,analysisTypes,token,clinical_url,category_id,study_id):
+#    analysisType=analysis.get('analysis')["analysisType"].values.tolist()[0]
+#    experiment_id=analysis.get('analysis')["submitter_experiment_id"].values.tolist()[0]
+#    internal_check=False
+#    external_check=False
+#    if analysisType!='sequenceExperiment' and analysis.get('read_groups'):
+#       analysis['status']=False
+#       analysis['comments'].append("AnalysisType %s does not require read_group info, but read_group records found" % (analysis.get('analysis')["analysisType"].values.tolist()[0]))
    
-   if analysisType=='sequenceExperiment':
-      if analysis.get('read_groups'):
-         internal_check=True
+#    if analysisType=='sequenceExperiment':
+#       if analysis.get('read_groups'):
+#          internal_check=True
       
-      headers={
-               "Authorization" : "Bearer %s" % token
-      }
-      comments=[]
-      url="%s/data/category/%s/organization/%s/query?entityName=%s" % (clinical_url,category_id,study_id,"read_group")
+#       headers={
+#                "Authorization" : "Bearer %s" % token
+#       }
+#       comments=[]
+#       url="%s/data/category/%s/organization/%s/query?entityName=%s" % (clinical_url,category_id,study_id,"read_group")
       
-      payload={
-               "op": "and",
-               "content": [
-                     {
-                              "op": "in",
-                              "content": {
-                                       "fieldName": "submitter_experiment_id",
-                                       "value": [experiment_id]
-                                       }
-                              }
-                     ]
-               }
+#       payload={
+#                "op": "and",
+#                "content": [
+#                      {
+#                               "op": "in",
+#                               "content": {
+#                                        "fieldName": "submitter_experiment_id",
+#                                        "value": [experiment_id]
+#                                        }
+#                               }
+#                      ]
+#                }
 
-      try:
-         response=requests.post(url,json=payload,headers=headers)
-      except:
-         analysis['status']=False
-         analysis['comments'].append("check_read_group_exists - ERROR REACHING %s" % (url))
+#       try:
+#          response=requests.post(url,json=payload,headers=headers)
+#       except:
+#          analysis['status']=False
+#          analysis['comments'].append("check_read_group_exists - ERROR REACHING %s" % (url))
 
-      if response.status_code!=200 and response.status_code!=404:
-         analysis['status']=False
-         analysis['comments'].append("check_read_group_exists - ERROR w/ %s : Code %s" % (url,response.status_code))
-         return
-      elif response.status_code==200:
-         external_check=True
-      elif response.status_code==404:
-         external_check=False
+#       if response.status_code!=200 and response.status_code!=404:
+#          analysis['status']=False
+#          analysis['comments'].append("check_read_group_exists - ERROR w/ %s : Code %s" % (url,response.status_code))
+#          return
+#       elif response.status_code==200:
+#          external_check=True
+#       elif response.status_code==404:
+#          external_check=False
       
 
-      if not internal_check and not external_check:
-         analysis['status']=False
-         analysis['comments'].append("check_read_group_exists - No read_groups related to submitter_experiment_id %s found for analysisType %s" % (experiment_id,analysisType))
+#       if not internal_check and not external_check:
+#          analysis['status']=False
+#          analysis['comments'].append("check_read_group_exists - No read_groups related to submitter_experiment_id %s found for analysisType %s" % (experiment_id,analysisType))
 
 def main(args):
    if args.file_metadata: print("input:",args.file_metadata)
@@ -185,7 +185,6 @@ def main(args):
    if args.clinical_url: print("input:",args.clinical_url)
    if args.file_manager_url: print("input:",args.file_manager_url)
    if args.study_id: print("input:",args.study_id)
-   if args.token: print("input:",args.token)
    if args.data_directory: print("input:",args.data_directory)
 
    with open(args.relational_mapping, 'r') as file:
@@ -196,8 +195,7 @@ def main(args):
 
    category_id=retrieve_category_id(
       args.clinical_url,
-      args.study_id,
-      args.token
+      args.study_id
    )
 
    analysis={
@@ -255,7 +253,6 @@ if __name__ == "__main__":
    parser.add_argument("-cu", "--clinical_url", dest="clinical_url", required=True, help="Clinical URL")
    parser.add_argument("-fm", "--file_manager_url", dest="file_manager_url", required=True, help="File Manager URL")
    parser.add_argument("-si", "--study_id", dest="study_id", required=True, help="study_id")
-   parser.add_argument("-t", "--token", dest="token", required=True, help="token")
    parser.add_argument("-od", "--output_directory", default="output", dest="output_directory", required=False, help="output directory")
    parser.add_argument("-dd", "--data_directory", dest="data_directory", required=False, help="data directory where entity files are saved by analysis",default=False)
    args = parser.parse_args()
