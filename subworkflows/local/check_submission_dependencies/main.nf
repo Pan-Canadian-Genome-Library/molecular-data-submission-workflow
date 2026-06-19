@@ -113,7 +113,6 @@ Please fix the above issues and re-run the workflow.
                 log.info "✅ Minimum requirements check passed. Proceeding with data submission..."
             }
 
-
         //Split files (analysis and clinical) per analysis. Soft stop.
         ANALYSIS_SPLIT(
             study_id,
@@ -125,9 +124,10 @@ Please fix the above issues and re-run the workflow.
             specimen_metadata, // tuple(val : Spreadsheet)
             sample_metadata, // tuple(val : Spreadsheet)
             CHECK_DEPENDENCIES.out.relational_mapping,
-            path_to_files_directory
+            params.path_to_files_directory ? //Mount provided data directory path or absolute file paths
+                file_metadata.splitCsv(sep:'\t',header: true).filter { !it.fileName.startsWith('s3') }.map{ row -> file("${params.path_to_files_directory}/${row.fileName}").parent }.unique().collect() :\
+                file_metadata.splitCsv(sep:'\t',header: true).filter { !it.fileName.startsWith('s3') }.map{ row -> file(row.fileName).parent }.unique().collect()
         )
-
         ch_versions = ch_versions.mix(ANALYSIS_SPLIT.out.versions)
 
         // Downstream receipt is only provided if join with files is successful. This check identifies the event where all analyses fail from start, usually b/c files cannot be found

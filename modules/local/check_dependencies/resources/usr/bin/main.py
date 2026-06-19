@@ -29,15 +29,11 @@ import json
 import argparse
 import os
 
-def check_clinical_health(clinical_url,token):
+def check_clinical_health(clinical_url):
     print("Checking Clinical URL health")
     url="%s/health" % clinical_url
-    headers={
-        "Authorization" : "Bearer %s" % token
-    }
-
     try:
-        response=requests.get(url,headers=headers)
+        response=requests.get(url)
     except:
         raise ValueError('ERROR REACHING %s' % (url))
 
@@ -62,7 +58,7 @@ def simplfy_error_msg(og_msg):
 
     return(og_msg)
 
-def check_file_manager_health(file_manager,token):
+def check_file_manager_health(file_manager):
     print("Checking File Manager health")
     url="%s/isAlive" % file_manager
     # headers={
@@ -81,15 +77,14 @@ def check_file_manager_health(file_manager,token):
         raise ValueError(error_message[0] + ",".join(error_message[1:]))
         exit(1)
 
-def check_clinical_study(clinical_url,study_id,token):
+def check_clinical_study(clinical_url,study_id):
     print("Checking Study in Clinical")
     url="%s/study/%s" % (clinical_url,study_id)
-    headers={
-        "Authorization" : "Bearer %s" % token
-    }
+    # headers={
+    #     "Authorization" : "Bearer %s" % token
+    # }
     try:
-        response=requests.get(url,headers=headers)
-        #response=requests.get(url)
+        response=requests.get(url)
     except:
         raise ValueError('ERROR REACHING %s' % (url))
 
@@ -100,7 +95,7 @@ def check_clinical_study(clinical_url,study_id,token):
         raise ValueError(simplfy_error_msg(error_message[0] + ",".join(error_message[1:])))
         exit(1)
 
-def check_file_manager_study(file_manager_url,study_id,token):
+def check_file_manager_study(file_manager_url,study_id):
     print("Checking Study in File Manager")
     url="%s/studies/%s" % (file_manager_url,study_id)
     #headers={
@@ -120,15 +115,13 @@ def check_file_manager_study(file_manager_url,study_id,token):
         raise ValueError(simplfy_error_msg(error_message[0] + ",".join(error_message[1:])))
         exit(1)
 
-def retrieve_category_id(clinical_url,study_id,token):
+def retrieve_category_id(clinical_url,study_id):
     print("Retrieve Category ID")
     url="%s/study/%s" % (clinical_url,study_id)
 
-    headers={
-            "Authorization" : "Bearer %s" % token
-    }
+
     try:
-            response=requests.get(url,headers=headers)
+            response=requests.get(url)
     except:
             raise ValueError('ERROR REACHING %s' % (url))
 
@@ -144,14 +137,12 @@ def retrieve_category_id(clinical_url,study_id,token):
     else:
         raise ValueError('ERROR w/ %s : %s study\'s corresponding schema was not found ' % (url,study_id))
 
-def check_analysis_types(file_manager_url,study_id,token):
+def check_analysis_types(file_manager_url,study_id):
     analysis_types=[]
     required_analysis_fields={}
 
     print("Retrieving analysis Types")
-    headers={
-        "Authorization" : "Bearer %s" % token
-    }
+
     limit=20
     url="%s/schemas?hideSchema=true&limit=%s&offset=0&unrenderedOnly=false" % (file_manager_url,str(limit))
 
@@ -174,7 +165,7 @@ def check_analysis_types(file_manager_url,study_id,token):
         for offset in range(0,total,limit):
             url="%s/schemas?hideSchema=true&limit=%s&offset=%s&unrenderedOnly=false" % (file_manager_url,str(limit),str(offset))
             try:
-                response=requests.get(url,headers=headers)
+                response=requests.get(url)
             except:
                 raise ValueError('ERROR REACHING %s' % (url))
 
@@ -235,14 +226,12 @@ def check_analysis_types(file_manager_url,study_id,token):
         
     return(required_analysis_fields)
 
-def retrieve_clinical_schema(clinical_url,category_id,token):
+def retrieve_clinical_schema(clinical_url,category_id):
     print("Retrieving Schema")
     url="%s/dictionary/category/%s" % (clinical_url,category_id)
-    headers={
-        "Authorization" : "Bearer %s" % token
-    }
+
     try:
-        response=requests.get(url,headers=headers)
+        response=requests.get(url)
     except:
         raise ValueError('ERROR REACHING %s' % (url))
 
@@ -287,7 +276,7 @@ def generate_relational_mapping(schema,check_entities):
     return(relational_mappings)     
 def check_minimum_columns(metadata_file,cols):
     print("Checking minimum columns for %s" % metadata_file)
-    data=pd.read_csv(metadata_file,sep='\t')
+    data=pd.read_csv(metadata_file,sep='\t',index_col=False)
 
     for col in cols :
         if col not in data.columns.values.tolist():
@@ -326,7 +315,23 @@ def update_relational_mapping(relational_mapping,analysis_types):
         if analysis_types[schema].get("fields").get("workflow"):
             relational_mapping['workflow']['analysisTypes'][schema]={}
 
+def check_token(clinical_url,category_id,token):
+    if not token:
+        print("Dry-run and token was not provided, skipping checking")
+    else:
+        print("Checking Token")
+
+    url="%s/data/category/%s" % (clinical_url,category_id)
+    headers={
+        "Authorization" : "Bearer %s" % token
+    }
+    try:
+        response=requests.get(url,headers=headers)
+    except:
+        raise ValueError('ERROR REACHING %s' % (url))
     
+    if response.status_code!=200:
+        raise ValueError('Token did not successfully retrieve data. Error code : %s' % (str(response.status_code)))
 
 def main(args):
     if args.file_metadata: print("input:",args.file_metadata)
@@ -339,49 +344,42 @@ def main(args):
     if args.clinical_url: print("input:",args.clinical_url)
     if args.file_manager_url: print("input:",args.file_manager_url)
     if args.study_id: print("input:",args.study_id)
-    if args.token: print("input:",args.token)
+
 
     ###Preflight checks
     check_clinical_health(
-        args.clinical_url,
-        args.token
+        args.clinical_url
         )
 
     check_file_manager_health(
-        args.file_manager_url,
-        args.token
+        args.file_manager_url
         )
 
     ###R1b - The pipeline shall query the study service to check for registered study. Study registration is assumed pre-existing; failure here should halt the pipeline.
     check_clinical_study(
            args.clinical_url,
-           args.study_id,
-           args.token
+           args.study_id
            )
 
     check_file_manager_study(
            args.file_manager_url,
-           args.study_id,
-           args.token
+           args.study_id
            )
 
     ###Retrieve requirements
     category_id=retrieve_category_id(
         args.clinical_url,
-        args.study_id,
-        args.token
+        args.study_id
         )
         
     clinical_schema=retrieve_clinical_schema(
         args.clinical_url,
-        category_id,
-        args.token
+        category_id
         )
 
     analysis_types=check_analysis_types(
            args.file_manager_url,
-           args.study_id,
-           args.token
+           args.study_id
            )
 
     ###Retrieve foreign dependencies
@@ -416,6 +414,13 @@ def main(args):
         ["fileName","dataType"]
     )
 
+    if (args.token):
+        check_token(
+            args.clinical_url,
+            category_id,
+            args.token
+        )
+
     update_relational_mapping(relational_mapping,analysis_types)
 
     with open('relational_mapping.json', 'w') as f:
@@ -436,7 +441,7 @@ if __name__ == "__main__":
     parser.add_argument("-cu", "--clinical_url", dest="clinical_url", required=True, help="Clinical URL")
     parser.add_argument("-fm", "--file_manager_url", dest="file_manager_url", required=True, help="File Manager URL")
     parser.add_argument("-si", "--study_id", dest="study_id", required=True, help="study_id")
-    parser.add_argument("-t", "--token", dest="token", required=True, help="token")
+    parser.add_argument("-t", "--token", dest="token", default=False, help="token")
 
     args = parser.parse_args()
 

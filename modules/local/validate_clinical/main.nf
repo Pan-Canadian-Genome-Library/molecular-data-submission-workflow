@@ -8,10 +8,10 @@ process VALIDATE_CLINICAL {
 
     input:
         //tuple val(meta), val(analysis), val(clinical), val(files), path(status_file), path(relational_mapping)
-        tuple val(meta), val(analysis), val(clinical), val(files), path(status_file), path(relational_mapping), path(analysis_types), path(data_directory)
+        tuple val(meta), val(analysis), val(clinical), path(files), path(status_file), path(relational_mapping), path(analysis_types), path(data_directory)
 
     output:
-        tuple val(meta), val(analysis), val(clinical), val(files), path("*_validate_clinical_status.yml"), path(relational_mapping), path(analysis_types), path(data_directory), emit: status
+        tuple val(meta), val(analysis), val(clinical), path(files), path("*_validate_clinical_status.yml"), path(relational_mapping), path(analysis_types), path(data_directory), emit: status
         path "versions.yml", emit: versions
 
 
@@ -54,7 +54,6 @@ process VALIDATE_CLINICAL {
         --analysis_types ${analysis_types} \
         --clinical_url ${params.clinical_url} \
         --file_manager_url ${params.file_manager_url} \
-        --token ${params.token} \
         --study_id ${meta.study} 2>generation_errors.tmp
 
         GENERATION_EXIT_CODE=\$?
