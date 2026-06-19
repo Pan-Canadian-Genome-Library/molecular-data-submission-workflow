@@ -35,7 +35,7 @@ process SEQKIT_SEQ {
     else
         echo "Running seqkit seq validation on: ${fastq_file}"
         # Execute seqkit seq and capture stderr directly
-        ERROR_OUTPUT=\$(seqkit seq --validate-seq --quiet "${fastq_file}" 2>&1)
+        ERROR_OUTPUT=\$(seqkit seq -j ${task.cpus} --validate-seq "${fastq_file}" --quiet -o /dev/null 2>/dev/null)
         FASTQ_EXIT_CODE=\$?
         
         if [ \${FASTQ_EXIT_CODE} -ne 0 ]; then
