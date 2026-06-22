@@ -124,9 +124,7 @@ Please fix the above issues and re-run the workflow.
             specimen_metadata, // tuple(val : Spreadsheet)
             sample_metadata, // tuple(val : Spreadsheet)
             CHECK_DEPENDENCIES.out.relational_mapping,
-            params.path_to_files_directory ? //Mount provided data directory path or absolute file paths
-                file_metadata.splitCsv(sep:'\t',header: true).filter { !it.fileName.startsWith('s3') }.map{ row -> file("${params.path_to_files_directory}/${row.fileName}").parent }.unique().collect() :\
-                file_metadata.splitCsv(sep:'\t',header: true).filter { !it.fileName.startsWith('s3') }.map{ row -> file(row.fileName).parent }.unique().collect()
+            path_to_files_directory
         )
         ch_versions = ch_versions.mix(ANALYSIS_SPLIT.out.versions)
 
@@ -169,14 +167,21 @@ Please fix the above issues and re-run the workflow.
         }
  
 
-        if (params.path_to_files_directory){
-            //Using status file, reform channel to include meta, analysis, clinical, files, CHECK_DEPENDCIES output relational mapping, CHECK_DEPENDCIES output analysis_type, data directory path
-            ANALYSIS_SPLIT.out.status.flatten()
+        // Build the base 3-way combined channel, then append data_directory as a 4th element.
+        // When path_to_files_directory was not provided it arrives as [], so we append []
+        // directly via .map rather than trying to combine with a channel.
+        def base_ch = ANALYSIS_SPLIT.out.status.flatten()
             .combine(CHECK_DEPENDENCIES.out.relational_mapping)
             .combine(CHECK_DEPENDENCIES.out.analysis_types)
-            .combine(path_to_files_directory)
-            .map{
-                it,relational_mapping,analysis_types,data_directory ->
+
+        def combined_ch = (path_to_files_directory instanceof List)
+            ? base_ch.map { it, relational_mapping, analysis_types -> [it, relational_mapping, analysis_types, []] }
+            : base_ch.combine(path_to_files_directory)
+
+        //Using status file, reform channel to include meta, analysis, clinical, files,
+        //CHECK_DEPENDENCIES output relational mapping, CHECK_DEPENDENCIES output analysis_type, data directory path
+        combined_ch
+            .map { it, relational_mapping, analysis_types, data_directory ->
                 [
                     meta : [
                         id : "${it.parent.toString().split('/')[-1]}",
@@ -198,88 +203,66 @@ Please fix the above issues and re-run the workflow.
                     relational_mapping: relational_mapping,
                     analysis_types: analysis_types,
                     data_directory : data_directory
-                ] 
-            }.map{ //update with file directory paths after, easier this way
-                it ->
-                    [
-                        meta : [
-                            id : it.meta.id,
-                            study : it.meta.study,
-                            type : workflow.stubRun ? "sequencingExperiment" : it.analysis.analysis.splitCsv(sep:'\t',header:true).analysisType[0],
-                            status : it.meta.status
-                        ],
-                        analysis : it.analysis,
-                        clinical : it.clinical,
-                        //| Condition                                               | Result                               |
-                        //| ------------------------------------------------------- | ------------------------------------ |
-                        //| `workflow.stubRun == true`                              | `[]`                                 |
-                        //| `meta.status != 'pass'`                                 | `[]`                                 |
-                        //| `meta.status == 'pass'` **and** `data_directory exists` | files with `data_directory/filename` |
-                        //| `meta.status == 'pass'` **and** no `data_directory`     | files using filename only            |
-                        //files : workflow.stubRun ? [] : it.meta.status=='pass' ? it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${it.data_directory}/${fname}") } : [],
-                        files : workflow.stubRun ? [] : it.meta.status=='pass' ? it.data_directory ? it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${it.data_directory}/${fname}") } : it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${fname}") }  : [],
-                        status_file : it.status_file,
-                        relational_mapping: it.relational_mapping,
-                        analysis_types: it.analysis_types,
-                        data_directory: it.data_directory
-                    ]
-               
-            }.set{analysis_channels}
-        } else {
-            ANALYSIS_SPLIT.out.status.flatten()
-            .combine(CHECK_DEPENDENCIES.out.relational_mapping)
-            .combine(CHECK_DEPENDENCIES.out.analysis_types)
-            .map{
-                it,relational_mapping,analysis_types ->
-                [
+                ]
+            }.map { it ->
+                // | Condition                                               | Result                               |
+                // | ------------------------------------------------------- | ------------------------------------ |
+                // | `workflow.stubRun == true`                              | `[]`                                 |
+                // | `meta.status != 'pass'`                                 | `[]`                                 |
+                // | `meta.status == 'pass'` and `data_directory` present   | files resolved under data_directory  |
+                // | `meta.status == 'pass'` and no `data_directory`        | files resolved from filename only    |
+                def validatedFiles = []
+
+                if (it.meta.status == 'pass' && !workflow.stubRun) {
+                    def baseDir = it.data_directory ?: null
+                    def missingFileNames = []
+
+                    it.analysis.files.splitCsv(sep: '\t', header: true).fileName.each { fname ->
+                        def filePath = baseDir ? file("${baseDir}/${fname}") : file("${fname}")
+
+                        if (filePath.exists()) {
+                            validatedFiles << filePath
+                        } else {
+                            log.warn "File not found: '${filePath}'."
+                            missingFileNames << fname
+                        }
+                    }
+
+                    if (missingFileNames) {
+                        it.meta.status = 'FAILED'
+                        validatedFiles = []
+
+                        if (it.status_file.exists()) {
+                            def content = it.status_file.text
+                            def errorMsg = "Missing expected files: ${missingFileNames.join(', ')}"
+                            def currentTimestamp = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS").format(new Date())
+
+                            content = content.replaceAll(/status:\s*"SUCCESS"/, 'status: "FAILED"')
+                            content = content.replaceAll(/exit_code:\s*0/, 'exit_code: 1')
+                            content = content.replaceAll(/timestamp:\s*".*?"/, "timestamp: \"${currentTimestamp}\"")
+                            content = content.replaceAll(/error_message:\s*""/, "error_message: \"${errorMsg}\"")
+
+                            it.status_file.text = content
+                        }
+                    }
+                }
+
+                return [
                     meta : [
-                        id : "${it.parent.toString().split('/')[-1]}",
-                        study : "${it.parent.toString().split('/')[-2]}",
-                        status : it.text.contains('status: "FAILED"') ? 'failed' : 'pass'
+                        id : it.meta.id,
+                        study : it.meta.study,
+                        type : workflow.stubRun ? "sequencingExperiment" : it.analysis.analysis.splitCsv(sep:'\t',header:true).analysisType[0],
+                        status : it.meta.status
                     ],
-                    analysis : [
-                        analysis : files("${file(it).parent}/*analysis.tsv")[0],
-                        workflow : files("${file(it).parent}/*workflow.tsv")[0],
-                        files : files("${file(it).parent}/*files.tsv")[0]
-                    ],
-                    clinical : [
-                        specimen : files("${file(it).parent}/*specimen.tsv")[0],
-                        sample : files("${file(it).parent}/*sample.tsv")[0],
-                        experiment : files("${file(it).parent}/*experiment.tsv")[0],
-                        read_group : files("${file(it).parent}/*read_group.tsv")[0]
-                    ],
-                    status_file : file(it),
-                    relational_mapping: relational_mapping,
-                    analysis_types: analysis_types,
-                    data_directory : []
-                ] 
-            }.map{ //update with file directory paths after, easier this way
-                it ->
-                    [
-                        meta : [
-                            id : it.meta.id,
-                            study : it.meta.study,
-                            type : workflow.stubRun ? "sequencingExperiment" : it.analysis.analysis.splitCsv(sep:'\t',header:true).analysisType[0],
-                            status : it.meta.status
-                        ],
-                        analysis : it.analysis,
-                        clinical : it.clinical,
-                        //| Condition                                               | Result                               |
-                        //| ------------------------------------------------------- | ------------------------------------ |
-                        //| `workflow.stubRun == true`                              | `[]`                                 |
-                        //| `meta.status != 'pass'`                                 | `[]`                                 |
-                        //| `meta.status == 'pass'` **and** `data_directory exists` | files with `data_directory/filename` |
-                        //| `meta.status == 'pass'` **and** no `data_directory`     | files using filename only            |
-                        //files : workflow.stubRun ? [] : it.meta.status=='pass' ? it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${it.data_directory}/${fname}") } : [],
-                        files : workflow.stubRun ? [] : it.meta.status=='pass' ? it.data_directory ? it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${it.data_directory}/${fname}") } : it.analysis.files.splitCsv(sep:'\t',header:true).fileName.collect { fname -> file("${fname}") }  : [],
-                        status_file : it.status_file,
-                        relational_mapping: it.relational_mapping,
-                        analysis_types: it.analysis_types,
-                        data_directory: it.data_directory
-                    ]
-                
-            }.set{analysis_channels}  
-        }
+                    analysis : it.analysis,
+                    clinical : it.clinical,
+                    files : validatedFiles,
+                    status_file : it.status_file,
+                    relational_mapping: it.relational_mapping,
+                    analysis_types: it.analysis_types,
+                    data_directory: it.data_directory
+                ]
+            }.set { analysis_channels }
 
 
         //Validate clinical and analysis required entities co-exist
