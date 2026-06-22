@@ -206,21 +206,21 @@ def map_files(analyses,relational_mapping,data,debug,data_directory):
         if len(analyses[analysis][entity]['data'])>0:
             analyses[analysis][entity]['submitted']=True
 
-            for ind in analyses[analysis][entity]['data'].index.values.tolist():
+            # for ind in analyses[analysis][entity]['data'].index.values.tolist():
 
-                data_path_exists=[]
-                for directory in data_directory:
-                    file_path = "%s/%s" % (directory,analyses[analysis][entity]['data'].loc[ind,"fileName"])
-                    data_path_exists.append(os.path.exists(file_path))
+            #     data_path_exists=[]
+            #     for directory in data_directory:
+            #         file_path = "%s/%s" % (directory,analyses[analysis][entity]['data'].loc[ind,"fileName"])
+            #         data_path_exists.append(os.path.exists(file_path))
 
-                file_path="%s" % (analyses[analysis][entity]['data'].loc[ind,"fileName"])
-                data_path_exists.append(os.path.exists(file_path))
+            #     file_path="%s" % (analyses[analysis][entity]['data'].loc[ind,"fileName"])
+            #     data_path_exists.append(os.path.exists(file_path))
 
-                if True not in data_path_exists:
-                    if analyses[analysis]['status']:
-                        analyses[analysis]['status']=False
+            #     if True not in data_path_exists:
+            #         if analyses[analysis]['status']:
+            #             analyses[analysis]['status']=False
 
-                    analyses[analysis]['comments'].append("File %s cannot be found." % file_path)  
+            #         analyses[analysis]['comments'].append("File %s cannot be found." % file_path)  
                 
 
         else:
@@ -259,7 +259,7 @@ def save_outputs(analyses,output_directory,debug):
         with open("%s/%s/%s_check_submission_dependencies_analysis_split_status.yml" % (output_directory,analysis,analysis), 'w') as file:
             file.write(
             """
-process: "CHECK_SUBMISSION_DEPENDENCIES:ANALYSIS_SPLIT"
+process: "PCGL:MOLECULAR_DATA_SUBMISSION_WORKFLOW:CHECK_SUBMISSION_DEPENDENCIES:ANALYSIS_SPLIT"
 status: "%s"
 exit_code: %s
 timestamp: "%s"
