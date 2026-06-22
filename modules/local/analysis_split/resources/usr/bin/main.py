@@ -205,24 +205,7 @@ def map_files(analyses,relational_mapping,data,debug,data_directory):
 
         if len(analyses[analysis][entity]['data'])>0:
             analyses[analysis][entity]['submitted']=True
-
-            # for ind in analyses[analysis][entity]['data'].index.values.tolist():
-
-            #     data_path_exists=[]
-            #     for directory in data_directory:
-            #         file_path = "%s/%s" % (directory,analyses[analysis][entity]['data'].loc[ind,"fileName"])
-            #         data_path_exists.append(os.path.exists(file_path))
-
-            #     file_path="%s" % (analyses[analysis][entity]['data'].loc[ind,"fileName"])
-            #     data_path_exists.append(os.path.exists(file_path))
-
-            #     if True not in data_path_exists:
-            #         if analyses[analysis]['status']:
-            #             analyses[analysis]['status']=False
-
-            #         analyses[analysis]['comments'].append("File %s cannot be found." % file_path)  
-                
-
+ 
         else:
             analyses[analysis][entity]['submitted']=False
             analyses[analysis]['status']=False
