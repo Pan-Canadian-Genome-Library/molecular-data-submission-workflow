@@ -9,6 +9,8 @@ import json
 import argparse
 import os
 import glob
+from typing import Dict, List
+import time
 
 def retrieve_category_id(clinical_url,study_id,token):
     print("Retrieve Category ID")
@@ -301,80 +303,157 @@ def submit_clinical(clinical_url,category_id,study_id,output_directory,token):
 
     return(str(response.json()['submissionId']))
 
-def validation_status(clinical_url,submission_id,token):
-    print("Verifying successful submission and submission does not break schema rules")
-    url="%s/submission/%s" % (clinical_url,submission_id)
-    error_count={}
-    headers={
-            "Authorization" : "Bearer %s" % token,
-            'accept': 'application/json'
-    } 
+def check_submission_status(
+    clinical_url: str,
+    submission_id: str,
+    token: str,
+    stage: str = 'validation',
+    poll_interval: int = 5,
+    max_wait: int = 300
+) -> bool:
+    """
+    Poll submission status until it reaches the expected terminal state.
 
+    Validation stage: polls until VALID (waits on OPEN).
+    Commit stage:     polls until COMMITTED (waits on VALID while server commits).
+    Raises on INVALID in either stage.
+
+    Status enum: OPEN, VALIDATING, VALID, INVALID, CLOSED, COMMITTING, COMMITTED
+
+    Args:
+        clinical_url: Base URL for clinical API
+        submission_id: Submission ID to check
+        token: Authentication token
+        stage: Either 'validation' or 'commit'
+        poll_interval: Seconds between status polls
+        max_wait: Maximum total seconds to wait before raising
+
+    Returns:
+        True when the expected terminal status is reached
+
+    Raises:
+        ValueError: If status is INVALID or CLOSED, an unexpected state, or max_wait exceeded
+    """
+    stage_msg = "Validating" if stage == 'validation' else "Verifying committed"
+    print(f"{stage_msg} submission: {submission_id}")
+
+    elapsed = 0
+    while elapsed < max_wait:
+        response = api_request('GET', f"{clinical_url}/submission/{submission_id}", token)
+        status = response.json()['status']
+
+        if status in ['INVALID', 'CLOSED']:
+            response_details = api_request('GET', f"{clinical_url}/submission/{submission_id}/details", token)
+            errors = parse_errors_detail(response_details.json())
+            stage_error = "Validation" if stage == 'validation' else "Commit"
+            raise ValueError(f"{stage_error} failed with errors:\n" + "\n".join(errors))
+
+        if stage == 'validation':
+            if status == 'VALID':
+                print("Validation successful")
+                return True
+            if status in ['OPEN', 'VALIDATING']:
+                print(f"Status: {status} — waiting... ({elapsed}s elapsed)")
+            else:
+                raise ValueError(
+                    f"Submission {submission_id} reached unexpected status '{status}' "
+                    f"during validation stage."
+                )
+
+        elif stage == 'commit':
+            if status == 'COMMITTED':
+                print("Data successfully committed to database")
+                return True
+            if status in ['VALID', 'COMMITTING']:
+                # Server is processing the commit
+                print(f"Status: {status} — commit in progress... ({elapsed}s elapsed)")
+            else:
+                raise ValueError(
+                    f"Submission {submission_id} reached unexpected status '{status}' "
+                    f"during commit stage."
+                )
+
+        time.sleep(poll_interval)
+        elapsed += poll_interval
+
+    raise ValueError(
+        f"Timed out after {max_wait}s waiting for submission {submission_id} "
+        f"to reach {'VALID' if stage == 'validation' else 'COMMITTED'} status."
+    )
+
+def parse_errors_detail(response_data: dict) -> List[str]:
+    """
+    Parse errors details from API response.
+    
+    Args:
+        response_data: JSON response data
+        
+    Returns:
+        List of formatted error messages
+    """
+    errors = []
+    insert_errors = response_data.get('errors', [])
+    
+    for error in insert_errors:
+        field_name = error.get('fieldName', 'N/A')
+        reason = error.get('reason', 'Unknown')
+        field_value = error.get('fieldValue', '')
+        
+        error_parts = [f"Reason: {reason}", f"Field: {field_name}"]
+        if field_value:
+            error_parts.append(f"Value: {field_value}")
+        errors.append("  " + ", ".join(error_parts))
+    
+    return errors
+
+def api_request(
+    method: str,
+    url: str,
+    token: str,
+    timeout: int = 30,
+    **kwargs
+) -> requests.Response:
+    """
+    Make authenticated API request with error handling.
+    
+    Args:
+        method: HTTP method (GET, POST, DELETE)
+        url: API endpoint URL
+        token: Authentication token
+        timeout: Request timeout in seconds
+        **kwargs: Additional arguments for requests
+        
+    Returns:
+        Response object
+        
+    Raises:
+        ValueError: If request fails
+    """
+    headers = kwargs.pop('headers', {})
+    headers.setdefault('Authorization', f'Bearer {token}')
+    headers.setdefault('accept', 'application/json')
+    
     try:
-        response = requests.get(url, headers=headers)
-    except:
-        comments=[]
-        comments.append('ERROR REACHING %s' % (url))
-
-        comments.append(response.json().get('error')) if response.json().get('error') else comments
-        comments.append("message : %s " % response.json().get('message')) if response.json().get('message') else comments
+        response = requests.request(method, url, headers=headers, timeout=timeout, **kwargs)
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f'ERROR reaching {url}: {e}')
+    
+    if response.status_code not in [200, 404]:
+        # handle_api_error
+        comments = [f'ERROR with {url}: Code {response.status_code}']
+    
+        try:
+            error_data = response.json()
+            if error_data.get('error'):
+                comments.append(f"Error: {error_data['error']}")
+            if error_data.get('message'):
+                comments.append(f"Message: {error_data['message']}")
+        except Exception:
+            comments.append(f"Response: {response.text}")
         
         raise ValueError("\n".join(comments))
-        exit(1)
-
-    if response.status_code!=200:
-        comments=[]
-        comments.append('ERROR w/ %s : Code %s' % (url,response.status_code))
-
-        comments.append(response.json().get('error')) if response.json().get('error') else comments
-        comments.append("message : %s " % response.json().get('message')) if response.json().get('message') else comments
-        
-        raise ValueError("\n".join(comments))
-        exit(1)
-
-    if response.json()['status']=='INVALID':
-
-        for entity in response.json()['errors']['inserts'].keys():
-             error_count[entity]={
-                  "recordsCount": response.json()['errors']['inserts'][entity]["recordsCount"],
-                  "auditCount": 0
-             }
-    if len(error_count.keys())>0:
-        for entity in error_count.keys():
-            page=1
-            comments=[]
-            while (error_count[entity]["recordsCount"]!=error_count[entity]["auditCount"]):
-                #submission/233/details?actionTypes=inserts&entityNames=specimen&page=1&pageSize=20
-                url="%s/submission/%s/details?actionTypes=inserts&entityNames=%s&page=%s&pageSize=20" % (clinical_url,submission_id,entity,str(page))
-                headers={
-                        "Authorization" : "Bearer %s" % token,
-                        'accept': 'application/json'
-                } 
-
-                try:
-                    response = requests.get(url, headers=headers)
-                except:
-                    comments=[]
-                    comments.append('ERROR REACHING %s' % (url))
-
-                    comments.append(response.json().get('error')) if response.json().get('error') else comments
-                    comments.append("message : %s " % response.json().get('message')) if response.json().get('message') else comments
-                    
-                    raise ValueError("\n".join(comments))
-                    exit(1)
-
-                for error in response.json()['errors']:
-                    if error.get('fieldValue'):
-                        comments.append("Entity - %s:%s, field:%s, value:%s" % (entity,error['reason'],error['fieldName'],error['fieldValue']))
-                    else:
-                        comments.append("Entity - %s:%s, field:%s" % (entity,error['reason'],error['fieldName']))
-                    error_count[entity]["auditCount"]+=1
-                    page+=1
-
-        raise ValueError("\n".join(comments))
-        exit(1)
-
-    return(True)
+    
+    return response
 
 def commit_clinical(clinical_url,category_id,submission_id,token):
     print("Written submission contents to database")
@@ -385,7 +464,7 @@ def commit_clinical(clinical_url,category_id,submission_id,token):
             'accept': 'application/json'
     } 
     try:
-            response = requests.post(url, headers=headers)
+        response = requests.post(url, headers=headers)
     except:
         comments=[]
         comments.append('ERROR REACHING %s' % (url))
@@ -408,34 +487,6 @@ def commit_clinical(clinical_url,category_id,submission_id,token):
 
     return(True)
 
-def committed_status(clinical_url,submission_id,token):
-    print("Verifying status of clinical submission post committing")
-    url="%s/submission/%s" % (clinical_url,submission_id)
-    
-    headers={
-            "Authorization" : "Bearer %s" % token,
-            'accept': 'application/json'
-    } 
-
-    try:
-            response = requests.get(url, headers=headers)
-    except:
-            raise ValueError('ERROR REACHING %s' % (url))
-
-    if response.status_code!=200:
-            raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
-            exit(1)
-
-    if response.json()['status']=='INVALID':
-        comments=[]
-
-        for entity in response.json()['errors']['inserts'].keys():
-            for error in response.json()['errors']['inserts'][entity]:
-                comments.append("%s %s %s %s" % (entity,error['reason'],error['fieldName'],error['fieldValue']))
-
-        raise ValueError("\n".join(comments))
-        exit(1)
-    return(True)
 
 def return_submitted_data(
     category_id,
@@ -502,16 +553,15 @@ def return_submitted_data(
         print("Nothing to retrieve")
 
 def main(args):
-    if args.analysis_metadata: print("input:",args.analysis_metadata)
-    if args.sample_metadata: print("input:",args.sample_metadata)
-    if args.specimen_metadata: print("input:",args.specimen_metadata)
-    if args.experiment_metadata: print("input:",args.experiment_metadata)
-    if args.read_group_metadata: print("input:",args.read_group_metadata)
-    if args.clinical_url: print("input:",args.clinical_url)
-    if args.study_id: print("input:",args.study_id)
-    if args.token: print("input:",args.token)
-    if args.output_directory: print("input:",args.output_directory)
-    if args.relational_mapping: print("input:",args.relational_mapping)
+    if args.analysis_metadata: print("analysis_metadata:",args.analysis_metadata)
+    if args.sample_metadata: print("sample_metadata:",args.sample_metadata)
+    if args.specimen_metadata: print("specimen_metadata:",args.specimen_metadata)
+    if args.experiment_metadata: print("experiment_metadata:",args.experiment_metadata)
+    if args.read_group_metadata: print("read_group_metadata:",args.read_group_metadata)
+    if args.clinical_url: print("clinical_url:",args.clinical_url)
+    if args.study_id: print("study_id:",args.study_id)
+    if args.output_directory: print("output_directory:",args.output_directory)
+    if args.relational_mapping: print("relational_mapping:",args.relational_mapping)
 
     category_id=retrieve_category_id(
         args.clinical_url,
@@ -562,10 +612,11 @@ def main(args):
 
         print(submission_id)
 
-        validation_status(
+        check_submission_status(
             args.clinical_url,
             submission_id,
-            args.token
+            args.token,
+            stage='validation'
         )
 
         commit_clinical(
@@ -575,11 +626,13 @@ def main(args):
             args.token
         )
 
-        committed_status(        
+        check_submission_status(
             args.clinical_url,
             submission_id,
-            args.token
+            args.token,
+            stage='commit'
         )
+
     else:
         print("No data to submit")
 
