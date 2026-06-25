@@ -31,12 +31,12 @@ process CLINICAL_SUBMISSION {
     set +e
     # Check if upstream process was successful by checking meta.status
     if [ "${meta.status ?: 'pass' }" != "pass" ]; then
-        echo "Upstream process failed (meta.status: ${meta.status ?: 'pass'}), skipping payload generation"
+        echo "Upstream process failed (meta.status: ${meta.status ?: 'pass'}), skipping clinical submission"
         GENERATION_EXIT_CODE=1
         ERROR_DETAILS="Submitting of clinical data skipped due to upstream failure"
 
     else
-        echo "Upstream process successful, proceeding with payload generation"
+        echo "Upstream process successful, proceeding with clinical submission"
         
         # Run main.py once and capture both exit code and error output
         main.py \\
@@ -57,7 +57,8 @@ process CLINICAL_SUBMISSION {
         if [ \$GENERATION_EXIT_CODE -ne 0 ]; then
             # Read all error details from captured stderr
             if [ -f "generation_errors.tmp" ] && [ -s "generation_errors.tmp" ]; then
-                ERROR_DETAILS=\$(cat "generation_errors.tmp" | egrep 'ValueError\\: *.' || cat "generation_errors.tmp")
+                ERROR_DETAILS=\$(cat "generation_errors.tmp")
+
             else
                 ERROR_DETAILS="Script execution failed"
             fi
@@ -96,10 +97,10 @@ process CLINICAL_SUBMISSION {
     
     # Only exit with error if exit_on_error is explicitly true
     if [ "${exit_on_error_str}" == "true" ] && [ \$GENERATION_EXIT_CODE -ne 0 ]; then
-        echo "Payload generation failed and exit_on_error is true, exiting with error"
+        echo "Clinical submission failed and exit_on_error is true, exiting with error"
         exit \$GENERATION_EXIT_CODE
     else
-        echo "Continuing workflow regardless of generation result (exit_on_error=${exit_on_error_str})"
+        echo "Continuing workflow regardless of clinical submission result (exit_on_error=${exit_on_error_str})"
         exit 0
     fi
     """
