@@ -21,7 +21,7 @@ process PAYLOAD_VALIDATE {
 
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda "${moduleDir}/environment.yml"
-    container "quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0"
+    container "quay.io/biocontainers/multiqc:1.35--pyhdfd78af_1"
 
     input:
     tuple val(meta), path(payload_file), path(data_files)
