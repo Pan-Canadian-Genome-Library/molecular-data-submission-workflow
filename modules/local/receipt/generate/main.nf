@@ -20,7 +20,7 @@ process RECEIPT_GENERATE {
     label 'process_single'
 
     conda "conda-forge::pyyaml=6.0"
-    container 'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0'
+    container 'quay.io/biocontainers/multiqc:1.35--pyhdfd78af_1'
 
     input:
     tuple val(meta), path(status_files), path(analysis_file)
@@ -36,23 +36,6 @@ process RECEIPT_GENERATE {
     def meta_args = "--submitter-analysis-id ${meta.id} --study-id ${meta.study} --analysis-type ${meta.type}"
     def analysis_file_arg = analysis_file ? "--analysis-file ${analysis_file}" : ""
     """
-    # Install required Python packages to temporary directory
-    echo "Installing required Python packages..."
-    
-    # Create a temporary directory for package installation
-    TEMP_PYTHON_LIB="\$(mktemp -d)/python_packages"
-    mkdir -p "\$TEMP_PYTHON_LIB"
-    
-    # Install to temporary directory and add to Python path
-    pip install --target "\$TEMP_PYTHON_LIB" PyYAML
-    if [ \$? -ne 0 ]; then
-        echo "Failed to install PyYAML package" >&2
-        exit 1
-    fi
-    
-    # Set PYTHONPATH to include our temporary package directory
-    export PYTHONPATH="\$TEMP_PYTHON_LIB:\${PYTHONPATH:-}"
-
 
     # Generate receipt files using the external script
     main.py \
@@ -65,7 +48,6 @@ process RECEIPT_GENERATE {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python --version | sed 's/Python //g')
-        pyyaml: \$(python -c "import yaml; print(yaml.__version__)" 2>/dev/null || echo "unknown")
     END_VERSIONS
     """
 
@@ -111,7 +93,6 @@ process RECEIPT_GENERATE {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: "3.9.0"
-        pyyaml: "6.0"
     END_VERSIONS
     """
 }
