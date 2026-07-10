@@ -58,39 +58,22 @@ process PAYLOAD_VALIDATE {
         ERROR_DETAILS="Skipped validation - placeholder payload file detected"
     else
         echo "Upstream process successful, proceeding with validation"
-        
-        # Install required Python packages only when we need to run validation
-        echo "Installing required Python packages..."
-        
-        # Create a temporary directory for package installation
-        TEMP_PYTHON_LIB="\$(mktemp -d)/python_packages"
-        mkdir -p "\$TEMP_PYTHON_LIB"
-        
-        # Install to temporary directory and add to Python path
-        pip install --target "\$TEMP_PYTHON_LIB" jsonschema
-        if [ \$? -ne 0 ]; then
-            echo "Failed to install jsonschema package" >&2
-            VALIDATION_EXIT_CODE=1
-            ERROR_DETAILS="Failed to install required Python dependencies"
-        else
-            # Run validation with the installed package by updating PYTHONPATH
-            export PYTHONPATH="\$TEMP_PYTHON_LIB:\${PYTHONPATH:-}"
-            main.py \\
-                --payload "${payload_file}" \\
-                --schema-url "${schema_url}" \\
-                --clinical-url "${params.clinical_url}" \\
-                ${skip_external} \\
-                2>validation_errors.tmp
+    
+        main.py \\
+            --payload "${payload_file}" \\
+            --schema-url "${schema_url}" \\
+            --clinical-url "${params.clinical_url}" \\
+            ${skip_external} \\
+            2>validation_errors.tmp
 
-            VALIDATION_EXIT_CODE=\$?
-            # Read validation report for error details if validation failed
-            ERROR_DETAILS=""
-            if [ \$VALIDATION_EXIT_CODE -ne 0 ] && [ -f "validation_errors.tmp" ] && [ -s "validation_errors.tmp" ]; then
-                # Read all error details from captured stderr
-                ERROR_DETAILS=\$(cat "validation_errors.tmp" | tr '\\n' ' | ' | sed 's/ | \$//' || echo "Validation failed")
-            elif [ \$VALIDATION_EXIT_CODE -ne 0 ]; then
-                ERROR_DETAILS="Validation failed"
-            fi
+        VALIDATION_EXIT_CODE=\$?
+        # Read validation report for error details if validation failed
+        ERROR_DETAILS=""
+        if [ \$VALIDATION_EXIT_CODE -ne 0 ] && [ -f "validation_errors.tmp" ] && [ -s "validation_errors.tmp" ]; then
+            # Read all error details from captured stderr
+            ERROR_DETAILS=\$(cat "validation_errors.tmp" | tr '\\n' ' | ' | sed 's/ | \$//' || echo "Validation failed")
+        elif [ \$VALIDATION_EXIT_CODE -ne 0 ]; then
+            ERROR_DETAILS="Validation failed"
         fi
     fi
     
