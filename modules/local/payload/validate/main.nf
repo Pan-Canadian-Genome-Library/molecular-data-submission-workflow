@@ -38,7 +38,7 @@ process PAYLOAD_VALIDATE {
     def exit_on_error = task.ext.exit_on_error ?: false
     def exit_on_error_str = exit_on_error.toString()
     def schema_url = "${params.file_manager_url}/schemas"
-    def skip_external = params.skip_upload!=null ? "--skip-external" : ""
+    def skip_external = params.skip_upload ? "--skip-external" : ""
     if (!schema_url) {
         error "schema_url must be provided via task.ext.schema_url"
     }
