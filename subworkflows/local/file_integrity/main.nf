@@ -115,12 +115,19 @@ workflow FILE_INTEGRITY {
         .filter { _meta_id, _meta, _payload, file ->
             def name = file.name.toLowerCase()
             // Files that are NOT BAM/CRAM/VCF/FASTQ and NOT index files (since index files are handled with main files)
-            !(name.endsWith('.bam') || 
-              name.endsWith('.cram') ||
-              (name.endsWith('.vcf') || name.endsWith('.vcf.gz') || name.endsWith('.gvcf') || name.endsWith('.gvcf.gz') || name.endsWith('.bcf')) ||
-              name.endsWith('.fastq') || name.endsWith('.fastq.gz') || 
-              name.endsWith('.fq') || name.endsWith('.fq.gz') ||
-              name.endsWith('.bai') || name.endsWith('.csi') || name.endsWith('.tbi') || name.endsWith('.crai'))
+            !(
+                name.endsWith('.bam') || name.endsWith('.bai') ||
+                name.endsWith('.cram') || name.endsWith('.crai') ||
+                name.endsWith('.vcf') || name.endsWith('.vcf.tbi') || 
+                name.endsWith('.bcf') || name.endsWith('.bcf.tbi') ||
+                name.endsWith('.csi') ||
+                name.endsWith('.tbi') ||
+                name.endsWith('.vcf.gz') || name.endsWith('.vcf.gz.tbi') || 
+                name.endsWith('.gvcf') || name.endsWith('.gvcf.tbi') || 
+                name.endsWith('.gvcf.gz') || name.endsWith('.gvcf.gz.tbi') || 
+                name.endsWith('.fastq') || name.endsWith('.fastq.gz') || 
+                name.endsWith('.fq') || name.endsWith('.fq.gz')
+            )
         }
         .map { _meta_id, meta, payload, file -> [meta, payload, file] }
 
