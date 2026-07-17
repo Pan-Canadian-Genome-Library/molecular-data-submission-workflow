@@ -118,13 +118,13 @@ workflow FILE_INTEGRITY {
             !(
                 name.endsWith('.bam') || name.endsWith('.bai') ||
                 name.endsWith('.cram') || name.endsWith('.crai') ||
-                name.endsWith('.vcf') || name.endsWith('.vcf.tbi') || 
-                name.endsWith('.bcf') || name.endsWith('.bcf.tbi') ||
+                name.endsWith('.vcf') ||
+                name.endsWith('.bcf') ||
+                name.endsWith('.vcf.gz') ||
+                name.endsWith('.gvcf') || 
+                name.endsWith('.gvcf.gz') ||
                 name.endsWith('.csi') ||
                 name.endsWith('.tbi') ||
-                name.endsWith('.vcf.gz') || name.endsWith('.vcf.gz.tbi') || 
-                name.endsWith('.gvcf') || name.endsWith('.gvcf.tbi') || 
-                name.endsWith('.gvcf.gz') || name.endsWith('.gvcf.gz.tbi') || 
                 name.endsWith('.fastq') || name.endsWith('.fastq.gz') || 
                 name.endsWith('.fq') || name.endsWith('.fq.gz')
             )
