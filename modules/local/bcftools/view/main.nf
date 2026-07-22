@@ -35,14 +35,15 @@ process BCFTOOLS_VIEW {
     else
         echo "Running bcftools view validation on: ${vcf_file}"
         # Execute bcftools view and capture stderr directly
-        ERROR_OUTPUT=\$(bcftools view --no-header "${vcf_file}" 2>&1)
+        # ERROR_OUTPUT=\$(bcftools view --no-header "${vcf_file}" 2>&1)
+        ERROR_OUTPUT=\$(bcftools view --no-header "${vcf_file}" > /dev/null 2> error.log)
         VCF_EXIT_CODE=\$?
         
         if [ \${VCF_EXIT_CODE} -ne 0 ]; then
             # Process the captured error output
-            if [ -n "\${ERROR_OUTPUT}" ]; then
+            if [ -n "\$(cat error.log)" ]; then
                 # Remove ANSI color codes, carriage returns, and filter out empty lines
-                ERROR_DETAILS=\$(echo "\${ERROR_OUTPUT}" | sed 's/\\x1b\\[[0-9;]*m//g' | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || echo "\${ERROR_OUTPUT}")
+                ERROR_DETAILS=\$(cat error.log | sed 's/\\x1b\\[[0-9;]*m//g' | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || echo "\${ERROR_OUTPUT}")
             else
                 ERROR_DETAILS="VCF file ${vcf_file}: Failed bcftools view validation"
             fi
