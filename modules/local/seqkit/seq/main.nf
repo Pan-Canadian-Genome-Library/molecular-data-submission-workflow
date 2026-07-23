@@ -35,14 +35,14 @@ process SEQKIT_SEQ {
     else
         echo "Running seqkit seq validation on: ${fastq_file}"
         # Execute seqkit seq and capture stderr directly
-        ERROR_OUTPUT=\$(seqkit seq -j ${task.cpus} --validate-seq "${fastq_file}" --quiet -o /dev/null 2>/dev/null)
+        ERROR_OUTPUT=\$(seqkit seq -j ${task.cpus} --validate-seq "${fastq_file}" --quiet -o /dev/null 2> error.log)
         FASTQ_EXIT_CODE=\$?
         
         if [ \${FASTQ_EXIT_CODE} -ne 0 ]; then
             # Process the captured error output
-            if [ -n "\${ERROR_OUTPUT}" ]; then
+            if [ -n "\$(cat error.log)" ]; then
                 # Remove ANSI color codes and clean up formatting
-                ERROR_DETAILS=\$(echo "\${ERROR_OUTPUT}" | tr -d '\\033' | sed 's/\\[[0-9;]*m//g' | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || echo "\${ERROR_OUTPUT}")
+                ERROR_DETAILS=\$(cat error.log | tr -d '\\033' | sed 's/\\[[0-9;]*m//g' | tr '\\r' '\\n' | grep -v '^[[:space:]]*\$' || echo "\${ERROR_OUTPUT}")
             else
                 ERROR_DETAILS="FASTQ file ${fastq_file}: Failed seqkit seq validation"
             fi
