@@ -110,7 +110,7 @@ Please fix the above issues and re-run the workflow.
                 !status_file.text.contains('status: "FAILED"')
             }
             .subscribe {
-                log.info "✅ Minimum requirements check passed. Proceeding with data submission..."
+                log.info "✅ Minimum requirements check passed. Proceeding with metadata validation..."
             }
 
         //Split files (analysis and clinical) per analysis. Soft stop.
@@ -218,7 +218,10 @@ Please fix the above issues and re-run the workflow.
                     def missingFileNames = []
 
                     it.analysis.files.splitCsv(sep: '\t', header: true).fileName.each { fname ->
-                        def filePath = baseDir ? file("${baseDir}/${fname}") : file("${fname}")
+                        // Use Nextflow's own path resolution: isAbsolute() returns true for any
+                        // fully-qualified path (s3://, gs://, az://, https://, /absolute/local).
+                        // Only prepend baseDir for relative local filenames.
+                        def filePath = (baseDir && !file(fname).isAbsolute()) ? file("${baseDir}/${fname}") : file("${fname}")
 
                         if (filePath.exists()) {
                             validatedFiles << filePath
