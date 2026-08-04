@@ -5,7 +5,7 @@
 Before running the workflow, ensure you have:
 - [ ] `study_id` and `token` from PCGL administrator  
 - [ ] Completed `file_metadata.tsv` and `analysis_metadata.tsv`
-- [ ] Data files with corresponding index files in accessible directory
+- [ ] Data files accessible from the execution environment — local directory, network mount, S3/Azure/GCS bucket, or HTTP/FTP URL
 - [ ] Verified file names in metadata match actual file names 
 
 **New to PCGL?** See [Getting Started](introduction.md#getting-started) for registration steps.  
@@ -17,8 +17,8 @@ Before running the workflow, ensure you have:
 |----------------------------|-------------------------------------------------------|----------|
 | `study_id`                 | PCGL study identifier                                 | string   |
 | `token`                    | Authentication token with PCGL submission scope      | string   |
-| `file_metadata`            | Tab-separated file containing file information        | file     |
-| `analysis_metadata`        | Tab-separated file containing analysis information    | file     |
+| `file_metadata`            | Tab- or comma-separated file (TSV/CSV) containing file information        | file     |
+| `analysis_metadata`        | Tab- or comma-separated file (TSV/CSV) containing analysis information    | file     |
 
 
 
@@ -26,14 +26,14 @@ Before running the workflow, ensure you have:
 
 | Parameter                  | Description                                                                                      | Type     |
 |----------------------------|--------------------------------------------------------------------------------------------------|----------|
-| `workflow_metadata`        | Tab-separated file containing workflow information. **Required** for `sequenceAlignment` and `variantCall` analysis types. | file     |
-| `read_group_metadata`      | Tab-separated file containing read group information. **Required** when `analysisType = sequenceExperiment`. | file     |
-| `experiment_metadata`      | Tab-separated file containing experiment information. **Required** if it was not yet submitted through clinical submission system                                            | file     |
-| `specimen_metadata`        | Tab-separated file containing specimen. **Required** if it was not yet submitted through clinical submission system  information                                               | file     |
-| `sample_metadata`          | Tab-separated file containing sample. **Required** if it was not yet submitted through clinical submission system  information                                                 | file     |
+| `workflow_metadata`        | Tab- or comma-separated file (TSV/CSV) containing workflow information. **Required** for `sequenceAlignment` and `variantCall` analysis types. | file     |
+| `read_group_metadata`      | Tab- or comma-separated file (TSV/CSV) containing read group information. **Required** when `analysisType = sequenceExperiment`. | file     |
+| `experiment_metadata`      | Tab- or comma-separated file (TSV/CSV) containing experiment information. **Required** if it was not yet submitted through clinical submission system                                            | file     |
+| `specimen_metadata`        | Tab- or comma-separated file (TSV/CSV) containing specimen information. **Required** if it was not yet submitted through clinical submission system                                               | file     |
+| `sample_metadata`          | Tab- or comma-separated file (TSV/CSV) containing sample information. **Required** if it was not yet submitted through clinical submission system                                                 | file     |
 | `path_to_files_directory`  | Path to directory containing files to be uploaded                                               | string   |
 
-> **Note on file pathing**: `path_to_files_directory` is optional. When omitted, the `fileName` column in `file_metadata.tsv` must contain the absolute path to each file.
+> **Note on file pathing**: `path_to_files_directory` is optional. When omitted, the `fileName` column in `file_metadata.tsv` must contain a fully-qualified path or URI for each file (absolute local path, or a remote URI such as `s3://`, `az://`, `gs://`, `https://`, `ftp://`).
 
 > **Pre-registration requirement**: The Study, Dac and Participant entities referenced in your metadata must already be registered in PCGL **before** running the workflow. Contact your study administrator to confirm these dependencies are in place.
 
@@ -62,19 +62,85 @@ Before running the workflow, ensure you have:
 - **Supported formats**: FASTQ, CRAM, BAM, VCF, BCF
 - **Index files if applicable**: .crai, .bai, .tbi, .csi
 - **Naming / path requirements**:
-  - The `fileName` column in `file_metadata.tsv` accepts:
-    - A plain file name (e.g., `sample001.bam`) — file is looked up relative to `path_to_files_directory`
-    - A subdirectory path (e.g., `wgs/sample001.bam`) — resolved under `path_to_files_directory`
-    - An absolute path (e.g., `/data/submissions/sample001.bam`) — used directly, `path_to_files_directory` is ignored for that file
-  - Regardless of the path format used, **only the base filename is retained** by the workflow (directory components are stripped). For example, both `lane1/sample.bam` and `/data/lane2/sample.bam` resolve to `sample.bam`. Therefore, **all files within a single analysis must have unique base filenames** to avoid collisions.
+  - The `fileName` column in `file_metadata.tsv` accepts any of the following:
+
+    | Format | Example | Behaviour |
+    |---|---|---|
+    | Plain filename | `sample001.bam` | Resolved under `path_to_files_directory` |
+    | Subdirectory-relative path | `wgs/sample001.bam` | Resolved under `path_to_files_directory` |
+    | Absolute local path | `/mnt/data/sample001.bam` | Used directly; `path_to_files_directory` ignored |
+    | Amazon S3 URI | `s3://my-bucket/sample001.bam` | Used directly; requires `-profile s3`, `s3_compatible`, or `s3_anonymous` |
+    | Azure Blob URI | `az://my-container/sample001.bam` | Used directly; requires `AZURE_STORAGE_ACCOUNT_NAME` + key/SAS env vars |
+    | Google Cloud URI | `gs://my-bucket/sample001.bam` | Used directly; requires `GOOGLE_CLOUD_PROJECT` env var + ADC auth |
+    | HTTP/HTTPS URL | `https://example.org/sample001.bam` | Used directly; no profile needed |
+    | FTP URL | `ftp://ftp.example.org/sample001.bam` | Used directly; no profile needed |
+
+  - Regardless of the path format used, **only the base filename is retained** by the workflow (directory components are stripped). For example, both `lane1/sample.bam` and `s3://bucket/lane2/sample.bam` resolve to `sample.bam`. Therefore, **all files within a single analysis must have unique base filenames** to avoid collisions.
   - No spaces or special characters in file names
   - Case-sensitive matching between metadata and actual files
-- **Location**: Files must be accessible from the workflow execution environment. `path_to_files_directory` is optional when absolute paths are provided in `fileName`.
+- **Location**: Files must be accessible from the workflow execution environment. `path_to_files_directory` is ignored when fully-qualified paths or remote URIs are provided in `fileName`.
 - **Integrity**: Files should be properly formatted and not corrupted
 - **Checksums**: `fileSize` and `fileMd5sum` are auto-calculated by the workflow; supply them in `file_metadata.tsv` only if you want the workflow to verify them against the actual files
 
+#### Cloud and Remote File Access
+
+**Amazon S3**
+
+Set credentials via environment variables, then select a storage profile:
+
+```bash
+export AWS_ACCESS_KEY_ID=...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_DEFAULT_REGION=ca-central-1   # optional
+
+# Standard AWS S3
+nextflow run ... -profile docker,sd4h_dev,s3
+
+# S3-compatible store (MinIO, Ceph, ECS, Wasabi, etc.)
+export S3_ENDPOINT=https://your-store.example.com
+nextflow run ... -profile docker,sd4h_dev,s3_compatible
+
+# Fully public bucket (no credentials required)
+nextflow run ... -profile docker,sd4h_dev,s3_anonymous
+```
+
+**Azure Blob Storage**
+
+No profile needed — set credentials via environment variables:
+
+```bash
+export AZURE_STORAGE_ACCOUNT_NAME=mystorageaccount
+export AZURE_STORAGE_ACCOUNT_KEY=...          # or use SAS token:
+export AZURE_STORAGE_SAS_TOKEN=?sv=...
+
+nextflow run ... -profile docker,sd4h_dev
+```
+
+**Google Cloud Storage**
+
+No profile needed — authenticate and set your project:
+
+```bash
+# Option A: personal login
+gcloud auth application-default login
+
+# Option B: service account
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json
+
+export GOOGLE_CLOUD_PROJECT=my-gcp-project
+export GOOGLE_CLOUD_REGION=northamerica-northeast1   # optional
+
+nextflow run ... -profile docker,sd4h_dev
+```
+
+> **Public GCS buckets**: No authentication is required to read files from publicly accessible GCS buckets. Setting `GOOGLE_CLOUD_PROJECT` is still recommended so quota and logging are attributed correctly.
+
+**HTTP / FTP**
+
+No configuration needed. Simply use `https://` or `ftp://` URLs directly in the `fileName` column.
+
 ### Metadata Files
-- **Format**: Tab-separated values (TSV) with UTF-8 encoding
+- **Format**: Tab-separated (TSV) or comma-separated (CSV) values with UTF-8 encoding
 - **Required columns**: Each metadata file must include all required columns as specified in schemas below
 - **Consistency**: Analysis IDs must be consistent across all metadata files
 - **Relationships**: Foreign key relationships must be maintained between entities
@@ -96,7 +162,7 @@ The following table summarizes the expected values for `fileType` and `dataType`
 | Column                | Description                        | Example                | Required |
 |-----------------------|------------------------------------|------------------------|----------|
 | submitter_analysis_id | Unique analysis identifier         | analysis_001           | Yes      |
-| fileName              | File name, subdirectory-relative path, or absolute path of the data file. | sample001.bam or data/wgs/sample001.bam or /absolute/path/sample001.bam | Yes      |
+| fileName              | File name, subdirectory-relative path, absolute local path, or remote URI (`s3://`, `az://`, `gs://`, `https://`, `ftp://`). | `sample001.bam`, `wgs/sample001.bam`, `/data/sample001.bam`, `s3://bucket/sample001.bam` | Yes      |
 | fileSize              | Size in bytes (auto-calculated if omitted) | 123456789       | No       |
 | fileMd5sum            | MD5 checksum of the file (auto-calculated if omitted) | 1a2b3c4d5e6f... | No       |
 | fileType              | Type of file (CRAM/BAM/VCF/BCF)    | BAM                    | Yes      |
@@ -146,13 +212,13 @@ For biospecimen metadata files (`specimen_metadata.tsv`, `sample_metadata.tsv`, 
 ### Pre-submission Validation Checklist
 
 **📁 File Validation:**
-- [ ] **File Existence**: All files listed in `file_metadata.tsv` are accessible (via `path_to_files_directory`, subdirectory path, or absolute path)
+- [ ] **File Existence**: All files listed in the `file_metadata` input are accessible — via `path_to_files_directory`, subdirectory path, absolute path, or remote URI (`s3://`, `az://`, `gs://`, `https://`, `ftp://`)
 - [ ] **Index Files**: Each data file has its corresponding index (.crai, .bai, .tbi, .csi) alongside
 - [ ] **File Integrity**: If `fileMd5sum` / `fileSize` are provided in `file_metadata.tsv`, they will be verified; otherwise the workflow calculates them automatically
 - [ ] **File Access**: All files are readable by the workflow execution environment
 
 **📊 Metadata Validation:**
-- [ ] **Format Check**: TSV files open correctly in spreadsheet software without encoding issues
+- [ ] **Format Check**: TSV/CSV metadata files open correctly in spreadsheet software without encoding issues
 - [ ] **Required Columns**: All required columns are present with correct names
 - [ ] **Data Consistency**: Analysis IDs are consistent across all metadata files
 - [ ] **Controlled Vocabularies**: Values use permissible values
@@ -183,6 +249,8 @@ find /path/to/data -name "*.cram" -exec md5sum {} \; > checksums.txt
 ### Recommended Directory Structure
 
 The workflow supports several file organization patterns. Choose the one that best fits your setup.
+
+> **Note**: Metadata files can be in **TSV** (`.tsv`, tab-separated) or **CSV** (`.csv`, comma-separated) format. The examples below use `.tsv` for illustration.
 
 #### Option A — Flat directory
 All data files in a single directory, `fileName` contains the file name only:
@@ -222,10 +290,23 @@ study/
     └── analysis_metadata.tsv
 ```
 
+#### Option D — Cloud / remote URIs (no `path_to_files_directory`)
+`fileName` contains a cloud URI or remote URL; `--path_to_files_directory` is not needed:
+```
+study/
+└── metadata/
+    ├── file_metadata.tsv          # fileName column: "s3://my-bucket/sample1.cram"
+    └── analysis_metadata.tsv     #               or  "az://my-container/sample1.cram"
+                                   #               or  "gs://my-bucket/sample1.cram"
+                                   #               or  "https://example.org/sample1.cram"
+```
+See [Cloud and Remote File Access](#cloud-and-remote-file-access) for credential setup.
+
 **Benefits of flexible pathing:**
 - **Flat directory**: Simplest setup when all files reside in one place
 - **Subdirectory pathing**: Organise large batches hierarchically without changing `path_to_files_directory`
 - **Absolute pathing**: Ideal when files are spread across different storage systems or mount points
+- **Cloud / remote URIs**: Access files in S3, Azure, GCS, or over HTTP/FTP without needing local copies
 
 ---
 

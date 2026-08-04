@@ -21,7 +21,7 @@ such that the supplied output directory is `--outdir out/batch1` and `--outdir o
 The output contents of the pipeline is organized per process and organized according by chronological order in pipeline: 
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
-- [check_dependencies](#check_dependencies) - preflight check validating servers, studies, and input TSVs
+- [check_dependencies](#check_dependencies) - preflight check validating servers, studies, and input metadata files (TSV/CSV)
 - [analysis_split](#analysis_split) - runs workflow per record of input `analysis.tsv`
 - [validate_clinical](#validate_clinical) - checks biospecimen content for discrepancies and dependencies
 - [clinical_submission](#clinical_submission) - submits biospecimen data to clinical-submission service
