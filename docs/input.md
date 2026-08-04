@@ -113,7 +113,7 @@ export AZURE_STORAGE_ACCOUNT_NAME=mystorageaccount
 export AZURE_STORAGE_ACCOUNT_KEY=...          # or use SAS token:
 export AZURE_STORAGE_SAS_TOKEN=?sv=...
 
-nextflow run ... -profile docker,sd4h_dev
+nextflow run ... -profile docker,sd4h_prod
 ```
 
 **Google Cloud Storage**
