@@ -50,7 +50,7 @@ def flag_duplicate_analyses_local(analyses,debug):
         if debug: print("#%s" % analysis)
         if len(analyses.get(analysis).get("analysis").get('data'))>1:
             analyses[analysis]['status']=False
-            analyses[analysis]['comments'].append("Duplicate analyses found for %s : %s conflicting records" % (analysis,str(len(analyses.get(analysis).get("analysis")))))
+            analyses[analysis]['comments'].append("Duplicate analyses found for %s : %s conflicting records" % (analysis,str(len(analyses.get(analysis).get("analysis").get('data')))))
 
 def flag_duplicate_analyses_external(analyses,file_manager,study_id,token,debug):
     print("Checking for duplicate analyses externally")
@@ -74,7 +74,6 @@ def flag_duplicate_analyses_external(analyses,file_manager,study_id,token,debug)
 
     if response.status_code!=200:
         raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
-        exit(1)
 
     totalAnalyses=response.json()['totalAnalyses']
 
@@ -93,7 +92,6 @@ def flag_duplicate_analyses_external(analyses,file_manager,study_id,token,debug)
     
         if response.status_code!=200:
             raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
-            exit(1)
     
         for song_analysis in response.json()['analyses']:
             if song_analysis.get(unique_identifier):
@@ -286,7 +284,13 @@ def main(args):
     ):
         if metadata:
             data[key]={}
-            data[key]['data']=pd.read_csv(metadata,sep='\t',index_col=False)
+            if str(metadata).endswith('.csv'):
+                sep = ','
+            elif str(metadata).endswith('.tsv'):
+                sep = '\t'
+            else:
+                raise ValueError(f"Unsupported file format for '{metadata}'. File must have a '.csv' or '.tsv' suffix.")
+            data[key]['data']=pd.read_csv(metadata,sep=sep,index_col=False)
             data[key]['submitted']=True
    
     if args.debug:

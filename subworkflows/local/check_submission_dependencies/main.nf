@@ -221,7 +221,8 @@ Please fix the above issues and re-run the workflow.
                         // Use Nextflow's own path resolution: isAbsolute() returns true for any
                         // fully-qualified path (s3://, gs://, az://, https://, /absolute/local).
                         // Only prepend baseDir for relative local filenames.
-                        def filePath = (baseDir && !file(fname).isAbsolute()) ? file("${baseDir}/${fname}") : file("${fname}")
+                       def filePath = (baseDir && !(fname.startsWith('/') || fname.contains("//"))) ? file("${baseDir}/${fname}") : file("${fname}")
+ 
 
                         if (filePath.exists()) {
                             validatedFiles << filePath
