@@ -10,7 +10,7 @@ Before running the workflow, ensure the following are in place:
 - [ ] **Participants registered** — All participants in the submission batch are registered (coordinate with your Study Data Coordinator)
 - [ ] **API token obtained** — A valid API token has been issued for your study (contact [helpdesk@genomelibrary.ca](mailto:helpdesk@genomelibrary.ca))
 - [ ] **Metadata files prepared** — All required metadata files conform to the data model (see **[Input Documentation](input.md)** for schemas and formatting requirements)
-- [ ] **Data files accessible** — Molecular data files are organized in a readable directory or referenced by absolute paths
+- [ ] **Data files accessible** — Molecular data files are accessible from the execution environment: local directory, absolute path, S3/Azure/GCS bucket URI, or HTTP/FTP URL (see [File Location Options](#file-location-options) below)
 - [ ] **Nextflow installed** — Version 22.04.2 or later ([installation guide](https://www.nextflow.io/docs/latest/install.html))
 - [ ] **Container engine installed** — Docker or Singularity is available on the target system
 
@@ -27,7 +27,7 @@ nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     -profile [docker|singularity],sd4h_prod
 ```
 
-> **File pathing**: `path_to_files_directory` can be omitted when the `fileName` column in `file_metadata.tsv` contains absolute paths or subdirectory-relative paths that already resolve to accessible files. See [Input Documentation](input.md#molecular-data-files) for the full set of supported pathing options.
+> **File pathing**: `path_to_files_directory` can be omitted when the `fileName` column in `file_metadata.tsv` contains fully-qualified paths or remote URIs. See [Input Documentation](input.md#cloud-and-remote-file-access) for cloud storage setup (S3, Azure, GCS) and the full set of supported path formats.
 
 > **Checksums**: `fileSize` and `fileMd5sum` columns in `file_metadata.tsv` are **optional**. The workflow calculates them automatically from the actual files and embeds the values in the submission payload.
 
@@ -114,6 +114,83 @@ This is to reduce I/O overhead and ensure efficient transfer.  If the data is lo
 nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
     [... parameters ...] \
     --fork_limit 1
+```
+
+### **File Location Options**
+
+The `fileName` column in `file_metadata.tsv` supports all of the following — mix and match within one submission:
+
+| Storage | Example `fileName` value | Profile / credential required |
+|---|---|---|
+| Local (relative) | `sample001.bam` | None — use `--path_to_files_directory` |
+| Local (absolute) | `/mnt/data/sample001.bam` | None |
+| Amazon S3 | `s3://my-bucket/sample001.bam` | `-profile s3` (or `s3_compatible` / `s3_anonymous`) |
+| Azure Blob | `az://my-container/sample001.bam` | `AZURE_STORAGE_ACCOUNT_NAME` + key/SAS env vars |
+| Google Cloud | `gs://my-bucket/sample001.bam` | `GOOGLE_CLOUD_PROJECT` env var + ADC auth |
+| HTTPS | `https://example.org/sample001.bam` | None |
+| FTP | `ftp://ftp.example.org/sample001.bam` | None |
+
+See [Input Documentation](input.md#cloud-and-remote-file-access) for full credential setup instructions.
+
+#### **S3 Submission**
+```bash
+export AWS_ACCESS_KEY_ID=...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_DEFAULT_REGION=ca-central-1
+
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    --study_id "your_pcgl_study_id" \
+    --token "your_pcgl_token_here" \
+    --file_metadata "/path/to/file_metadata" \
+    --analysis_metadata "/path/to/analysis_metadata" \
+    --outdir "/path/to/submission_results" \
+    -profile docker,sd4h_prod,s3
+    # fileName in file_metadata.tsv: s3://my-bucket/sample001.bam
+```
+
+#### **S3-Compatible Store Submission (MinIO, Ceph, ECS, Wasabi)**
+```bash
+export AWS_ACCESS_KEY_ID=...
+export AWS_SECRET_ACCESS_KEY=...
+export S3_ENDPOINT=https://your-store.example.com
+
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    --study_id "your_pcgl_study_id" \
+    --token "your_pcgl_token_here" \
+    --file_metadata "/path/to/file_metadata" \
+    --analysis_metadata "/path/to/analysis_metadata" \
+    --outdir "/path/to/submission_results" \
+    -profile docker,sd4h_prod,s3_compatible
+```
+
+#### **Azure Blob Storage Submission**
+```bash
+export AZURE_STORAGE_ACCOUNT_NAME=mystorageaccount
+export AZURE_STORAGE_ACCOUNT_KEY=...   # or AZURE_STORAGE_SAS_TOKEN=?sv=...
+
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    --study_id "your_pcgl_study_id" \
+    --token "your_pcgl_token_here" \
+    --file_metadata "/path/to/file_metadata" \
+    --analysis_metadata "/path/to/analysis_metadata" \
+    --outdir "/path/to/submission_results" \
+    -profile docker,sd4h_prod
+    # fileName in file_metadata.tsv: az://my-container/sample001.bam
+```
+
+#### **Google Cloud Storage Submission**
+```bash
+gcloud auth application-default login   # or set GOOGLE_APPLICATION_CREDENTIALS
+export GOOGLE_CLOUD_PROJECT=my-gcp-project
+
+nextflow run Pan-Canadian-Genome-Library/molecular-data-submission-workflow \
+    --study_id "your_pcgl_study_id" \
+    --token "your_pcgl_token_here" \
+    --file_metadata "/path/to/file_metadata" \
+    --analysis_metadata "/path/to/analysis_metadata" \
+    --outdir "/path/to/submission_results" \
+    -profile docker,sd4h_prod
+    # fileName in file_metadata.tsv: gs://my-bucket/sample001.bam
 ```
 
 ### **Container Engine Options**

@@ -50,7 +50,7 @@ def flag_duplicate_analyses_local(analyses,debug):
         if debug: print("#%s" % analysis)
         if len(analyses.get(analysis).get("analysis").get('data'))>1:
             analyses[analysis]['status']=False
-            analyses[analysis]['comments'].append("Duplicate analyses found for %s : %s conflicting records" % (analysis,str(len(analyses.get(analysis).get("analysis")))))
+            analyses[analysis]['comments'].append("Duplicate analyses found for %s : %s conflicting records" % (analysis,str(len(analyses.get(analysis).get("analysis").get('data')))))
 
 def flag_duplicate_analyses_external(analyses,file_manager,study_id,token,debug):
     print("Checking for duplicate analyses externally")
@@ -74,7 +74,6 @@ def flag_duplicate_analyses_external(analyses,file_manager,study_id,token,debug)
 
     if response.status_code!=200:
         raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
-        exit(1)
 
     totalAnalyses=response.json()['totalAnalyses']
 
@@ -93,7 +92,6 @@ def flag_duplicate_analyses_external(analyses,file_manager,study_id,token,debug)
     
         if response.status_code!=200:
             raise ValueError('ERROR w/ %s : Code %s' % (url,response.status_code))
-            exit(1)
     
         for song_analysis in response.json()['analyses']:
             if song_analysis.get(unique_identifier):
@@ -205,24 +203,7 @@ def map_files(analyses,relational_mapping,data,debug,data_directory):
 
         if len(analyses[analysis][entity]['data'])>0:
             analyses[analysis][entity]['submitted']=True
-
-            for ind in analyses[analysis][entity]['data'].index.values.tolist():
-
-                data_path_exists=[]
-                for directory in data_directory:
-                    file_path = "%s/%s" % (directory,analyses[analysis][entity]['data'].loc[ind,"fileName"])
-                    data_path_exists.append(os.path.exists(file_path))
-
-                file_path="%s" % (analyses[analysis][entity]['data'].loc[ind,"fileName"])
-                data_path_exists.append(os.path.exists(file_path))
-
-                if True not in data_path_exists:
-                    if analyses[analysis]['status']:
-                        analyses[analysis]['status']=False
-
-                    analyses[analysis]['comments'].append("File %s cannot be found." % file_path)  
-                
-
+ 
         else:
             analyses[analysis][entity]['submitted']=False
             analyses[analysis]['status']=False
@@ -259,7 +240,7 @@ def save_outputs(analyses,output_directory,debug):
         with open("%s/%s/%s_check_submission_dependencies_analysis_split_status.yml" % (output_directory,analysis,analysis), 'w') as file:
             file.write(
             """
-process: "CHECK_SUBMISSION_DEPENDENCIES:ANALYSIS_SPLIT"
+process: "PCGL:MOLECULAR_DATA_SUBMISSION_WORKFLOW:CHECK_SUBMISSION_DEPENDENCIES:ANALYSIS_SPLIT"
 status: "%s"
 exit_code: %s
 timestamp: "%s"
@@ -303,7 +284,13 @@ def main(args):
     ):
         if metadata:
             data[key]={}
-            data[key]['data']=pd.read_csv(metadata,sep='\t',index_col=False)
+            if str(metadata).endswith('.csv'):
+                sep = ','
+            elif str(metadata).endswith('.tsv'):
+                sep = '\t'
+            else:
+                raise ValueError(f"Unsupported file format for '{metadata}'. File must have a '.csv' or '.tsv' suffix.")
+            data[key]['data']=pd.read_csv(metadata,sep=sep,index_col=False)
             data[key]['submitted']=True
    
     if args.debug:

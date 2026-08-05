@@ -223,7 +223,7 @@ def main(args):
    ###Check for study ID
    check_study_id(analysis,args.study_id)
    ###Check if files exists
-   check_file_exists(analysis,args.data_directory)
+   ###check_file_exists(analysis,args.data_directory) - file existence already checked in analysis_split 
    ###Check workflows map to correct analysisType
    check_workflow_analysis(analysis,analysis_types)
    ###Check for datatypes

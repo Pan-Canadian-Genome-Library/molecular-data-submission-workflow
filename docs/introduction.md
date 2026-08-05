@@ -39,7 +39,7 @@ The Pan-Canadian Genome Library (PCGL) [Molecular Data Submission Workflow](http
 ✅ **Automates complex submission steps** reducing manual work from days to hours  
 ✅ **Ensures compliance** with PCGL data model and requirements  
 ✅ **Calculates file properties automatically** — `fileSize` and `fileMd5sum` are computed from actual files, so you don't need to supply them  
-✅ **Flexible file ingestion** — reference files by name, subdirectory path, or absolute path  
+✅ **Flexible file ingestion** — reference files by relative name, subdirectory path, absolute local path, or remote URI (`s3://`, `az://`, `gs://`, `https://`, `ftp://`)  
 ✅ **Provides clear feedback** with detailed reports on success/failure status and aggregated per-analysis error details  
 ✅ **Handles large-scale submissions** efficiently with batch and parallel processing  
 ✅ **Maintains audit trails** for regulatory compliance and tracking  
@@ -87,7 +87,7 @@ This workflow currently supports submission of **short-read sequencing data** an
 - [ ] All participants registered *(Coordinate with your Study Data Coordinator)*
 - [ ] API token obtained *(Contact: helpdesk@genomelibrary.ca)*
 - [ ] Metadata prepared in required format *(See [Input Documentation](input.md))*
-- [ ] Data files ready and accessible *(Organized in a readable directory or referenced by absolute paths)*
+- [ ] Data files ready and accessible *(local directory, absolute path, or remote URI — see [Input Documentation](input.md#cloud-and-remote-file-access) for S3, Azure, GCS, HTTP/FTP setup)*
 
 **System Requirements:**
 - [ ] **Nextflow**: v22.04.2+ (DSL2)
@@ -198,7 +198,7 @@ singularity --version
 ## Workflow Diagram
 
 <p align="center">
-    <img src="../assets/PCGL_Molecular_Data_Submission_Workflow-Diagram.png" alt="PCGL molecular data submission workflow diagram." width="800">
+    <img src="../assets/PCGL_Molecular_Data_Submission_Workflow.png" alt="PCGL molecular data submission workflow diagram." width="800">
 </p>
 
 ## Architecture Highlights

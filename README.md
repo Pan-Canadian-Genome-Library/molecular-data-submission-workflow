@@ -57,7 +57,12 @@ Please refer to **[Input Documentation](docs/input.md)** for the comprehensive p
   - File location is determined by the `fileName` column in `file_metadata.tsv`, which accepts:
     - A plain file name — resolved relative to `--path_to_files_directory`
     - A subdirectory path (e.g., `wgs/sample001.bam`) — resolved under `--path_to_files_directory`
-    - An absolute path (e.g., `/mnt/storage/sample001.bam`) — used directly; `--path_to_files_directory` can be omitted
+    - An absolute path (e.g., `/mnt/storage/sample001.bam`) — used directly; `--path_to_files_directory` is ignored if provided
+    - An Amazon S3 URI (e.g., `s3://my-bucket/sample001.bam`) — requires `-profile s3`, `s3_compatible`, or `s3_anonymous`
+    - An Azure Blob URI (e.g., `az://my-container/sample001.bam`) — requires Azure storage credentials in environment variables
+    - A Google Cloud Storage URI (e.g., `gs://my-bucket/sample001.bam`) — requires `GOOGLE_CLOUD_PROJECT` and Application Default Credentials
+    - An HTTP/HTTPS URL (e.g., `https://example.org/sample001.bam`) — no configuration needed
+    - An FTP URL (e.g., `ftp://ftp.example.org/sample001.bam`) — no configuration needed
 
 - **Metadata Files**: 
   - **Required**: `file_metadata.tsv`, `analysis_metadata.tsv`
@@ -65,7 +70,7 @@ Please refer to **[Input Documentation](docs/input.md)** for the comprehensive p
     - Biospecimen: `specimen_metadata.tsv`, `sample_metadata.tsv`, `experiment_metadata.tsv` - required if they were not yet submitted through clinical submission system
     - `read_group_metadata.tsv` — required when `analysisType` is `sequenceExperiment`
     - `workflow_metadata.tsv` — required when `analysisType` is `sequenceAlignment` or `variantCall`
-  - All metadata files must be in tab-separated (TSV) format
+  - All metadata files must be in tab-separated (TSV) or comma-separated (CSV) format
   - `fileSize` and `fileMd5sum` columns in `file_metadata.tsv` are **optional** — the submission workflow calculates them automatically from the actual files. If provided, they are verified against the calculated values.
   - Metadata files must comply with the Custom data model of your study, which is the combination of PCGL Base and your study Extentions. For the latest version of the PCGL Base Data Model, please see the [**latest release folder**](https://drive.google.com/drive/u/1/folders/1vfNA7ajwh3WKkbVmswb6j9TuWKxaN9bB).
 

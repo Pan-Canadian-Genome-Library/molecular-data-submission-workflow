@@ -62,17 +62,57 @@ workflow PCGL {
 workflow {
 
     main:
-    //
-    // SUBWORKFLOW: Run initialisation tasks
-    //
-    // PIPELINE_INITIALISATION (
-    //     params.version,
-    //     params.validate_params,
-    //     params.monochrome_logs,
-    //     args,
-    //     params.outdir,
-    //     params.input
-    // )
+
+    // Log active profiles, grouped by category
+    def activeProfiles          = workflow.profile?.tokenize(',')*.trim() ?: []
+    def knownEnvProfiles        = ['sd4h_dev', 'sd4h_staging', 'sd4h_qa', 'sd4h_prod', 'cumulus_dev', 'cumulus_qa']
+    def knownStorageProfiles    = ['s3', 's3_compatible', 's3_anonymous']
+    def knownContainerProfiles  = ['conda', 'mamba', 'docker', 'arm', 'singularity', 'apptainer', 'podman', 'shifter', 'charliecloud', 'wave']
+    def knownSchedulerProfiles  = ['slurm']
+    def knownOtherProfiles      = ['debug', 'test', 'test_sequential', 'test_parallel', 'test_full']
+
+    def detectedEnv       = activeProfiles.findAll { it in knownEnvProfiles }
+    def detectedStorage   = activeProfiles.any { it in knownStorageProfiles } ? ['s3'] : []
+    def detectedContainer = activeProfiles.findAll { it in knownContainerProfiles }
+    def detectedScheduler = activeProfiles.findAll { it in knownSchedulerProfiles }
+    def detectedOther     = activeProfiles.findAll { it in knownOtherProfiles }
+
+    // Scan the fileName column in file_metadata to detect all storage backends in use
+    if (params.file_metadata) {
+        try {
+            def fmLines = file(params.file_metadata).readLines()
+            if (fmLines.size() > 1) {
+                def headers     = fmLines[0].split('\t')*.trim()
+                def fileNameIdx = headers.findIndexOf { it == 'fileName' }
+                if (fileNameIdx >= 0) {
+                    def fileNames = fmLines.drop(1).collect { it.split('\t')[fileNameIdx] }
+                    if (!detectedStorage.contains('s3')      && fileNames.any { it.startsWith('s3://') })                detectedStorage << 's3'
+                    if (!detectedStorage.contains('azure')   && fileNames.any { it.startsWith('az://') })                detectedStorage << 'azure'
+                    if (!detectedStorage.contains('gcs')     && fileNames.any { it.startsWith('gs://') })                detectedStorage << 'gcs'
+                    if (!detectedStorage.contains('http')    && fileNames.any { it ==~ /^https?:\/\/.+/ })               detectedStorage << 'http'
+                    if (!detectedStorage.contains('ftp')     && fileNames.any { it ==~ /^ftp:\/\/.+/ })                  detectedStorage << 'ftp'
+                    if (!detectedStorage.contains('local')   && fileNames.any { !(it ==~ /^[a-z][a-z0-9+\-.]*:\/\//) }) detectedStorage << 'local'
+                }
+            }
+        } catch (Exception e) {
+            // file_metadata may not be locally readable at startup (e.g. itself on a remote store) — skip
+        }
+    }
+
+    def allKnown     = knownEnvProfiles + knownStorageProfiles + knownContainerProfiles + knownSchedulerProfiles + knownOtherProfiles
+    def unrecognized = activeProfiles.findAll { !(it in allKnown) }
+
+    log.info "🚀 Active profiles:"
+    if (detectedEnv) {
+        log.info "   - Environment : ${detectedEnv.join(', ')}"
+    } else {
+        log.warn "   - Environment : ⚠️  No environment profile selected — use -profile <env> (e.g. sd4h_dev, sd4h_prod)"
+    }
+    log.info "   - File Storage: ${detectedStorage   ? detectedStorage.join(', ')   : 'Local'}"
+    log.info "   - Container   : ${detectedContainer ? detectedContainer.join(', ') : 'None'}"
+    log.info "   - Scheduler   : ${detectedScheduler ? detectedScheduler.join(', ') : 'Local'}"
+    if (detectedOther)   log.info "   - Other       : ${detectedOther.join(', ')}"
+    if (unrecognized)    log.warn "   ⚠️  Unrecognized profiles: ${unrecognized.join(', ')}"
 
     // Log pipeline parameters
     log.info "🔧 Input parameters:"
@@ -84,7 +124,7 @@ workflow {
     log.info "   - experiment_metadata: ${params.experiment_metadata ?: 'Not Provided'}"
     log.info "   - specimen_metadata: ${params.specimen_metadata ?: 'Not Provided'}"
     log.info "   - sample_metadata: ${params.sample_metadata ?: 'Not Provided'}"
-    log.info "   - path_to_files_directory: ${params.path_to_files_directory}"
+    log.info "   - path_to_files_directory: ${params.path_to_files_directory ?: 'Not Provided'}"
     log.info "   - skip_upload: ${params.skip_upload}"
     log.info "   - allow_duplicates: ${params.allow_duplicates}"
     // Notify user if running in validation-only mode
@@ -114,10 +154,6 @@ workflow {
     if (params.token == null && params.skip_upload == false){
         startup_error_details.add("'token' was not provided, please provide the variable via the '--token' flag or in config.")
     }
-    // Removed in dev1.0.6
-    //if (params.path_to_files_directory == null){
-    //     startup_error_details.add("'path_to_files_directory' was not provided, please provide the variable via the '--path_to_files_directory' flag or in config.")
-    //}
 
     if (startup_error_details.size()!=0){
 System.err.println """
@@ -163,15 +199,7 @@ Please fix the above issues and re-run the workflow.
         params.sample_metadata ? channel.fromPath(params.sample_metadata) : [],
         params.path_to_files_directory ? channel.fromPath(params.path_to_files_directory) : []
     )
-    //
-    // SUBWORKFLOW: Run completion tasks
-    //
-    // PIPELINE_COMPLETION (
-    //     params.outdir,
-    //     params.monochrome_logs,
-        
-        
-    // )
+
 }
 
 /*
