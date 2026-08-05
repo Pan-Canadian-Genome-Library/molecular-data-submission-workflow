@@ -198,7 +198,7 @@ singularity --version
 ## Workflow Diagram
 
 <p align="center">
-    <img src="../assets/PCGL_Molecular_Data_Submission_Workflow-Diagram.png" alt="PCGL molecular data submission workflow diagram." width="800">
+    <img src="../assets/PCGL_Molecular_Data_Submission_Workflow.png" alt="PCGL molecular data submission workflow diagram." width="800">
 </p>
 
 ## Architecture Highlights
