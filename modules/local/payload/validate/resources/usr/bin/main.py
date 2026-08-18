@@ -56,20 +56,32 @@ def query_clinical_validator(url,value):
 
 def external_id_validate(payload,actual_schema,clinical_url):
     if "externalValidations" in actual_schema.keys():
+        query_total_response=[]
+        query_messages=[]
         for validation in actual_schema['externalValidations']:
             check_url=validation['url']
             check_item=validation['jsonPath']
             study_value=payload['studyId']
-            check_item_value=payload[check_item]
+            check_item_array=payload[check_item]
+            query_total_response=[]
+            query_messages=[]
+
             ###Expected : https://submission.ingress.dev.k8s.pcgl.dev-sd4h.ca/validator/entity/experiment/field/submitter_experiment_id/exists?study={study}&value={value}
-            query_url= "%s/%s" % (clinical_url,re.search(r'validator.*$',check_url)[0].replace("{study}",study_value).replace("{value}",check_item_value))
-            return(query_clinical_validator(query_url,check_item_value))
+            for check_item_value in check_item_array:
+                query_url= "%s/%s" % (clinical_url,re.search(r'validator.*$',check_url)[0].replace("{study}",study_value).replace("{value}",check_item_value))
+                query_response,query_message=query_clinical_validator(query_url,check_item_value)
+
+                if query_response==False:
+                    query_messages.append(query_message)
+
+        if len(query_messages)>0:
+            return(False,";".join(query_messages))
+        else:
+            return(True,None)
+
     else:
         ###Nothing to check
         return True,None
-
-    #print(payload)
-    #print(actual_schema)
 
 def filename_duplicates(payload):
 

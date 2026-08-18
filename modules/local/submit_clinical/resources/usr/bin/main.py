@@ -504,38 +504,84 @@ def return_submitted_data(
         if data.loc[ind,"analysisType"]=='sequenceExperiment':
             print("sequenceExperiment confirmed. Clinical data is needed for downstream molecular validation")
             ###Currently does not account for pagination
-            for primary_key,entity in zip(["submitter_experiment_id"],['read_group']):
-                response=query_registered_data(
-                    token,
-                    clinical_url,
-                    category_id,
-                    entity,
-                    data.loc[ind,"studyId"],
-                    primary_key,
-                    data.loc[ind,primary_key]
-                    )
-                
-                print(response.text)
-                if response.status_code!=404:
-                    output[entity]=pd.DataFrame()
+            for primary_key,entity in zip(["submitter_experiment_ids"],['read_group']):
+                output[entity]=pd.DataFrame()
+                if primary_key.endswith("_ids"):
+                    for primary_key_subset in data.loc[ind,primary_key].split("|"):
+                        print(
+                            token,
+                            clinical_url,
+                            category_id,
+                            entity,
+                            data.loc[ind,"studyId"],
+                            primary_key.replace("_ids","_id"),
+                            primary_key_subset    
+                        )
+                        response=query_registered_data(
+                            token,
+                            clinical_url,
+                            category_id,
+                            entity,
+                            data.loc[ind,"studyId"],
+                            primary_key.replace("_ids","_id"),
+                            primary_key_subset 
+                            )
 
-                for record in response.json()['records']:
-                    ind=len(output[entity])
-                    for key in record['data'].keys():
-                        output[entity].loc[ind,key]=record['data'][key]
+                        print(response.text)
+                        #if response.status_code!=404:
+                        #    output[entity]=pd.DataFrame()
+
+                        for record in response.json()['records']:
+                            ind=len(output[entity])
+                            for key in record['data'].keys():
+                                output[entity].loc[ind,key]=record['data'][key]
+                else:
+                    response=query_registered_data(
+                        token,
+                        clinical_url,
+                        category_id,
+                        entity,
+                        data.loc[ind,"studyId"],
+                        primary_key,
+                        data.loc[ind,primary_key]
+                        )
+                
+                    print(response.text)
+                    #if response.status_code!=404:
+                    #    output[entity]=pd.DataFrame()
+
+                    for record in response.json()['records']:
+                        ind=len(output[entity])
+                        for key in record['data'].keys():
+                            output[entity].loc[ind,key]=record['data'][key]
         else:
-            print("Verifying Dependency for analysis record %s is met" % data.loc[ind,"submitter_analysis_id"])
+            #print("Verifying Dependency for analysis record %s is met" % data.loc[ind,"submitter_analysis_ids"])
             ###Currently does not account for pagination
-            for primary_key,entity in zip(["submitter_experiment_id"],['experiment']):
-                response=query_registered_data(
-                    token,
-                    clinical_url,
-                    category_id,
-                    entity,
-                    data.loc[ind,"studyId"],
-                    primary_key,
-                    data.loc[ind,primary_key]
-                    )
+            for primary_key,entity in zip(["submitter_experiment_ids"],['experiment']):
+                if primary_key.endswith("_ids"):
+                    for primary_key_subset in data.loc[ind,primary_key].split("|"):
+                        print("Verifying Dependency for analysis record %s is met" % primary_key_subset )
+                        response=query_registered_data(
+                            token,
+                            clinical_url,
+                            category_id,
+                            entity,
+                            data.loc[ind,"studyId"],
+                            primary_key.replace("_ids","_id"),
+                            primary_key_subset 
+                            )
+                else:
+                    print("Verifying Dependency for analysis record %s is met" % data.loc[ind,primary_key])
+                    response=query_registered_data(
+                        token,
+                        clinical_url,
+                        category_id,
+                        entity,
+                        data.loc[ind,"studyId"],
+                        primary_key,
+                        data.loc[ind,primary_key]
+                        )
+                
                   
 
     if len(output.keys())>0:

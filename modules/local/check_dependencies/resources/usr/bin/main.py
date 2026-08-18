@@ -205,10 +205,12 @@ def check_analysis_types(file_manager_url,study_id):
                 if response.json()['schema']['properties'][required]["type"]=="string":
                     required_analysis_fields[analysis_type]['fields'][required]=[required]
                 elif response.json()['schema']['properties'][required]["type"]=="array":
-                    definitions=response.json()['schema']['properties'][required]['items']["$ref"].split("/")[1]
-                    parent=response.json()['schema']['properties'][required]['items']["$ref"].split("/")[2]
-                    root=response.json()['schema']['properties'][required]['items']["$ref"].split("/")[3]
-                    required_analysis_fields[analysis_type]['fields'][required]=response.json()['schema'][definitions][parent][root]['required']
+                    #print(response.json()['schema']['properties'][required])
+                    definitions=response.json()['schema']['properties'][required]['items']["$ref"].split("/")[1] if response.json()['schema']['properties'][required]['items'].get("$ref") else None
+                    parent=response.json()['schema']['properties'][required]['items']["$ref"].split("/")[2] if response.json()['schema']['properties'][required]['items'].get("$ref") else None
+                    root=response.json()['schema']['properties'][required]['items']["$ref"].split("/")[3] if response.json()['schema']['properties'][required]['items'].get("$ref") else None
+                    ##print(response.json()['schema'][definitions][parent][root]['required'])
+                    required_analysis_fields[analysis_type]['fields'][required]=response.json()['schema'][definitions][parent][root]['required'] if response.json()['schema']['properties'][required]['items'].get("$ref") else None
                 elif response.json()['schema']['properties'][required]["type"]=="object":
                     required_analysis_fields[analysis_type]['fields'][required]=response.json()['schema']['properties'][required]['required']
             elif response.json()['schema']['properties'][required].get('allOf'):

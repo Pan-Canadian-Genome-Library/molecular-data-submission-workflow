@@ -117,11 +117,19 @@ def map_analysis_dependencies(analyses,relational_mapping,data,debug):
             print("#5",relational_mapping.get("analysis").get("analysisTypes").get(analysisType).get("foreign").get("entity"))
             foreign_entity=relational_mapping.get("analysis").get("analysisTypes").get(analysisType).get("foreign").get("entity")
             foreign_key=relational_mapping.get("analysis").get("analysisTypes").get(analysisType).get("foreign").get("foreign")
-            foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key].values.tolist()
+            if foreign_key.endswith("_ids"):
+                print(analyses.get(analysis).get('analysis').get('data'))
+                foreign_values="|".join(analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key].values.tolist()).split("|")
+                foreign_key=foreign_key.replace("_ids","_id")
+            else:
+                foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key].values.tolist()
+
             if debug : print("#%s %s %s %s" % (analysisType,foreign_entity,foreign_key,foreign_values))
             analyses[analysis][foreign_entity]={}
             if foreign_entity in data.keys() and foreign_entity!='participant':
                 if debug : print("#map_analysis_dependenciesA")
+                print(analysis,foreign_entity,foreign_key)
+                print(foreign_values)
                 analyses[analysis][foreign_entity]['data']=data[foreign_entity].get('data').query("%s==@foreign_values" % foreign_key)
                 analyses[analysis][foreign_entity]['submitted']=True
             else:
@@ -139,6 +147,10 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
                 analysis_type=analyses.get(analysis).get(entity).get('data').loc[:,"analysisType"].values.tolist()[0]
                 foreign_entity=relational_mapping.get(entity).get("analysisTypes").get(analysis_type).get("foreign").get("entity")
                 foreign_key=relational_mapping.get(entity).get("analysisTypes").get(analysis_type).get("foreign").get("foreign")
+                foreign_values="|".join(analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key].values.tolist()).split("|")
+
+                #if foreign_key.endswith("_ids"):
+                #    foreign_key=foreign_key.replace("_ids","_id")
             else:
                 if debug : print("#map_biospecimen_entitiesB")
                 foreign_entity=relational_mapping.get(entity).get("foreign")[0].get("entity")
@@ -154,10 +166,15 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
                     foreign_values=analyses.get(analysis).get(entity).get('data').loc[:,foreign_key].values.tolist()
                     analyses[analysis][foreign_entity]={}
                     if foreign_entity in data.keys():
+                        if foreign_key.endswith("_ids"):
+                            foreign_key=foreign_key.replace("_ids","_id")
                         if debug : print("#map_biospecimen_entitiesCB")
                         analyses[analysis][foreign_entity]['data']=data[foreign_entity].get('data').query("%s==@foreign_values" % foreign_key)
+                        analyses[analysis][foreign_entity]['submitted']=True
                         analyses[analysis][foreign_entity]['submitted']=data.get(foreign_entity).get('submitted')
                     else:
+                        if foreign_key.endswith("_ids"):
+                            foreign_key=foreign_key.replace("_ids","_id")
                         if debug : print("#map_biospecimen_entitiesCC")
                         analyses[analysis][foreign_entity]['data']=pd.DataFrame(foreign_values if isinstance(foreign_values, list) else [foreign_values],columns=[foreign_key])
                         analyses[analysis][foreign_entity]['submitted']=False
