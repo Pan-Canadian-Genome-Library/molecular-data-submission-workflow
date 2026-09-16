@@ -9,24 +9,37 @@ import os
 from pathlib import Path
 import hashlib
 
-approved_data_types=[
-"Raw Sequencing Reads",
-"Aligned Reads",
-"Aligned Reads Index",
-"Single Nucleotide Variants (SNVs)",
-"Insertions and Deletions (InDels)",
-"Structural Variations (SVs)",
-"Copy Number Variations (CNVs)",
-"Variant Calls Index",
-"Quality Control Metrics",
-"Gene Fusions",
-"Alternative Splicing",
-"Gene Expression Quantification",
-"Transcript Expression Quantification",
-"Single-Cell Expression Matrices",
-"Splicing Junctions",
-"Differential Expression Analysis"
-]
+
+### Perhaps a better long term solution is needed. Currently cannot pull from schema b/c as a base field any definition given is overwritten. As such, even if we specify a enum list, it'll be overwrite. As such we'll track the logic here but note will continously need to update.
+
+approved_data_types={
+    "sequenceAlignment":[
+        "Aligned Reads",
+        "Aligned Reads Index",
+    ],
+    "sequenceExperiment":[
+        "Raw Sequencing Reads"
+    ],
+    "variantCall":[
+        "Single Nucleotide Variants (SNVs)",
+        "Insertions and Deletions (InDels)",
+        "Structural Variations (SVs)",
+        "Copy Number Variations (CNVs)",
+        "Variant Calls Index"
+    ]
+    # [
+    #     "Quality Control Metrics",
+    # ]
+    # [
+    #     "Gene Fusions",
+    #     "Alternative Splicing",
+    #     "Gene Expression Quantification",
+    #     "Transcript Expression Quantification",
+    #     "Single-Cell Expression Matrices",
+    #     "Splicing Junctions",
+    #     "Differential Expression Analysis"
+    # ]
+}
 
 def calculate_md5(file_path):
     """Calculate MD5 checksum of a file."""
@@ -119,7 +132,7 @@ def read_metadata_file(file_path):
     except Exception as e:
         print(f"Error reading metadata file {file_path}: {e}", file=sys.stderr)
         return []
-def verify_datatype(file_name,data_type_array,approved_data_types):
+def verify_datatype(file_name,data_type_array,approved_data_types,analysis_type):
     ### Sanity check, value present
     if data_type_array is None or data_type_array=='':
         print(f'ERROR: dataType value required in {file_name}.', file=sys.stderr)
@@ -130,12 +143,12 @@ def verify_datatype(file_name,data_type_array,approved_data_types):
         sys.exit(1)
     ### Check each value is approved
     for data_type in data_type_array.split("|"):
-        if data_type not in approved_data_types:
-            print(f'ERROR: dataType \'{data_type}\' for  {file_name} is not an approved dataType.', file=sys.stderr)
-            sys.exit(1)
+        if data_type not in approved_data_types[analysis_type]:
+            return(None,f'ERROR: dataType \'{data_type}\' for  {file_name} is not an approved dataType for analysis_type {analysis_type}.')
+            
     simplified_array=list(set(data_type_array.split("|")))
     simplified_array.sort()
-    return("|".join(simplified_array))
+    return("|".join(simplified_array),None)
 
 def main():
     parser = argparse.ArgumentParser(description='Generate JSON payload from metadata files (TSV or CSV format)')
@@ -180,6 +193,7 @@ def main():
     
     # Process files from file metadata (TSV or CSV format)
     files_info = []
+    err_msg_array=[]
     for file_row in file_data:
 
         file_name=file_row.get("fileName", None)
@@ -193,10 +207,11 @@ def main():
             print(f"Error: File {file_path} is missing")
             sys.exit(1)
 
+        data_type,err_msg=verify_datatype(file_name,file_row.get("dataType"),approved_data_types,args.analysis_type)
         file_info = {
             "fileName": file_name,
             "fileSize": verify_filesize(file_path,int(float(file_row.get("fileSize")))) if file_row.get("fileSize") else calculate_filesize(file_path),
-            "dataType": verify_datatype(file_name,file_row.get("dataType"),approved_data_types),
+            "dataType": data_type,
             "fileAccess": file_row.get("fileAccess", "controlled"),
             "fileMd5sum": verify_md5sum(file_path,file_row.get("fileMd5sum")) if file_row.get("fileMd5sum") else calculate_md5(file_path),
             "fileType": file_row.get("fileType", None)
@@ -206,6 +221,14 @@ def main():
             file_info['fileName']=re.findall(r'[^\\/]+$',file_info['fileName'])[0]
 
         files_info.append(file_info)
+
+        if err_msg!=None:
+            err_msg_array.append(err_msg)
+
+    if len(err_msg_array)>0:
+        for err_msg in err_msg_array:
+            print(err_msg, file=sys.stderr)
+        exit(1)
     
     # Create payload structure based on analysis type
     payload = {
