@@ -508,15 +508,14 @@ def return_submitted_data(
                 output[entity]=pd.DataFrame()
                 if primary_key.endswith("_ids"):
                     for primary_key_subset in data.loc[ind,primary_key].split("|"):
-                        print(
-                            token,
-                            clinical_url,
-                            category_id,
-                            entity,
-                            data.loc[ind,"studyId"],
-                            primary_key.replace("_ids","_id"),
-                            primary_key_subset    
-                        )
+                        # print(
+                        #     clinical_url,
+                        #     category_id,
+                        #     entity,
+                        #     data.loc[ind,"studyId"],
+                        #     primary_key.replace("_ids","_id"),
+                        #     primary_key_subset    
+                        # )
                         response=query_registered_data(
                             token,
                             clinical_url,

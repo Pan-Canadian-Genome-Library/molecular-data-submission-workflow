@@ -148,9 +148,8 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
                 foreign_entity=relational_mapping.get(entity).get("analysisTypes").get(analysis_type).get("foreign").get("entity")
                 foreign_key=relational_mapping.get(entity).get("analysisTypes").get(analysis_type).get("foreign").get("foreign")
                 foreign_values="|".join(analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key].values.tolist()).split("|")
-
-                #if foreign_key.endswith("_ids"):
                 #    foreign_key=foreign_key.replace("_ids","_id")
+ 
             else:
                 if debug : print("#map_biospecimen_entitiesB")
                 foreign_entity=relational_mapping.get(entity).get("foreign")[0].get("entity")
@@ -163,12 +162,12 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
                 #If experiment exists, use experiment to find sample
                 if analyses.get(analysis).get(entity).get('submitted') and foreign_entity!='participant':
                     if debug : print("#map_biospecimen_entitiesCA")
-                    foreign_values=analyses.get(analysis).get(entity).get('data').loc[:,foreign_key].values.tolist()
+
                     analyses[analysis][foreign_entity]={}
                     if foreign_entity in data.keys():
                         if foreign_key.endswith("_ids"):
                             foreign_key=foreign_key.replace("_ids","_id")
-                        if debug : print("#map_biospecimen_entitiesCB")
+                        if debug : print("#map_biospecimen_entitiesCB",foreign_values)
                         analyses[analysis][foreign_entity]['data']=data[foreign_entity].get('data').query("%s==@foreign_values" % foreign_key)
                         analyses[analysis][foreign_entity]['submitted']=True
                         analyses[analysis][foreign_entity]['submitted']=data.get(foreign_entity).get('submitted')
@@ -178,9 +177,7 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
                         if debug : print("#map_biospecimen_entitiesCC")
                         analyses[analysis][foreign_entity]['data']=pd.DataFrame(foreign_values if isinstance(foreign_values, list) else [foreign_values],columns=[foreign_key])
                         analyses[analysis][foreign_entity]['submitted']=False
-                # else:
-                #     analyses[analysis][foreign_entity]['data']=pd.DataFrame([foreign_values],columns=[foreign_key])
-                #     analyses[analysis][foreign_entity]['submitted']=False                   
+               
             elif analyses.get(analysis).get(foreign_entity):
                 if debug : print("#map_biospecimen_entitiesD")
                 #From the other end, if experiment exists, use experiment to find read_group

@@ -56,15 +56,12 @@ def query_clinical_validator(url,value):
 
 def external_id_validate(payload,actual_schema,clinical_url):
     if "externalValidations" in actual_schema.keys():
-        query_total_response=[]
         query_messages=[]
         for validation in actual_schema['externalValidations']:
             check_url=validation['url']
             check_item=validation['jsonPath']
             study_value=payload['studyId']
             check_item_array=payload[check_item]
-            query_total_response=[]
-            query_messages=[]
 
             ###Expected : https://submission.ingress.dev.k8s.pcgl.dev-sd4h.ca/validator/entity/experiment/field/submitter_experiment_id/exists?study={study}&value={value}
             for check_item_value in check_item_array:
