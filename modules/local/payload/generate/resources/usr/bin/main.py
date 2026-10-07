@@ -140,7 +140,12 @@ def verify_datatype(file_name,data_type_array,approved_data_types,analysis_type)
         sys.exit(1)
     ### Sanity check, at least one value present
     if len(data_type_array.split("|"))<1:
+
         print(f'ERROR: Atleast one dataType expected in {file_name}.', file=sys.stderr)
+        sys.exit(1)
+    ### Sanity check, Analysis Type exists
+    if analysis_type not in approved_data_types.keys():
+        print(f'ERROR: Analysis type {analysis_type} is not supported.', file=sys.stderr)
         sys.exit(1)
     ### Check each value is approved
     for data_type in data_type_array.split("|"):
@@ -173,8 +178,17 @@ def retrieve_data_types(file_manager_url,analysis_type,default_data_types):
         print(f'Using defaults')
         return(default_data_types) 
 
+
     try:
-        approved_data_types=response.json()['schema']['properties']['dataType']['enum']
+        if "schema" in response.json().keys():
+            print(f'analysis type "{analysis_type}" found.')
+        else:
+            print(f'analysis type "{analysis_type}" not found.')
+        if "dataType" in response.json()['schema']['properties'].keys():
+            print(f'DataType property found in analysis type "{analysis_type}".')
+        else:
+            print(f'DataType property not found in analysis type "{analysis_type}".')
+        return({analysis_type: response.json()['schema']['properties']['dataType']['enum']})
     except:
         print(f'Cannot find info to infer enums')
         print(f'Using defaults')
