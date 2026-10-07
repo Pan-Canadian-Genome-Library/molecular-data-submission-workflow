@@ -28,7 +28,6 @@ import minimist from 'minimist';
 // --url https://dictionary-manager.submission.genomelibrary.ca 
 // --directory . --study PCGLST0002
 
-
 //Declare user defined variables
 interface Args {
   url: string;
@@ -65,8 +64,78 @@ if (tsvFiles.length === 0){
   process.exit(0)
 }
 
-//Read TSVs from filePath, removing null values, and save under entity named after file
-const readTSV = (file: string): Promise<object[]> =>
+// Describes how a single field should be interpreted when read from a TSV
+interface FieldDef {
+  valueType: string;
+  isArray?: boolean;
+  delimiter?: string;
+}
+
+// entity/file name -> field name -> field definition
+type SchemaFieldMap = Record<string, Record<string, FieldDef>>;
+
+// Build a lookup of field datatypes per schema/entity from the fetched dictionary,
+// so TSV values can be coerced to the type declared in the dictionary rather than guessed.
+const buildSchemaFieldMap = (dictionaryResponse: typeof pcglDictionary): SchemaFieldMap => {
+  const schemaMap: SchemaFieldMap = {};
+
+  for (const schema of dictionaryResponse.data.schemas) {
+    const fieldMap: Record<string, FieldDef> = {};
+    for (const field of schema.fields) {
+      fieldMap[field.name] = {
+        valueType: field.valueType,
+        isArray: field.isArray,
+        delimiter: field.delimiter,
+      };
+    }
+    schemaMap[schema.name] = fieldMap;
+  }
+
+  return schemaMap;
+};
+
+// Coerce a single raw TSV string value into the type declared in the dictionary for that field.
+// If the field isn't in the dictionary (unknown column), leave it untouched as a string.
+const coerceValue = (raw: string, fieldDef?: FieldDef): unknown => {
+  if (!fieldDef) {
+    return raw;
+  }
+
+  const parseScalar = (value: string): unknown => {
+    switch (fieldDef.valueType) {
+      case 'integer': {
+        const parsed = parseInt(value, 10);
+        return isNaN(parsed) ? value : parsed;
+      }
+      case 'number': {
+        const parsed = Number(value);
+        return value.trim() !== '' && !isNaN(parsed) ? parsed : value;
+      }
+      case 'boolean': {
+        if (value.toLowerCase() === 'true') return true;
+        if (value.toLowerCase() === 'false') return false;
+        return value;
+      }
+      case 'string':
+      default:
+        return value;
+    }
+  };
+
+  if (fieldDef.isArray) {
+    const delimiter = fieldDef.delimiter ?? '|';
+    return raw
+      .split(delimiter)
+      .map((part) => part.trim())
+      .filter((part) => part !== '')
+      .map(parseScalar);
+  }
+
+  return parseScalar(raw);
+};
+
+//Read TSVs from filePath, removing null values, and coercing values per the dictionary's field datatypes
+const readTSV = (file: string, fieldMap: Record<string, FieldDef>): Promise<object[]> =>
   new Promise((resolve, reject) => {
     const records: object[] = [];
     fs.createReadStream(file)
@@ -75,10 +144,7 @@ const readTSV = (file: string): Promise<object[]> =>
         const filtered = Object.fromEntries(
           Object.entries(row)
             .filter(([_, v]) => v !== '' && v !== null && v !== undefined)
-            .map(([k, v]) => {
-              const num = Number(v);
-              return [k, !isNaN(num) && v !== '' ? num : v];
-            })
+            .map(([k, v]) => [k, coerceValue(String(v), fieldMap[k])])
         );
         records.push(filtered);
       })
@@ -86,14 +152,17 @@ const readTSV = (file: string): Promise<object[]> =>
       .on('error', reject);
   });
 
-// Iterate through list and read TSVs saving to object name
-const loadAllTSVs = async (files: string[]): Promise<Record<string, object[]>> => {
+// Iterate through list and read TSVs saving to object name, typing each column per its schema definition
+const loadAllTSVs = async (
+  files: string[],
+  schemaFieldMap: SchemaFieldMap
+): Promise<Record<string, object[]>> => {
   const result: Record<string, object[]> = {};
 
   await Promise.all(
     files.map(async (file) => {
       const name = path.basename(file, '.tsv');
-      result[name] = await readTSV(file);
+      result[name] = await readTSV(file, schemaFieldMap[name] ?? {});
     })
   );
 
@@ -107,7 +176,7 @@ const removeParticipantRestrictions = (response: typeof apiResponse) => {
     console.error('Response received:', JSON.stringify(response, null, 2));
     process.exit(1);
   }
-  
+
   return {
     ...response,
     data: {
@@ -156,8 +225,9 @@ const pcglDictionary = await lectern.rest.getDictionary(url, {
     version: dictionaryVersion,
 });
 
-//Load TSV data
-const data = await loadAllTSVs(tsvFiles);
+//Build a schema-name -> field-datatype map from the dictionary, then load TSV data typed accordingly
+const schemaFieldMap = buildSchemaFieldMap(pcglDictionary);
+const data = await loadAllTSVs(tsvFiles, schemaFieldMap);
 
 // If molecular suppress submitter participant ID restriction
 let updated_dictionary: unknown;
@@ -176,7 +246,17 @@ if (processingResult.valid){
     process.exit(0)
 } else {
     for (const detail in processingResult.details){
+      console.error(
+        JSON.stringify(
+          {
+             "error": processingResult.details[detail]['reason'],
+             "schemaName": processingResult.details[detail]['schemaName']
+          }
+        )
+      )
+
         for (const record in processingResult.details[detail].invalidRecords){
+
             for (const errorRecord in processingResult.details[detail].invalidRecords[record].recordErrors){
               console.error(
                   JSON.stringify(
@@ -194,6 +274,6 @@ if (processingResult.valid){
             }
         }
     }
-    console.log("Validation Failed")
+    console.log("Validation Failed!")
     process.exit(1);
 }
