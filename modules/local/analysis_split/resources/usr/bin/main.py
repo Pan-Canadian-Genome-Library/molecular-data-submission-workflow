@@ -139,9 +139,24 @@ def map_analysis_dependencies(analyses,relational_mapping,data,debug):
 
 def map_biospecimen_entities(analyses,relational_mapping,data,debug):
     print("Mapping biospecimens to analyses")
+
     for entity in ["analysis","experiment","sample","specimen","read_group"]:
-        if debug : print("#%s" % entity)
         for analysis in analyses:
+            analyses[analysis]["participant"]={}
+            analyses[analysis]["participant"]['data']=None
+            analyses[analysis]["participant"]['submitted']=False 
+
+            if entity in ['experiment','sample','specimen','read_group'] and data.get(entity,False)==False:
+                print("A1 Skipping %s retrieval for %s - no data from %s to map" % (relational_mapping.get(entity).get("foreign")[0].get("entity"),analysis,entity))
+                analyses[analysis][entity]={}
+                analyses[analysis][entity]['data']=pd.DataFrame()
+                analyses[analysis][entity]['submitted']=False
+                if relational_mapping.get(entity).get("foreign")[0].get("entity"):
+                    analyses[analysis][relational_mapping.get(entity).get("foreign")[0].get("entity")]={}
+                    analyses[analysis][relational_mapping.get(entity).get("foreign")[0].get("entity")]['data']=pd.DataFrame()
+                    analyses[analysis][relational_mapping.get(entity).get("foreign")[0].get("entity")]['submitted']=False
+                continue
+            if debug : print("Mapping #%s for analysis %s" % entity,analysis)
             if entity=='analysis':
                 if debug : print("#map_biospecimen_entitiesA1")
                 analysis_type=analyses.get(analysis).get(entity).get('data').loc[:,"analysisType"].values.tolist()[0]
@@ -150,8 +165,26 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
 
                 if foreign_key in analyses.get(analysis).get('analysis').get('data').columns.values.tolist():
                     foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key].values.tolist()
+
+                    tmp_array=[]
+                    for foreign_value in foreign_values:
+                        if "|" in foreign_value:
+                            for z in foreign_value.split("|"):
+                                tmp_array.append(z)
+                        else:
+                            tmp_array.append(foreign_value)
+                    foreign_values=tmp_array
                 elif foreign_key.replace("_id","_ids") in analyses.get(analysis).get('analysis').get('data').columns.values.tolist():
-                    foreign_values="|".join(analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key.replace("_id","_ids")].values.tolist()).split("|")
+                    #foreign_values="|".join(analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key.replace("_id","_ids")].values.tolist()).split("|")
+                    foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key.replace("_id","_ids")].values.tolist()
+                    tmp_array=[]
+                    for foreign_value in foreign_values:
+                        if "|" in foreign_value:
+                            for z in foreign_value.split("|"):
+                                tmp_array.append(z)
+                        else:
+                            tmp_array.append(foreign_value)
+                    foreign_values=tmp_array
             elif entity=='read_group':
                 if debug : print("#map_biospecimen_entitiesA2")
                 print(analyses.keys())
@@ -161,35 +194,86 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
 
                 if foreign_key in analyses.get(analysis).get('analysis').get('data').columns.values.tolist():
                     foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key].values.tolist()
+                    tmp_array=[]
+                    for foreign_value in foreign_values:
+                        if "|" in foreign_value:
+                            for z in foreign_value.split("|"):
+                                tmp_array.append(z)
+                        else:
+                            tmp_array.append(foreign_value)
+                    foreign_values=tmp_array
                 elif foreign_key.replace("_id","_ids") in analyses.get(analysis).get('analysis').get('data').columns.values.tolist():
-                    foreign_values="|".join(analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key.replace("_id","_ids")].values.tolist()).split("|")
+                    foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key.replace("_id","_ids")].values.tolist()
+                    tmp_array=[]
+                    for foreign_value in foreign_values:
+                        if "|" in foreign_value:
+                            for z in foreign_value.split("|"):
+                                tmp_array.append(z)
+                        else:
+                            tmp_array.append(foreign_value)
+                    foreign_values=tmp_array
                 print(entity,foreign_entity,foreign_key,foreign_values)
             else:
-                if debug : print("#map_biospecimen_entitiesB")
+                if debug : print("#map_biospecimen_entitiesA3")
                 foreign_entity=relational_mapping.get(entity).get("foreign")[0].get("entity")
                 foreign_key=relational_mapping.get(entity).get("foreign")[0].get("foreign")
                 print(entity,foreign_entity,foreign_key)
+                #print(analyses.get(analysis).get(entity))
 
-                if foreign_key in analyses.get(analysis).get('analysis').get('data').columns.values.tolist():
-                    foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key].values.tolist()
-                elif foreign_key.replace("_id","_ids") in analyses.get(analysis).get('analysis').get('data').columns.values.tolist():
-                    foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key.replace("_id","_ids")].values.tolist()
+                if entity!="experiment":
+                    if foreign_entity in analyses[analysis].keys() and foreign_entity!='participant':
+                        if analyses[analysis][foreign_entity]['data'].empty and analyses[analysis][foreign_entity]['submitted']==False: 
+                            print("A2 Skipping retrieval for %s - not enough prior data dependency to map" % (entity))
+                            analyses[analysis][entity]={}
+                            analyses[analysis][entity]['data']=pd.DataFrame()
+                            analyses[analysis][entity]['submitted']=False
+                            continue
+                #print(analyses[analysis][foreign_entity])
+                #print(analyses[analysis][entity])
+
+                print(entity,analysis,analyses)
+                if analyses[analysis][entity]['data'].empty and analyses[analysis][entity]['submitted']==False:
+                    continue
+                ###Submitted but previous dependency not provided. Unable to map
+
+
+                print(entity,analysis)
+                print(analyses[analysis][entity]['data'])
+                if foreign_key in analyses.get(analysis).get(entity).get('data').columns.values.tolist():
+                    foreign_values=analyses.get(analysis).get(entity).get('data').loc[:,foreign_key].values.tolist()
+
+                    tmp_array=[]
+                    for foreign_value in foreign_values:
+                        
+                        if "|" in foreign_value:
+                            for z in foreign_value.split("|"):
+                                tmp_array.append(z)
+                        else:
+                            tmp_array.append(foreign_value)
+                    foreign_values=tmp_array
+                elif foreign_key.replace("_id","_ids") in analyses.get(analysis).get(entity).get('data').columns.values.tolist():
+                    #foreign_values=analyses.get(analysis).get('analysis').get('data').loc[:,foreign_key.replace("_id","_ids")].values.tolist()
+                    foreign_values=analyses.get(analysis).get(entity).get('data').loc[:,foreign_key.replace("_id","_ids")].values.tolist()
+                    print("B")
+                    tmp_array=[]
+                    for foreign_value in foreign_values:
+                        if "|" in foreign_value:
+                            for z in foreign_value.split("|"):
+                                tmp_array.append(z)
+                        else:
+                            tmp_array.append(foreign_value)
+                    foreign_values=tmp_array
                 #else:
                 #    raise ValueError('Cannot find field %s in 
-
+            if debug : print("entity:",entity,"f_entity:",foreign_entity,"f_key:",foreign_key,"f_values:",foreign_values)
             ###Only check if biospecimen records are local
             #print(analyses.get(analysis))
-            if debug : print("#%s %s" % (foreign_entity,foreign_key))
-            print(foreign_entity,foreign_key)
+
             if analyses.get(analysis).get(entity):
-                print(analyses[analysis])
                 if debug : print("#map_biospecimen_entitiesC")
-                print("#map_biospecimen_entitiesC")
                 #If experiment exists, use experiment to find sample
                 if analyses.get(analysis).get(entity).get('submitted') and foreign_entity!='participant':
                     if debug : print("#map_biospecimen_entitiesCA")
-
-
                     analyses[analysis][foreign_entity]={}
                     if foreign_entity in data.keys():
                         if foreign_key.endswith("_ids"):
@@ -197,7 +281,6 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
                         if debug : print("#map_biospecimen_entitiesCB",foreign_values)
                         print("#map_biospecimen_entitiesCB",foreign_values)
                         analyses[analysis][foreign_entity]['data']=data[foreign_entity].get('data').query("%s==@foreign_values" % foreign_key)
-                        analyses[analysis][foreign_entity]['submitted']=True
                         analyses[analysis][foreign_entity]['submitted']=data.get(foreign_entity).get('submitted')
                     else:
                         if foreign_key.endswith("_ids"):
@@ -205,18 +288,18 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
                         if debug : print("#map_biospecimen_entitiesCC")
                         analyses[analysis][foreign_entity]['data']=pd.DataFrame(foreign_values if isinstance(foreign_values, list) else [foreign_values],columns=[foreign_key])
                         analyses[analysis][foreign_entity]['submitted']=False
-               
             elif analyses.get(analysis).get(foreign_entity):
                 if debug : print("#map_biospecimen_entitiesD")
                 #From the other end, if experiment exists, use experiment to find read_group
-                if analyses.get(analysis).get(foreign_entity).get('submitted') and foreign_entity!='participant':
+                if foreign_entity!='participant':
                     if debug : print("#map_biospecimen_entitiesDA")
-                    foreign_values=analyses.get(analysis).get(foreign_entity).get('data').loc[:,foreign_key].values.tolist()
+                    #foreign_values=analyses.get(analysis).get(foreign_entity).get('data').loc[:,foreign_key].values.tolist()
                     analyses[analysis][entity]={}
                     if data.get(entity):
                         if debug : print("#map_biospecimen_entitiesDB")
                         if data.get(entity).get('submitted'):
                             if debug : print("#map_biospecimen_entitiesDBA")
+                            print(data[entity].get('data'))
                             analyses[analysis][entity]['data']=data[entity].get('data').query("%s==@foreign_values" % foreign_key)
                             analyses[analysis][entity]['submitted']=True
                         else:
@@ -230,6 +313,7 @@ def map_biospecimen_entities(analyses,relational_mapping,data,debug):
             else:
                 if debug : print("#map_biospecimen_entitiesE")
                 print("Nothing to map for entity %s in analysis %s" % (entity,analysis))
+    
 
 def map_files(analyses,relational_mapping,data,debug,data_directory):
     print("Mapping files to analyses")
@@ -260,10 +344,13 @@ def map_workflows(analyses,relational_mapping,data,debug):
         for analysis_type in analysis_types:
             if debug : print("#%s %s" % (analysis,analysis_type))
             if analysis_type in relational_mapping.get(entity).get('analysisTypes').keys():
+                if debug : print("mapping workflow for #%s %s" % (analysis,analysis_type))
                 analyses[analysis][entity]={}
                 if entity in data:
                     analyses[analysis][entity]['data']=data[entity].get('data').query("submitter_analysis_id==@analysis")
                     analyses[analysis][entity]['submitted']=True
+            else:
+                if debug : print("workflow is not appropriate for #%s %s" % (analysis,analysis_type))
 
 def save_outputs(analyses,output_directory,debug):       
     print("Saving analysis specific TSVs and status.yml")
