@@ -422,9 +422,9 @@ def main(args):
             else:
                 raise ValueError(f"Unsupported file format for '{metadata}'. File must have a '.csv' or '.tsv' suffix.")
             ###Assume all columns a strings. 
-            data[key]['data']=pd.read_csv(metadata,sep=sep,index_col=False)
-            for col in data[key]['data'].columns.values.tolist():
-                data[key]['data'][col]=data[key]['data'][col].astype('str')
+            data[key]['data']=pd.read_csv(metadata,sep=sep,index_col=False,dtype=str,keep_default_na=False)
+            #for col in data[key]['data'].columns.values.tolist():
+            #    data[key]['data'][col]=data[key]['data'][col].astype('str')
             data[key]['submitted']=True
    
     if args.debug:
