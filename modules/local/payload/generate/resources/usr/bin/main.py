@@ -184,8 +184,10 @@ def main():
     # Add analysis metadata fields from TSV data
     if "data_category" in analysis_metadata:
         payload["data_category"] = analysis_metadata["data_category"]
-    if "submitter_experiment_id" in analysis_metadata:
-        payload["submitter_experiment_id"] = analysis_metadata["submitter_experiment_id"]
+    if "submitter_experiment_ids" in analysis_metadata:
+        payload["submitter_experiment_ids"]=[]
+        for submitter_id in analysis_metadata["submitter_experiment_ids"].split("|"):
+            payload["submitter_experiment_ids"].append(submitter_id)
     
     # Add fields specific to analysis type
     if args.analysis_type == "sequenceExperiment":
