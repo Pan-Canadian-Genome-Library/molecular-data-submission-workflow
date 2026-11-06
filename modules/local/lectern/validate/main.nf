@@ -42,7 +42,7 @@ process LECTERN_VALIDATE {
         # Run main.py once and capture both exit code and error output
         app.ts \
         --url ${params.dictionary_manager_url} \
-        --dictionary 'dev_test_1.1' \
+        --dictionary '${meta.study} pcgl schema' \
         --tsv \
         ${specimen_file} \
         ${sample_file} \
