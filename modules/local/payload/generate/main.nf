@@ -67,6 +67,7 @@ process PAYLOAD_GENERATE {
             --analysis-meta "${analysis_meta}" \
             ${workflow_meta_arg} \
             --data-files ${data_files} \
+            --url ${params.file_manager_url} \
             --output "${prefix}_payload.json" 2>generation_errors.tmp
 
         GENERATION_EXIT_CODE=\$?
